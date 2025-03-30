@@ -1,0 +1,6 @@
+name: FableCraft
+version: '1.0-SNAPSHOT'
+main: org.zycong.fableCraft.FableCraft
+api-version: '1.21'
+authors: [ zycong ]
+description: Dungeon generator plugin
