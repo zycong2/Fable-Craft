@@ -26,15 +26,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.zycong.fableCraft.FableCraft;
+import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.yamlManager;
 
 public class mainListeners implements Listener {
     Inventory menu;
     public static Inventory itemDB;
-
-    public listeners() {
-    }
 
     @EventHandler
     void onJoin(PlayerJoinEvent event) {
@@ -191,7 +189,7 @@ public class mainListeners implements Listener {
         }
     }
 
-    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(stats.getPlayerPDC("Health", event.getPlayer()))));}
+    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", event.getPlayer()))));}
     @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlManager.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
     @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
     @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && (boolean) yamlManager.getConfig("food.removeHunger", null, true)) { event.setCancelled(true); }}
@@ -203,7 +201,7 @@ public class mainListeners implements Listener {
         if (!event.getOldItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, event.getOldItem()) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(stats.getItemPDC(s, event.getOldItem()))));}
+                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, event.getOldItem()))));}
 
                 }
             }
@@ -212,7 +210,7 @@ public class mainListeners implements Listener {
         if (!event.getNewItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, event.getNewItem()) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(stats.getItemPDC(s, event.getNewItem())))); }
+                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, event.getNewItem())))); }
                 }
             }
         }
@@ -230,7 +228,7 @@ public class mainListeners implements Listener {
         if (oldItem != null) { if (!oldItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, oldItem) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(stats.getItemPDC(s, oldItem))));}
+                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, oldItem))));}
                 }
             }
         } }
@@ -238,7 +236,7 @@ public class mainListeners implements Listener {
         if (newItem != null) { if (!newItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, newItem) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(stats.getItemPDC(s, newItem)))); }
+                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, newItem)))); }
                 }
             }
         }

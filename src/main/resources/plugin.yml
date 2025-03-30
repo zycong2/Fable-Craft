@@ -3,4 +3,26 @@ version: '1.0-SNAPSHOT'
 main: org.zycong.fableCraft.FableCraft
 api-version: '1.21'
 authors: [ zycong ]
-description: Dungeon generator plugin
+description: RPG style plugin.
+
+commands:
+  itemDB:
+    description: Manage the custom items in this server.
+    permission: FableCraft.itemDB
+    aliases:
+      - idb
+  resetStats:
+    description: Reset the stats of the specified player.
+    permission: FableCraft.resetStats
+    aliases:
+      - rs
+  buildHelper:
+    description: Some tools for building
+    permission: FableCraft.build
+    aliases:
+      - bh
+  mobs:
+    description: Manage the custom mobs.
+    permission: FableCraft.mobs
+    aliases:
+      - m

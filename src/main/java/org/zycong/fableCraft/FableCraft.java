@@ -15,11 +15,14 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.zycong.fableCraft.commands.buildHelper;
 import org.zycong.fableCraft.commands.itemDB;
 import org.zycong.fableCraft.commands.mobs;
+import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.yamlManager;
 import org.zycong.fableCraft.listeners.mainListeners;
+import org.zycong.fableCraft.listeners.skills;
 
 
 public final class FableCraft extends JavaPlugin {
@@ -27,7 +30,7 @@ public final class FableCraft extends JavaPlugin {
     public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
     public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-    public static List<String> yamlFiles = List.of("data", "messages", "config", "item", "mob", "lootTables", "skills");
+    public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills");
     public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
 
     public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("FableCraft"); }
@@ -35,17 +38,17 @@ public final class FableCraft extends JavaPlugin {
     public void onEnable() {
 
         this.getCommand("itemDB").setExecutor(new itemDB());
-        this.getCommand("resetStats").setExecutor(new resetStats());
-        this.getCommand("resetStats").setTabCompleter(new resetStatsTC());
+        this.getCommand("resetStats").setExecutor(new stats());
+        this.getCommand("resetStats").setTabCompleter(new stats());
         this.getCommand("buildHelper").setExecutor(new buildHelper());
-        this.getCommand("buildHelper").setTabCompleter(new buildHelperTC());
+        this.getCommand("buildHelper").setTabCompleter(new buildHelper());
         this.getCommand("mobs").setExecutor(new mobs());
         this.getCommand("mobs").setTabCompleter(new mobs());
 
         Bukkit.getPluginManager().registerEvents(new mainListeners(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new buildListeners(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new buildHelper(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new mobs(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new skillsListeners(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new skills(), getPlugin());
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {

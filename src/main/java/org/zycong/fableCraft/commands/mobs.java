@@ -57,10 +57,17 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (args.length == 1){
+            return List.of("spawn", "killAll", "reload");
+        } if (args.length == 2 && args[0].equals("spawn")){
+            List<Object> o =  yamlManager.getNodes("mobDB", "");
+            List<String> completion = new java.util.ArrayList<>(List.of());
+            for (Object v : o){ completion.add(v.toString()); }
+            return completion;
+
+        }
         return List.of();
     }
-
-
 
     public static LivingEntity getEntity(String name, Location p){
         EntityType entityType = EntityType.valueOf((String) getFileConfig("mobDB").get(name + ".type"));
