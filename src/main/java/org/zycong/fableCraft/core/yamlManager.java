@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -27,6 +26,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 import org.zycong.fableCraft.FableCraft;
+
 
 public class yamlManager {
     public static FileConfiguration fileConfig;
@@ -87,10 +87,14 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.error.noPermission", "&cYou don't have permission to execute this command!");
         getFileConfig("messages").addDefault("messages.error.noValidArgument", "&cInvalid arguments!");
         getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
+        getFileConfig("messages").addDefault("messages.error.questAlreadyStarted", "&cYou already activated this quest!");
+        getFileConfig("messages").addDefault("messages.error.questNotStarted", "&cYou don't have a quest active with this name!");
         getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of #target#!");
         getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
         getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");
         getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
+        getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
+        getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -175,10 +179,22 @@ public class yamlManager {
         getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
         getFileConfig("lootTables").setInlineComments("spiderDrops.items", List.of("First number: minimal amount of item (default 1)", "Second number: maximal amount of item", "Third number: weight of the item (default 1)"));
 
+        getFileConfig("lootTables").addDefault("quest1.maxItems", 10);
+        getFileConfig("lootTables").addDefault("quest1.minItems", 1);
+        getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
+
         getFileConfig("lootTables").options().copyDefaults(true);
 
         getFileConfig("data").addDefault("customMobs", List.of());
         getFileConfig("data").options().copyDefaults(true);
+
+        getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
+        getFileConfig("quests").addDefault("quest1.steps.amount", 1);
+        getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
+        getFileConfig("quests").addDefault("quest1.steps.1.value", 10);
+        getFileConfig("quests").addDefault("quest1.steps.1.entity", "spider");
+        getFileConfig("quests").addDefault("quest1.reward", "quest1");
+        getFileConfig("quests").options().copyDefaults(true);
 
         saveData();
         return true;

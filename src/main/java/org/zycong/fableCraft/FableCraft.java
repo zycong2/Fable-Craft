@@ -29,7 +29,7 @@ public final class FableCraft extends JavaPlugin {
     public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
     public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-    public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills");
+    public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests");
     public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
 
     public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("FableCraft"); }
