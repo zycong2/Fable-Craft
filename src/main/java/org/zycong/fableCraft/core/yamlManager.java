@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -22,6 +25,7 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.jetbrains.annotations.NotNull;
 import org.zycong.fableCraft.FableCraft;
 
 public class yamlManager {
@@ -368,7 +372,7 @@ public class yamlManager {
         }
     }
 
-    public static String setPlaceholders(String s, boolean round, Player target){
+    public static @NotNull Component setPlaceholders(String s, boolean round, Player target){
         String[] msgs = s.split("#", 0);
         int count = 0;
 
@@ -414,7 +418,7 @@ public class yamlManager {
         finalMsg = finalMsg.replaceAll(",", "");
         finalMsg = finalMsg.replace("[", "");
         finalMsg = finalMsg.replace("]", "");
-        return ChatColor.translateAlternateColorCodes('&', finalMsg);
+        return MiniMessage.miniMessage().deserialize(finalMsg);
     } public static String setPlaceholders(String s, boolean round, Entity target){
         String[] msgs = s.split("#", 0);
         LivingEntity e = (LivingEntity) target;
