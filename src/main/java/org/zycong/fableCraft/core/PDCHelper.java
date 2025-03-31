@@ -46,4 +46,22 @@ public class PDCHelper {
         PersistentDataContainer container = p.getPersistentDataContainer();
         return container.get(key, PersistentDataType.STRING);
     }
+
+
+    public static void setBlockPDC(String keyString, Block block, String data) {
+        NamespacedKey key = new NamespacedKey(FableCraft.getPlugin(), keyString);
+        if (block.getState() instanceof Chest chest) {
+            chest.getPersistentDataContainer().set(key, PersistentDataType.STRING, data);
+            chest.update();
+        }
+    }
+
+    public static String getBlockPDC(String keyString, Block block) {
+        NamespacedKey key = new NamespacedKey(FableCraft.getPlugin(), keyString);
+        if (block.getState() instanceof Chest chest) {
+            PersistentDataContainer container = chest.getPersistentDataContainer();
+            return container.get(key, PersistentDataType.STRING);
+        }
+        return null;
+    }
 }

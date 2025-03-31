@@ -86,6 +86,7 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.error.noPermissionCraft", "&cYou don't have permission to make this item!");
         getFileConfig("messages").addDefault("messages.error.noPermission", "&cYou don't have permission to execute this command!");
         getFileConfig("messages").addDefault("messages.error.noValidArgument", "&cInvalid arguments!");
+        getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
         getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of #target#!");
         getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
         getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");

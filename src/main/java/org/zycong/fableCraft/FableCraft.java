@@ -2,7 +2,6 @@ package org.zycong.fableCraft;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,16 +12,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.zycong.fableCraft.commands.buildHelper;
 import org.zycong.fableCraft.commands.itemDB;
 import org.zycong.fableCraft.commands.mobs;
 import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.PDCHelper;
+import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
 import org.zycong.fableCraft.listeners.mainListeners;
 import org.zycong.fableCraft.listeners.skills;
+
 
 
 public final class FableCraft extends JavaPlugin {
@@ -49,6 +49,7 @@ public final class FableCraft extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new buildHelper(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new mobs(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new skills(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new lootTableHelper(), getPlugin());
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
