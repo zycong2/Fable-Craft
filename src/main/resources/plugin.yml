@@ -26,3 +26,8 @@ commands:
     permission: FableCraft.mobs
     aliases:
       - m
+  lootTables:
+    description: Manage the loot tables for chests.
+    permission: FableCraft.lootTables
+    aliases:
+      - lt

@@ -24,7 +24,6 @@ import org.zycong.fableCraft.listeners.mainListeners;
 import org.zycong.fableCraft.listeners.skills;
 
 
-
 public final class FableCraft extends JavaPlugin {
     public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence");
     public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
@@ -44,12 +43,14 @@ public final class FableCraft extends JavaPlugin {
         this.getCommand("buildHelper").setTabCompleter(new buildHelper());
         this.getCommand("mobs").setExecutor(new mobs());
         this.getCommand("mobs").setTabCompleter(new mobs());
+        this.getCommand("lootTables").setExecutor(new lootTableHelper());
+        this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
 
         Bukkit.getPluginManager().registerEvents(new mainListeners(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new buildHelper(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new mobs(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new skills(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new lootTableHelper(), getPlugin());
+        Buukit.getPluginManager().registerEvents(new lootTableHelper(), getPlugin());
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
