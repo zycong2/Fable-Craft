@@ -18,10 +18,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.zycong.fableCraft.core.yamlManager;
 
 
-public class lootTableHelper implements Listener, CommandExecutor, TabCompleter {
+public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
@@ -64,8 +63,8 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter 
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        return List.of("addLootTable", "removeLootTable", "getLootTable");
-    }
+            return List.of("addLootTable", "removeLootTable", "getLootTable");
+        }
     
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){

@@ -41,6 +41,12 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+jar {
+    from('src/main/resources') {
+        include 'plugin.yml'
+    }
+}
+
 processResources {
     def props = [version: version]
     inputs.properties props
