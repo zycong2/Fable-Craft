@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -53,25 +54,25 @@ public class mainListeners implements Listener {
             event.setJoinMessage((String)yamlManager.getConfig("messages.firstJoinMessage", p, true));
         }
 
-        String[] skills = yamlManager.getNodes("config", "stats").toArray(new String[0]);
+        String[] skills = getNodes("config", "stats").toArray(new String[0]);
 
         for(String skill : skills) {
-            if (PDCHelper.getPlayerPDC(skill, p) == null) {
-                PDCHelper.setPlayerPDC(skill, p, String.valueOf(yamlManager.getConfig("stats." + skill + ".default", p, true)));
+            if (getPlayerPDC(skill, p) == null) {
+                setPlayerPDC(skill, p, String.valueOf(yamlManager.getConfig("stats." + skill + ".default", p, true)));
             }
         }
 
-        if (PDCHelper.getPlayerPDC("currentHealth", p) == null) {
+        if (getPlayerPDC("currentHealth", p) == null) {
             p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), yamlManager.getConfig("stats.Health.default", p, true).toString()));
-            PDCHelper.setPlayerPDC("Health", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
+            setPlayerPDC("Health", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
         } else {
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), PDCHelper.getPlayerPDC("currentHealth", p)));
+            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), getPlayerPDC("currentHealth", p)));
         }
-        if (PDCHelper.getPlayerPDC("currentMana", p) == null) {
+        if (getPlayerPDC("currentMana", p) == null) {
             p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), yamlManager.getConfig("stats.Mana.default", p, true).toString()));
-            PDCHelper.setPlayerPDC("Mana", p, yamlManager.getConfig("stats.Mana.default", p, true).toString());
+            setPlayerPDC("Mana", p, yamlManager.getConfig("stats.Mana.default", p, true).toString());
         } else {
-            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), PDCHelper.getPlayerPDC("currentMana", p)));
+            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), getPlayerPDC("currentMana", p)));
         }
 
         stats.checkCurrentStats(p);
@@ -83,9 +84,9 @@ public class mainListeners implements Listener {
         Player p = event.getPlayer();
         event.setQuitMessage((String)yamlManager.getConfig("messages.quitMessage", p, true));
         if (p.hasMetadata("currentHealth")) {
-            PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(((MetadataValue)p.getMetadata("currentHealth").getFirst()).asInt()));
+            setPlayerPDC("currentHealth", p, String.valueOf(((MetadataValue)p.getMetadata("currentHealth").getFirst()).asInt()));
         } else {
-            PDCHelper.setPlayerPDC("currentHealth", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
+            setPlayerPDC("currentHealth", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
         }
 
     }
@@ -94,12 +95,12 @@ public class mainListeners implements Listener {
     void onInteraction(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_AIR && Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
             this.menu = Bukkit.createInventory(event.getPlayer(), 45, "Menu");
-            String[] skills = yamlManager.getNodes("config", "stats").toArray(new String[0]);
+            String[] skills = getNodes("config", "stats").toArray(new String[0]);
             String[] formatedSkills = new String[skills.length];
 
             for(int i = 0; i < skills.length; ++i) {
                 String var10002 = String.valueOf(yamlManager.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-                formatedSkills[i] = var10002 + " " + PDCHelper.getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i];
+                formatedSkills[i] = var10002 + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i];
             }
 
             this.menu.setItem(4, FableCraft.createGuiHead(event.getPlayer(), "Profile", formatedSkills));
@@ -195,20 +196,37 @@ public class mainListeners implements Listener {
     @EventHandler
     void ChatEvent(AsyncChatEvent e){
         Player p = e.getPlayer();
+        String message = Colorize(e.message().toString());
         if (getPlayerPDC("ItemEditorUsing", p).equals(null) || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
 
         e.setCancelled(true);
 
         if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
-            String newName = Colorize(e.message().toString());
-            getFileConfig("itemDB").set(itemKey + ".name", newName);
-            p.sendMessage(Colorize("&aItem renamed to:&r " + newName));
-        }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
+            getFileConfig("itemDB").set(itemKey + ".name", message);
+            p.sendMessage(Colorize("&aItem renamed to:&r " + message));
+            setPlayerPDC("ItemEditorUsing", p, null);
+        }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
+            String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
-            String newName = Colorize(e.message().toString());
-            getFileConfig("itemDB").set(itemKey + ".name", newName);
-            p.sendMessage(Colorize("&aItem renamed to:&r " + newName));
+            int linenumber = 0;
+            try {
+                if (message.contains(" ")) {p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.noSpace"));}
+                linenumber = Integer.parseInt(e.message().toString());
+            } catch (NumberFormatException er) {
+                p.sendMessage(Colorize("&cInvalid Number"));
+            }
+            setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
+            setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
+            p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info2"));
+        }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore2")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
+            if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
+            List<String> itemLore = getFileConfig("itemDB").getStringList(itemKey + ".lore");
+            Integer lineNumber = Integer.parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p));
+            itemLore.set(lineNumber-1, message);
+            getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
+            setPlayerPDC("ItemEditorUsing", p, null);
+            p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.success"));
         }
 
         try {
@@ -216,7 +234,6 @@ public class mainListeners implements Listener {
         } catch (IOException ignored) {
 
         }
-        setPlayerPDC("ItemEditorUsing", p, null);
     }
 
     private String getItemKey(ItemStack item) {
@@ -265,20 +282,20 @@ public class mainListeners implements Listener {
     void onDamage(EntityDamageEvent event) {
         if (event.getEntityType().equals(EntityType.PLAYER)) {
             Player p = (Player)event.getEntity();
-            double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+            double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));
             double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-            double playerDefense = Double.parseDouble(PDCHelper.getPlayerPDC("Defence", p));
+            double playerDefense = Double.parseDouble(getPlayerPDC("Defence", p));
             double damage = event.getDamage() - playerDefense * (double)10.0F;
             currentHealth -= damage;
             p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), currentHealth));
             double scaledHealth = (double)20.0F / maxPlayerHealth * damage;
             event.setDamage(Math.abs(scaledHealth));
         } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
-            event.setDamage(event.getDamage() + Double.valueOf(PDCHelper.getPlayerPDC("Damage", p)));
+            event.setDamage(event.getDamage() + Double.valueOf(getPlayerPDC("Damage", p)));
         }
     }
 
-    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", event.getPlayer()))));}
+    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));}
     @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlManager.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
     @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
     @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && (boolean) yamlManager.getConfig("food.removeHunger", null, true)) { event.setCancelled(true); }}
@@ -290,7 +307,7 @@ public class mainListeners implements Listener {
         if (!event.getOldItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, event.getOldItem()) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, event.getOldItem()))));}
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, event.getOldItem()))));}
 
                 }
             }
@@ -299,7 +316,7 @@ public class mainListeners implements Listener {
         if (!event.getNewItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, event.getNewItem()) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, event.getNewItem())))); }
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, event.getNewItem())))); }
                 }
             }
         }
@@ -317,7 +334,7 @@ public class mainListeners implements Listener {
         if (oldItem != null) { if (!oldItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, oldItem) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, oldItem))));}
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, oldItem))));}
                 }
             }
         } }
@@ -325,7 +342,7 @@ public class mainListeners implements Listener {
         if (newItem != null) { if (!newItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
                 if (PDCHelper.getItemPDC(s, newItem) != null) {
-                    if (PDCHelper.getPlayerPDC(s, p) != null) { PDCHelper.setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, newItem)))); }
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, newItem)))); }
                 }
             }
         }

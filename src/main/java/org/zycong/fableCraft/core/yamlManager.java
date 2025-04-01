@@ -106,8 +106,10 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.fail", "&cYou unsuccessfully set the lore of this item!");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
-        getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line");
-        getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change enter then the change");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
+        getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
