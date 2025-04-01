@@ -4,11 +4,16 @@ import java.util.List;
 import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.zycong.fableCraft.core.yamlManager;
 
 
-public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
+public class lootTableHelper implements Listener, CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
@@ -60,7 +65,6 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
             return List.of("addLootTable", "removeLootTable", "getLootTable");
-;
         }
     
     @EventHandler
@@ -77,14 +81,14 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
     }
 
     
-    public Inventory getLootTable(Player p, String lootTableName) {
+    public static Inventory getLootTable(Player p, String lootTableName) {
         Inventory inv = Bukkit.createInventory(p, 27);
 
         List<ItemStack> items = getLootTable(lootTableName);
         for (ItemStack item : items) {
-            int index = new Random.nextInt(inv.getSize());
+            int index = new Random().nextInt(inv.getSize());
             while(inv.getItem(index) != null){
-                index = new Random.nextInt(inv.getSize());
+                index = new Random().nextInt(inv.getSize());
             }
             inv.setItem(index, item);
         }
