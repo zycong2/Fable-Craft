@@ -65,6 +65,18 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
               PDCHelper.setPlayerPDC(quest + ".step", killer, PDCHelper.getPlayerPDC(quest + ".step", killer) + 1);
               if (PDCHelper.getPlayerPDC(quest + ".step", killer) > yamlManager.getOption("quests", quest + ".steps.amount")){
                 killer.sendMessage(yamlManager.getConfig("messages.info.quests.completed", killer, true).toString());
+                if (yamlManager.getOption("quests", quest + ".rewards") != null){
+                  if (yamlManager.getOption("quests", quest + ".rewards") instanceof String){
+                    List<ItemStack> rewards = lootTableHelper.getLootTable(yamlManager.getOption("quests", quest + ".rewards").toString());
+                    killer.getInventory().addItem(rewards);
+                  } else if (yamllManager.getOption("quests", quest + ".rewards") instanceof List){
+                    for (String s : yamlManager.getOption("quests", quest + ".rewards")){
+                      if (s instanceof ItemStack){
+                        killer.getInventory().addItem(s);
+                      }
+                    }
+                  }
+                }
                 
               } else{
                 PDCHelper.setPlayerPDC(quest + ".progress", killer, 0);
