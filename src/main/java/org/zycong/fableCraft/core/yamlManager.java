@@ -95,6 +95,7 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
         getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
         getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
+        getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
