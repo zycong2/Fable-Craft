@@ -41,11 +41,11 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
-jar {
+/*jar {
     from('src/main/resources') {
         include 'plugin.yml'
     }
-}
+}*/
 
 processResources {
     def props = [version: version]
