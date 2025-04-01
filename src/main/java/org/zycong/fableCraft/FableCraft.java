@@ -2,6 +2,9 @@ package org.zycong.fableCraft;
 
 import java.util.Arrays;
 import java.util.List;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -113,4 +116,6 @@ public final class FableCraft extends JavaPlugin {
         item.setItemMeta(skullMeta);
         return item;
     }
+
+    public static String Colorize(String input){return PlainTextComponentSerializer.plainText().serialize(MiniMessage.miniMessage().deserialize(input));}
 }

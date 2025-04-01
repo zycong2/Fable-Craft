@@ -3,6 +3,8 @@ package org.zycong.fableCraft.listeners;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import java.util.List;
 import java.util.Objects;
+
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -29,6 +31,12 @@ import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.yamlManager;
+
+import static org.zycong.fableCraft.FableCraft.Colorize;
+import static org.zycong.fableCraft.core.PDCHelper.getPlayerPDC;
+import static org.zycong.fableCraft.core.PDCHelper.setPlayerPDC;
+import static org.zycong.fableCraft.core.yamlManager.getFileConfig;
+import static org.zycong.fableCraft.core.yamlManager.getNodes;
 
 public class mainListeners implements Listener {
     Inventory menu;
@@ -136,10 +144,42 @@ public class mainListeners implements Listener {
                 p.setMetadata("itemDBPage", new FixedMetadataValue(FableCraft.getPlugin(), page));
                 p.openInventory(itemDB);
             } else if (!Objects.equals(event.getCurrentItem(), ItemStack.of(Material.AIR))) {
-                p.getInventory().addItem(event.getCurrentItem());
+                p.closeInventory();
+                Inventory Itemedit = makeItemEditor(event.getCurrentItem());
+                setPlayerPDC("ItemEditorUsing", p, "GUI");
+                p.openInventory(Itemedit);
             }
+        } else if (getPlayerPDC("ItemEditorUsing", p) == "GUI"){
+            int slot = event.getRawSlot();
+            if(slot == 4){p.getInventory().addItem(event.getCurrentItem());}
+            if(slot == 9){p.closeInventory(); p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.rename.info")); setPlayerPDC("ItemEditorUsing", p, "Chat-name");}
+            if(slot == 10){p.closeInventory(); p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info")); setPlayerPDC("ItemEditorUsing", p, "Chat-lore");}
         }
 
+    }
+
+    private Inventory makeItemEditor(ItemStack item){
+        Inventory outputinv = Bukkit.createInventory(null, 36, "Item Editor");
+        outputinv.setItem(4, item);
+        outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&rRename the item you can use color too!", "&rCurrent name\"" + item.getItemMeta().getDisplayName() + "\"", "&7 ", "&bClick Me!")));
+        outputinv.setItem(10, makeItem("&dLore", item.getType(), 1, 0, List.of("&rSet lore in the line you want", "&rYes, you can use color", "(hex code prob work I'll remove this after testing)", "&7 ", "&bClick Me!")));
+
+        return outputinv;
+    }
+
+    private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
+        ItemStack output = new ItemStack(material, amount);List<String> coloredList = List.of();ItemMeta input1 = output.getItemMeta();
+        input1.setDisplayName(Colorize(name));for(String text : lore){coloredList.add(Colorize(text));}input1.setLore(coloredList);input1.setCustomModelData(CustomModel);
+        output.setItemMeta(input1);return output;}
+
+    @EventHandler
+    void ChatEvent(AsyncChatEvent e){
+        Player p = e.getPlayer();
+        if(getPlayerPDC("ItemEditorUsing", p) == null || getPlayerPDC("ItemEditorUsing", p) == "GUI"){return;}
+        else if(getPlayerPDC("ItemEditorUsing", p) == "Chat-name"){
+        }else if(getPlayerPDC("ItemEditorUsing", p) == "Chat-lore"){
+
+        }
     }
 
     @EventHandler
