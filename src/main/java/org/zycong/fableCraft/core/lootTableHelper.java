@@ -64,9 +64,8 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter 
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-            return List.of("addLootTable", "removeLootTable", "getLootTable");
-
-        }
+        return List.of("addLootTable", "removeLootTable", "getLootTable");
+    }
     
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){
