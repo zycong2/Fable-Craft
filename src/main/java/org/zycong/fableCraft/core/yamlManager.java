@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 import org.zycong.fableCraft.FableCraft;
+
+import static org.zycong.fableCraft.FableCraft.Colorize;
 
 
 public class yamlManager {
@@ -96,6 +99,15 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
         getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
         getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
+        getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
+        getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.rename.fail", "&cYou unsuccessfully renamed this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.fail", "&cYou unsuccessfully set the lore of this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line");
+        getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change enter then the change");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -284,12 +296,14 @@ public class yamlManager {
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    lore.add((String)getConfig("items.lore.prefix", null, true));
+                    TextComponent config = (TextComponent) getConfig("items.lore.prefix", null, true);
+                    lore.add(config.content());
                 }
 
                 lore.addAll((List)getFileConfig("itemDB").get(name + ".lore"));
                 if (isConfigSet("items.lore.suffix")) {
-                    lore.add((String)getConfig("items.lore.suffix", null, true));
+                    TextComponent config = (TextComponent) getConfig("items.lore.suffix", null, true);
+                    lore.add(config.content());
                 }
             }
 
@@ -382,7 +396,7 @@ public class yamlManager {
     public static Object getConfig(String path, Player target, boolean round) {
         Object a = getFileConfig("config").get(path);
         if (a == null) {
-            return ChatColor.translateAlternateColorCodes('&', "&cOption not found");
+            return Colorize("&cOption not found");
         } else if (a instanceof String s) {
             return setPlaceholders(s, round, target);
         } else {
