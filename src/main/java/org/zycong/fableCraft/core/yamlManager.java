@@ -321,8 +321,8 @@ public class yamlManager {
                 coloredLore.add(ChatColor.translateAlternateColorCodes('&', s));
             }
 
-            meta.setLore(coloredLore);
-            item.setItemMeta(meta);
+            meta.setLore(coloredLore.toString());
+            item.setItemMeta(meta.toString());
             if (meta instanceof LeatherArmorMeta) {
                 LeatherArmorMeta leatherMeta = (LeatherArmorMeta)meta;
                 if (isItemSet(name + ".color")) {
