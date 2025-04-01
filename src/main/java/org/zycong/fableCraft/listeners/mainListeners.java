@@ -1,6 +1,8 @@
 package org.zycong.fableCraft.listeners;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -146,14 +148,32 @@ public class mainListeners implements Listener {
             } else if (!Objects.equals(event.getCurrentItem(), ItemStack.of(Material.AIR))) {
                 p.closeInventory();
                 Inventory Itemedit = makeItemEditor(event.getCurrentItem());
+                String itemKey = getItemKey(event.getCurrentItem());
+
+                if (itemKey == null) {
+                    p.sendMessage(Colorize("&cCouldn't find the items in the database"));
+                    return;
+                }
+
+                setPlayerPDC("SelectedItemKey", p, itemKey);
                 setPlayerPDC("ItemEditorUsing", p, "GUI");
                 p.openInventory(Itemedit);
             }
         } else if (getPlayerPDC("ItemEditorUsing", p) == "GUI"){
             int slot = event.getRawSlot();
             if(slot == 4){p.getInventory().addItem(event.getCurrentItem());}
-            if(slot == 9){p.closeInventory(); p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.rename.info")); setPlayerPDC("ItemEditorUsing", p, "Chat-name");}
-            if(slot == 10){p.closeInventory(); p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info")); setPlayerPDC("ItemEditorUsing", p, "Chat-lore");}
+            else if(slot == 9){
+                setPlayerPDC("ItemEditorUsing", p, "Chat-name");
+
+                p.closeInventory();
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.rename.info"));
+            }
+            else if(slot == 10) {
+                setPlayerPDC("ItemEditorUsing", p, "Chat-lore");
+
+                p.closeInventory();
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info"));
+            }
         }
 
     }
@@ -175,11 +195,40 @@ public class mainListeners implements Listener {
     @EventHandler
     void ChatEvent(AsyncChatEvent e){
         Player p = e.getPlayer();
-        if(getPlayerPDC("ItemEditorUsing", p) == null || getPlayerPDC("ItemEditorUsing", p) == "GUI"){return;}
-        else if(getPlayerPDC("ItemEditorUsing", p) == "Chat-name"){
-        }else if(getPlayerPDC("ItemEditorUsing", p) == "Chat-lore"){
+        if (getPlayerPDC("ItemEditorUsing", p).equals(null) || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
+
+        e.setCancelled(true);
+
+        if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
+            if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
+            String newName = Colorize(e.message().toString());
+            getFileConfig("itemDB").set(itemKey + ".name", newName);
+            p.sendMessage(Colorize("&aItem renamed to:&r " + newName));
+        }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
+            if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
+            String newName = Colorize(e.message().toString());
+            getFileConfig("itemDB").set(itemKey + ".name", newName);
+            p.sendMessage(Colorize("&aItem renamed to:&r " + newName));
+        }
+
+        try {
+            getFileConfig("itemDB").save("itemDB.yml");
+        } catch (IOException ignored) {
 
         }
+        setPlayerPDC("ItemEditorUsing", p, null);
+    }
+
+    private String getItemKey(ItemStack item) {
+        List<Object> nodes = getNodes("itemDB", "");
+
+        for (Object node : nodes) {
+            String key = node.toString(); // Convert object to string (woodenSword, leatherChestplate, etc.) ty chatgpt for giving idea
+            if (getFileConfig("itemDB").getString(key + ".itemType").equals(item.getType().name()) && getFileConfig("itemDB").getString(key + ".name").equals(item.getItemMeta().getDisplayName())) {
+                return key;
+            }
+        }
+        return null;
     }
 
     @EventHandler
