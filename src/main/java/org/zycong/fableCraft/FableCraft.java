@@ -3,6 +3,7 @@ package org.zycong.fableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -11,9 +12,11 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -33,6 +36,9 @@ import org.zycong.fableCraft.listeners.skills;
 
 
 public final class FableCraft extends JavaPlugin {
+    @Getter
+    private static FableCraft instance;
+
     public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence");
     public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
     public static List<String> spawns = new java.util.ArrayList<>(List.of());
@@ -54,11 +60,13 @@ public final class FableCraft extends JavaPlugin {
         this.getCommand("lootTables").setExecutor(new lootTableHelper());
         this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
 
-        Bukkit.getPluginManager().registerEvents(new mainListeners(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new buildHelper(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new mobs(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new skills(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new lootTableHelper(), getPlugin());
+        registerListeners(
+                new mainListeners(),
+                new buildHelper(),
+                new mobs(),
+                new skills(),
+                new lootTableHelper()
+        );
 
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
@@ -90,6 +98,10 @@ public final class FableCraft extends JavaPlugin {
         yamlManager.getCustomItems();
         mobs.reloadSpawns();
 
+    }
+
+    private void registerListeners(Listener... l) {
+        Arrays.asList(l).forEach(I-> getServer().getPluginManager().registerEvents(I, this));
     }
 
     public void onDisable() {
