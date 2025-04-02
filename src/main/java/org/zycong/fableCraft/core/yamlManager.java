@@ -311,7 +311,7 @@ public class yamlManager {
             List<TextComponent> coloredLore = new ArrayList(List.of());
 
             for(TextComponent tc : lore) {
-                coloredLore.add((TextComponent) MiniMessage.miniMessage().deserialize(tc.content()));
+                coloredLore.add(Colorize(tc.content()));
             }
             item.editMeta(imeta -> {
                 if (isItemSet(name + ".name")) {
