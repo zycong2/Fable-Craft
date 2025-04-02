@@ -1,4 +1,4 @@
-/*package org.zycong.fableCraft.commands;
+package org.zycong.fableCraft.commands;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -126,13 +126,24 @@ event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(da
               if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems") instanceof List){
                 for (String s2 : yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems")){
                   String[] data = s2.split(":");
-                  event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.valueOf(data[1])));
+event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.valueOf(data[1])));
                 }
               }
             }
+
+            PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", killer) + 1);
+            if (PDCHelper.getPlayerPDC(quest + ".step", p) > yamlManager.getOption("quests", quest + ".steps.amount")){
+              finishedQuest(p, quest);
+
+            } else{
+              PDCHelper.setPlayerPDC(quest + ".progress", killer, 0);
+            }
+            
           }
         }
       }
+    }
+  }
 
 
   public void finishedQuest(Player p, String quest){
@@ -152,4 +163,4 @@ event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(da
   }
 
 }
-    */
+    
