@@ -4,15 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,6 +30,7 @@ import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
 import org.zycong.fableCraft.listeners.mainListeners;
 import org.zycong.fableCraft.listeners.skills;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public final class FableCraft extends JavaPlugin {
@@ -144,7 +140,7 @@ public final class FableCraft extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                task.run();
+                 task.run();
             }
         }.runTaskLater(FableCraft.getPlugin(), ticks);
     }

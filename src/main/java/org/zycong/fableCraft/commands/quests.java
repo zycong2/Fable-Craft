@@ -2,18 +2,25 @@ package org.zycong.fableCraft.commands;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.core.PDCHelper;
+import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
 
-public class quests implements CommandExecutor, TabCompleter, Listener { //Still working on this so dont change it yet
+public class quests implements CommandExecutor, TabCompleter, Listener {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
@@ -25,8 +32,8 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
       String quests = PDCHelper.getPlayerPDC("quests", p);
       if (!quests.contains(args[1])){
         PDCHelper.setPlayerPDC("quests", p, quests + ";" + args[1]);
-        PDCHelper.setPlayerPDC(args[1] + ".step", p, 1);
-        PDCHelper.setPlayerPDC(args[1] + ".progress", p, 0);
+        PDCHelper.setPlayerPDC(args[1] + ".step", p, String.valueOf(1));
+        PDCHelper.setPlayerPDC(args[1] + ".progress", p, String.valueOf(0));
         p.sendMessage(yamlManager.getConfig("messages.info.quests.start", p, true).toString());
       } else {
         p.sendMessage(yamlManager.getConfig("messages.error.questAlreadyStarted", null, true).toString());
@@ -55,21 +62,21 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
   public void onEntityDeath(EntityDeathEvent event){
     LivingEntity entity = event.getEntity();
     Player killer = entity.getKiller();
-    if (player != null){
+    if (killer != null){
       String quests = PDCHelper.getPlayerPDC("quests", killer);
       List<String> questsList = List.of(quests.split(";"));
       for (String quest : questsList){
-        if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", killer) + ".type").equalsIgnoreCase("kill")){
+        if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")){
           if (entity.getType().equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", killer) + ".entity"))){
 
             PDCHelper.setPlayerPDC(quest + ".progress", killer, PDCHelper.getPlayerPDC(quest + ".progress", killer) + 1);
             if (PDCHelper.getPlayerPDC(quest + ".progress", killer) == yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", killer) + ".value")){
               PDCHelper.setPlayerPDC(quest + ".step", killer, PDCHelper.getPlayerPDC(quest + ".step", killer) + 1);
-              if (PDCHelper.getPlayerPDC(quest + ".step", killer) > yamlManager.getOption("quests", quest + ".steps.amount")){
+              if (Integer.parseInt(PDCHelper.getPlayerPDC(quest + ".step", killer)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())){
                 finishedQuest(killer, quest);
 
               } else{
-                PDCHelper.setPlayerPDC(quest + ".progress", killer, 0);
+                PDCHelper.setPlayerPDC(quest + ".progress", killer, String.valueOf(0));
               }
             }
           }
@@ -78,21 +85,21 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
     }
   }
   @EventHandler
-  public void onPlayerPickUp(EntityPickupItemEvent event){
+  public void onPlayerPickUp(PlayerPickupItemEvent event){
     Player p = event.getPlayer();
     String quests = PDCHelper.getPlayerPDC("quests", p);
     List<String> questsList = List.of(quests.split(";"));
     for (String quest : questsList){
-      if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", killer) + ".type").equalsIgnoreCase("get")){
+      if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")){
         if (event.getItem().getType().toString().equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".item"))){
-          PDCHelper.setPlayerPDC(quest + ".progress", p, PDCHelper.getPlayerPDC(quest + ".progress", killer) + 1);
+          PDCHelper.setPlayerPDC(quest + ".progress", p, PDCHelper.getPlayerPDC(quest + ".progress", p) + 1);
           if (PDCHelper.getPlayerPDC(quest + ".progress", p) == yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".value")){
-            PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", killer) + 1);
-            if (PDCHelper.getPlayerPDC(quest + ".step", p) > yamlManager.getOption("quests", quest + ".steps.amount")){
+            PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", p) + 1);
+            if (Integer.parseInt(PDCHelper.getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())){
               finishedQuest(p, quest);
 
             } else{
-              PDCHelper.setPlayerPDC(quest + ".progress", killer, 0);
+              PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
             }
           }
         }
@@ -101,42 +108,41 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
   }
 
   @EventHandler
-  public void onPlayerInteract(EntityInteractEntityEvent event){
+  public void onPlayerInteract(PlayerInteractEntityEvent event){
     String quests = PDCHelper.getPlayerPDC("quests", event.getPlayer());
     for (String quest : quests.split(";")){
-      if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".type").equalsIgnoreCase("talkToNPC")){
+      if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".type").toString().equalsIgnoreCase("talkToNPC")){
         if (event.getRightClicked().getName().equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".NPCName"))){
-          for (String s : yamlManager.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions")){
-            if (s.contains("removeItem")){
-              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "removeItems") instanceof List){
-                for (String s2 : yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "removeItems")){
-                  String[] data = s2.split(":");
-event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.valueOf(data[1])));
+          for (Object s : yamlManager.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions")){
+            if (s.toString().contains("removeItem")){
+              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "removeItems") instanceof List list){
+                for (Object s2 : list){
+                  String[] data = s2.toString().split(":");
+                  event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
                 }
               }
-            } else if (s.contains("talk")){
-              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "talk") instanceof List){
-                for (String s2 : yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "talk")){
-                  event.getPlayer().sendMessage(s2);
-                  FableCraft.wait(40, this.task);
-                }
-              }
-            }
-            else if (s.contains("giveItem")){
-              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems") instanceof List){
-                for (String s2 : yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems")){
-                  String[] data = s2.split(":");
-event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.valueOf(data[1])));
+            } else if (s.toString().contains("talk")){
+              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "talk") instanceof List lines){
+                for (Object s2 : lines){
+                  event.getPlayer().sendMessage(FableCraft.Colorize((String) s2));
+                  /*FableCraft.wait(40, );*/
                 }
               }
             }
-
-            PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", killer) + 1);
-            if (PDCHelper.getPlayerPDC(quest + ".step", p) > yamlManager.getOption("quests", quest + ".steps.amount")){
-              finishedQuest(p, quest);
+            else if (s.toString().contains("giveItem")){
+              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems") instanceof List l){
+                for (Object s2 : l){
+                  String[] data = s2.toString().split(":");
+                  event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
+                }
+              }
+            }
+            PDCHelper.setPlayerPDC(quest + ".step", event.getPlayer(), PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + 1);
+            if (Integer.parseInt(PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer())) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())){
+              finishedQuest(event.getPlayer(), quest);
 
             } else{
-              PDCHelper.setPlayerPDC(quest + ".progress", killer, 0);
+              PDCHelper.setPlayerPDC(quest + ".progress", event.getPlayer(), String.valueOf(0));
             }
             
           }
@@ -151,11 +157,13 @@ event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[
     if (yamlManager.getOption("quests", quest + ".rewards") != null){
       if (yamlManager.getOption("quests", quest + ".rewards") instanceof String){
         List<ItemStack> rewards = lootTableHelper.getLootTable(yamlManager.getOption("quests", quest + ".rewards").toString());
-        p.getInventory().addItem(rewards);
-      } else if (yamllManager.getOption("quests", quest + ".rewards") instanceof List){
-        for (String s : yamlManager.getOption("quests", quest + ".rewards")){
-          if (s instanceof ItemStack){
-            p.getInventory().addItem(s);
+        for (ItemStack item : rewards) {
+          p.getInventory().addItem(item);
+        }
+      } else if (yamlManager.getOption("quests", quest + ".rewards") instanceof List rewards){
+        for (Object s : rewards){
+          if (s instanceof ItemStack item){
+            p.getInventory().addItem(item);
           }
         }
       }
