@@ -195,7 +195,9 @@ public class mainListeners implements Listener {
 
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
         ItemStack output = new ItemStack(material, amount);List<String> coloredList = new ArrayList<>();ItemMeta input1 = output.getItemMeta();
-        input1.setDisplayName(Colorize(name));for(String text : lore){coloredList.add(Colorize(text));}input1.setLore(coloredList);input1.setCustomModelData(CustomModel);
+        input1.setDisplayName(Colorize(name));
+        for(String text : lore){ coloredList.add(Colorize(text)); }
+        input1.setLore(coloredList);input1.setCustomModelData(CustomModel);
         output.setItemMeta(input1);return output;}
 
     private String getItemKey(ItemStack item) {
