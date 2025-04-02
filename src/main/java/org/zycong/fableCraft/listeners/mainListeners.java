@@ -15,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,12 +34,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.GUI.GUI;
 import org.zycong.fableCraft.core.GUI.GUIItem;
-import org.zycong.fableCraft.core.PDCHelper;
+import org.zycong.fableCraft.core.GUI.GUIUtils;
 import org.zycong.fableCraft.core.yamlManager;
 
 import static org.zycong.fableCraft.FableCraft.Colorize;
@@ -158,7 +156,7 @@ public class mainListeners implements Listener {
                 p.openInventory(itemDB);
             } else if (!Objects.equals(event.getCurrentItem(), ItemStack.of(Material.AIR))) {
                 p.closeInventory();
-                Inventory Itemedit = makeItemEditor(event.getCurrentItem());
+                GUI Itemedit = makeItemEditor(event.getCurrentItem());
                 String itemKey = getItemKey(event.getCurrentItem());
 
                 if (itemKey == null) {
@@ -168,7 +166,7 @@ public class mainListeners implements Listener {
 
                 setPlayerPDC("SelectedItemKey", p, itemKey);
                 setPlayerPDC("ItemEditorUsing", p, "GUI");
-                p.openInventory(Itemedit);
+                Itemedit.open(p);
             }
         } else if (getPlayerPDC("ItemEditorUsing", p) == "GUI"){
             event.setCancelled(true);
@@ -190,14 +188,38 @@ public class mainListeners implements Listener {
 
     }
 
-    private Inventory makeItemEditor(ItemStack item){
-        ItemEditor = new GUI(MiniMessage.miniMessage().deserialize("Item Editor"), 4);
-        GUIItem EventItem =
-        outputinv.setItem(4, item);
-        outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&rRename the item you can use color too!", "&rCurrent name\"" + item.getItemMeta().getDisplayName() + "\"", "&7 ", "&bClick Me!")));
-        outputinv.setItem(10, makeItem("&dLore", item.getType(), 1, 0, List.of("&rSet lore in the line you want", "&rYes, you can use color", "(hex code prob work I'll remove this after testing)", "&7 ", "&bClick Me!")));
+    private GUI makeItemEditor(ItemStack item){
+        ItemEditor = new GUI(Colorize("Item Editor"), 4);
+        GUIItem EventItem = GUIUtils.getGUIItem(item);
+        ItemEditor.setItem(4, EventItem);
+        List<String> lore = List.of("&rRename the item you can use color too!", "&rCurrent name\"" + item.getItemMeta().getDisplayName() + "\"", "&7 ", "&bClick Me!");
+        List<Component> Coloredlore = new ArrayList(List.of());
+        for(String l : lore){
+            Coloredlore.add(Colorize(l));
+        }
+        GUIItem DisplayName = GUIItem.builder()
+                .name(Colorize("&aDisplay Name"))
+                .material(Material.NAME_TAG)
+                .amount(1)
+                .customModelData(0)
+                .lore(Coloredlore)
+                .build();
+        ItemEditor.setItem(9, DisplayName);
+        List<String> lore2 = List.of("&rSet lore in the line you want", "&rYes, you can use color", "(hex code prob work I'll remove this after testing)", "&7 ", "&bClick Me!");
+        List<Component> Coloredlore2 = new ArrayList(List.of());
+        for(String l : lore2){
+            Coloredlore2.add(Colorize(l));
+        }
+        GUIItem Lore = GUIItem.builder()
+                .name(Colorize("&dLore"))
+                .material(Material.BOOK)
+                .amount(1)
+                 .customModelData(0)
+                .lore(Coloredlore2)
+                .build();
+        ItemEditor.setItem(10, Lore);
 
-        return outputinv;
+        return ItemEditor;
     }
 
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
@@ -247,7 +269,7 @@ public class mainListeners implements Listener {
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
             getFileConfig("itemDB").set(itemKey + ".name", message);
             p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.rename.success")));
-            p.openInventory(makeItemEditor(getItem(itemKey)));
+            makeItemEditor(getItem(itemKey)).open(p);
             setPlayerPDC("ItemEditorUsing", p, "GUI");
         }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
@@ -270,7 +292,7 @@ public class mainListeners implements Listener {
             itemLore.set(lineNumber-1, message);
             getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.success"));
-            p.openInventory(makeItemEditor(getItem(itemKey)));
+            makeItemEditor(getItem(itemKey)).open(p);
             setPlayerPDC("ItemEditorUsing", p, "GUI");
         }
 

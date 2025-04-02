@@ -11,9 +11,9 @@ import java.util.List;
 import static org.zycong.fableCraft.FableCraft.Colorize;
 
 @Getter
-public class GUIUntils {
+public class GUIUtils {
 
-    public GUIItem getGUIItem(ItemStack item){
+    public static GUIItem getGUIItem(ItemStack item){
         List<String> lore = item.getItemMeta().getLore();
         List<Component> coloredLore = new ArrayList(List.of());
         for(String l : lore){
