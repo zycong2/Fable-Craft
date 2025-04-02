@@ -3,7 +3,11 @@ package org.zycong.fableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -59,7 +63,7 @@ public final class FableCraft extends JavaPlugin {
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                p.sendActionBar(String.valueOf(yamlManager.getConfig("actionbar.message", p, true)));
+                p.sendActionBar(Colorize(String.valueOf(yamlManager.getConfig("actionbar.message", p, true))));
                 double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
                 double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
                 double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
@@ -117,5 +121,8 @@ public final class FableCraft extends JavaPlugin {
         return item;
     }
 
-    public static String Colorize(String input){return PlainTextComponentSerializer.plainText().serialize(MiniMessage.miniMessage().deserialize(input));}
+    public static TextComponent Colorize(String input) {
+        TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(input);
+        return deserialized;
+    }
 }
