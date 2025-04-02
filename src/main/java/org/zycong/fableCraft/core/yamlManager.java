@@ -265,6 +265,11 @@ public class yamlManager {
             List<String> PDC = new ArrayList(List.of());
             PDC.add("ItemID;" + getFileConfig("itemDB").getString(name + ".ItemID"));
             int attributes = 0;
+            if (isItemSet(name + ".hide")) {
+                for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
+                    meta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                }
+            }
 
             for(String s : FableCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
@@ -279,6 +284,14 @@ public class yamlManager {
             if (attributes != 0) {
                 lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
                 lore.addFirst((TextComponent) MiniMessage.miniMessage().deserialize(""));
+            }
+
+            if (isItemSet(name + ".name")) {
+                meta.setItemName((String)getFileConfig("itemDB").get(name + ".name"));
+            }
+
+            if (isItemSet(name + ".customModelData")) {
+                meta.setCustomModelData((Integer)getFileConfig("itemDB").get(name + ".customModelData"));
             }
 
             if (isItemSet(name + ".enchantments")) {
@@ -308,25 +321,13 @@ public class yamlManager {
                 lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
             }
 
-            List<TextComponent> ColoredLore = new ArrayList<>();
-            for(TextComponent tc : lore){
-                ColoredLore.add((TextComponent) MiniMessage.miniMessage().deserialize(tc.content()));
+            List<String> coloredLore = new ArrayList(List.of());
+
+            for(TextComponent tc : lore) {
+                MiniMessage.miniMessage().deserialize(tc.content());
             }
 
-            item.editMeta(imeta -> {
-                if (isItemSet(name + ".name")) {
-                    imeta.displayName(MiniMessage.miniMessage().deserialize((String) getFileConfig("itemDB").get(name + ".name")));
-                }
-                imeta.lore(ColoredLore);
-                if (isItemSet(name + ".customModelData")) {
-                    imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
-                }
-                if (isItemSet(name + ".hide")) {
-                    for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
-                        imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
-                    }
-                }
-            });
+            meta.setLore(coloredLore);
             item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta) {
                 LeatherArmorMeta leatherMeta = (LeatherArmorMeta)meta;
