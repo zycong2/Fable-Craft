@@ -210,7 +210,7 @@ public class mainListeners implements Listener {
         for(String l : lore2){
             Coloredlore2.add(Colorize(l));
         }
-        GUIItem Lore = GUIItem.builder()
+        GUIItem Lore = GUIItem.builder() //Welp not for me...
                 .name(Colorize("&dLore"))
                 .material(Material.BOOK)
                 .amount(1)
