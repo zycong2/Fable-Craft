@@ -1,4 +1,4 @@
-package org.zycong.fableCraft.commands;
+/*package org.zycong.fableCraft.commands;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -89,4 +89,4 @@ public class quests implements CommandExecutor, TabCompleter, Listener { //Still
     }
   }
   
-}
+}*/
