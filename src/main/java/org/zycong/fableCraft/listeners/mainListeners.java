@@ -224,14 +224,6 @@ public class mainListeners implements Listener {
 
     // wait(2, () -> {}
 
-public void wait(int ticks, Runnable task) {
-    new BukkitRunnable() {
-        @Override
-        public void run() {
-            task.run();
-        }
-    }.runTaskLater(FableCraft.getPlugin(), ticks);
-}
 
     @EventHandler
     void Closeinv(InventoryCloseEvent e){

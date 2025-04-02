@@ -125,4 +125,12 @@ public final class FableCraft extends JavaPlugin {
         TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(input);
         return deserialized;
     }
+    public void wait(int ticks, Runnable task) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                task.run();
+            }
+        }.runTaskLater(FableCraft.getPlugin(), ticks);
+    }
 }
