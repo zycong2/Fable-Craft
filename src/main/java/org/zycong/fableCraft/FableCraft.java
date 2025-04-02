@@ -23,11 +23,13 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.zycong.fableCraft.commands.buildHelper;
 import org.zycong.fableCraft.commands.itemDB;
 import org.zycong.fableCraft.commands.mobs;
 import org.zycong.fableCraft.commands.stats;
+import org.zycong.fableCraft.core.GUI.GUIListener;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
@@ -65,7 +67,8 @@ public final class FableCraft extends JavaPlugin {
                 new buildHelper(),
                 new mobs(),
                 new skills(),
-                new lootTableHelper()
+                new lootTableHelper(),
+                new GUIListener()
         );
 
         BukkitScheduler scheduler = this.getServer().getScheduler();

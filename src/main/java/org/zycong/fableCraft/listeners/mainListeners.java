@@ -38,6 +38,8 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.commands.stats;
+import org.zycong.fableCraft.core.GUI.GUI;
+import org.zycong.fableCraft.core.GUI.GUIItem;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.yamlManager;
 
@@ -47,6 +49,7 @@ import static org.zycong.fableCraft.core.yamlManager.*;
 
 public class mainListeners implements Listener {
     Inventory menu;
+    GUI ItemEditor;
     public static Inventory itemDB;
 
     @EventHandler
@@ -188,7 +191,8 @@ public class mainListeners implements Listener {
     }
 
     private Inventory makeItemEditor(ItemStack item){
-        Inventory outputinv = Bukkit.createInventory(null, 36, "Item Editor");
+        ItemEditor = new GUI(MiniMessage.miniMessage().deserialize("Item Editor"), 4);
+        GUIItem EventItem =
         outputinv.setItem(4, item);
         outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&rRename the item you can use color too!", "&rCurrent name\"" + item.getItemMeta().getDisplayName() + "\"", "&7 ", "&bClick Me!")));
         outputinv.setItem(10, makeItem("&dLore", item.getType(), 1, 0, List.of("&rSet lore in the line you want", "&rYes, you can use color", "(hex code prob work I'll remove this after testing)", "&7 ", "&bClick Me!")));
