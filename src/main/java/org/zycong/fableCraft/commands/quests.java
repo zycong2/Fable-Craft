@@ -1,4 +1,4 @@
-package org.zycong.fableCraft.commands;
+/*package org.zycong.fableCraft.commands;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -122,11 +122,17 @@ event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(da
                 }
               }
             }
+            else if (s.contains("giveItem")){
+              if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems") instanceof List){
+                for (String s2 : yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "giveItems")){
+                  String[] data = s2.split(":");
+                  event.getPlayer().getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.valueOf(data[1])));
+                }
+              }
+            }
           }
         }
       }
-    }
-  }
 
 
   public void finishedQuest(Player p, String quest){
@@ -146,3 +152,4 @@ event.getPlayer().getInventory().removeItem(ItemStack.of(Material.getMaterial(da
   }
 
 }
+    */

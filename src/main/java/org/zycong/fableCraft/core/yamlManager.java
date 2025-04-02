@@ -217,6 +217,7 @@ public class yamlManager {
         getFileConfig("quests").addDefault("quest1.steps.3.NPCName", "John");
         getFileConfig("quests").addDefault("quest1.steps.3.actions.talk", List.of("Hello", "I am John", "I am a NPC"));
         getFileConfig("quests").addDefault("quest1.steps.3.actions.removeItems", List.of("STRING:10"));
+        getFileConfig("quests").addDefault("quest1.steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
         getFileConfig("quests").addDefault("quest1.reward", "quest1");
         getFileConfig("quests").options().copyDefaults(true);
 
