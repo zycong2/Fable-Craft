@@ -308,11 +308,11 @@ public class yamlManager {
                 lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
             }
 
-            List<TextComponent> coloredLore = new ArrayList(List.of());
+            List<TextComponent> coloredLore = lore;
 
-            for(TextComponent tc : lore) {
-                coloredLore.add(Colorize(tc.content()));
-            }
+            /*for(TextComponent tc : lore) {
+                coloredLore.add(Colorize(String.valueOf(tc)));
+            }*/
             item.editMeta(imeta -> {
                 if (isItemSet(name + ".name")) {
                     imeta.displayName(MiniMessage.miniMessage().deserialize((String) getFileConfig("itemDB").get(name + ".name")));
