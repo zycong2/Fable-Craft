@@ -2,6 +2,8 @@ package org.zycong.fableCraft.core;
 
 import java.util.List;
 import java.util.Random;
+
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,10 +27,10 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.lootTable")){
-            p.sendMessage((String) yamlManager.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermission", p, true));
             return true;
         } if (args.length == 0){
-            p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
 
@@ -38,7 +40,7 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
                 PDCHelper.setBlockPDC("lootTable", block, args[1]);
                 return true;
             } else {
-                p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+                p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
             }
         } else if (args[0].equals("removeLootTable")) {
             if (args.length == 1){
@@ -46,14 +48,14 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
                 PDCHelper.setBlockPDC("lootTable", block, null);
                 return true;
             } else {
-                p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+                p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
             }
         } else if (args[0].equals("getLootTable")){
             Block block = p.getTargetBlock(null, 10);
             if (PDCHelper.getBlockPDC("lootTable", block) != null){
                 p.sendMessage("This block has loot table " + PDCHelper.getBlockPDC("lootTable", block));
             } else {
-                p.sendMessage(yamlManager.getConfig("messages.error.noLootTable", null, true).toString());
+                p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noLootTable", null, true));
             }
         }
         

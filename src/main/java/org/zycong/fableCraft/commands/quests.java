@@ -1,5 +1,7 @@
 package org.zycong.fableCraft.commands;
 import java.util.List;
+
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,7 +27,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (args.length == 0){
-      p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+      p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
     }
 
     if (args[0].equalsIgnoreCase("startNew")){
@@ -34,9 +36,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         PDCHelper.setPlayerPDC("quests", p, quests + ";" + args[1]);
         PDCHelper.setPlayerPDC(args[1] + ".step", p, String.valueOf(1));
         PDCHelper.setPlayerPDC(args[1] + ".progress", p, String.valueOf(0));
-        p.sendMessage(yamlManager.getConfig("messages.info.quests.start", p, true).toString());
+        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.start", p, true));
       } else {
-        p.sendMessage(yamlManager.getConfig("messages.error.questAlreadyStarted", null, true).toString());
+        p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.questAlreadyStarted", null, true));
       }
     } if (args[0].equalsIgnoreCase("disband")){
       String quests = PDCHelper.getPlayerPDC("quests", p);
@@ -44,9 +46,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         PDCHelper.setPlayerPDC("quests", p, quests.replace(";" + args[1], ""));
         PDCHelper.setPlayerPDC(args[1] + ".step", p, null);
         PDCHelper.setPlayerPDC(args[1] + ".progress", p, null);
-        p.sendMessage(yamlManager.getConfig("messages.info.quests.disband", p, true).toString());
+        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.disband", p, true));
       } else {
-        p.sendMessage(yamlManager.getConfig("messages.error.questNotStarted", null, true).toString());
+        p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.questNotStarted", null, true));
       }
     }
 
@@ -153,7 +155,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
 
 
   public void finishedQuest(Player p, String quest){
-    p.sendMessage(yamlManager.getConfig("messages.info.quests.completed", p, true).toString());
+    p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.completed", p, true));
     if (yamlManager.getOption("quests", quest + ".rewards") != null){
       if (yamlManager.getOption("quests", quest + ".rewards") instanceof String){
         List<ItemStack> rewards = lootTableHelper.getLootTable(yamlManager.getOption("quests", quest + ".rewards").toString());
@@ -169,6 +171,5 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
       }
     }
   }
-
 }
     

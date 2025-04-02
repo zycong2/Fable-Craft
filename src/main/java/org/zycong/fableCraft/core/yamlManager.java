@@ -26,6 +26,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.zycong.fableCraft.FableCraft;
 
 import static org.zycong.fableCraft.FableCraft.Colorize;
@@ -317,7 +318,7 @@ public class yamlManager {
                 if (isItemSet(name + ".name")) {
                     imeta.displayName(MiniMessage.miniMessage().deserialize((String) getFileConfig("itemDB").get(name + ".name")));
                 }
-                imeta.lore(coloredLore);
+                //imeta.lore(lore);
                 if (isItemSet(name + ".customModelData")) {
                     imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
                 }
@@ -415,6 +416,17 @@ public class yamlManager {
             return setPlaceholders(s, round, target);
         } else {
             return a;
+        }
+    }
+
+    public static @Nullable String getMessage(String path, Player target, boolean round) {
+        Object a = getFileConfig("config").get(path);
+        if (a == null) {
+            return Colorize("&cOption not found");
+        } else if (a instanceof String s) {
+            return (TextComponent) setPlaceholders(s, round, target);
+        } else {
+            return (TextComponent) a;
         }
     }
 

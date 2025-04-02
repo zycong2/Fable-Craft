@@ -1,6 +1,8 @@
 package org.zycong.fableCraft.commands;
 
 import java.util.List;
+
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,10 +22,10 @@ public class stats implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
-            p.sendMessage((String) yamlManager.getConfig("messages.error.noPermission", (Player) p, true));
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermission", (Player) p, true));
             return true;
         }if (args.length == 0 || Bukkit.getPlayer(args[0]) == null){
-            p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
 
@@ -32,7 +34,7 @@ public class stats implements CommandExecutor, TabCompleter {
             PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlManager.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
         }
         stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
-        p.sendMessage((String)yamlManager.getConfig("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
+        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
         return true;
     }
 

@@ -54,11 +54,11 @@ public class mainListeners implements Listener {
     void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         if (p.hasPlayedBefore()) {
-            event.setJoinMessage(getFileConfig("messages").getString("messages.joinMessage"));
+            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true));
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
         } else {
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
-            event.setJoinMessage(getFileConfig("messages").getString("messages.firstJoinMessage"));
+            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true));
         }
 
         String[] skills = getNodes("config", "stats").toArray(new String[0]);
@@ -308,7 +308,7 @@ public class mainListeners implements Listener {
         if (getItemPDC("craftPerms", event.getCurrentItem()) != null){
             if (!event.getWhoClicked().hasPermission(getItemPDC("craftPerms", event.getCurrentItem()))){
                 event.setCancelled(true);
-                event.getWhoClicked().sendMessage(yamlManager.getConfig("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false).toString());
+                event.getWhoClicked().sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false));
             } else{
                 Bukkit.getLogger().info("has permission");
             }

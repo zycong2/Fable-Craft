@@ -1,6 +1,7 @@
 package org.zycong.fableCraft.commands;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,10 +39,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.mobs")) {
-            p.sendMessage((String) yamlManager.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0){
-            p.sendMessage(yamlManager.getConfig("messages.error.noValidArgument", null, true).toString());
+            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
         if (args[0].equals("spawn")) { getEntity(args[1], p.getLocation()); }
