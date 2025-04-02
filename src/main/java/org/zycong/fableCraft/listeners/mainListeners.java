@@ -9,6 +9,8 @@ import java.util.Objects;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,6 +30,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -194,9 +197,24 @@ public class mainListeners implements Listener {
     }
 
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
-        ItemStack output = new ItemStack(material, amount);List<String> coloredList = new ArrayList<>();ItemMeta input1 = output.getItemMeta();
-        input1.setDisplayName(Colorize(name));for(String text : lore){coloredList.add(Colorize(text));}input1.setLore(coloredList);input1.setCustomModelData(CustomModel);
-        output.setItemMeta(input1);return output;}
+        ItemStack output = new ItemStack(material, amount);
+        List<TextComponent> coloredList = new ArrayList<>();
+        for(String text : lore){coloredList.add(Colorize(text));}
+        output.editMeta(imeta -> {
+            if (isItemSet(name + ".name")) {
+                imeta.displayName(Colorize(name));
+            }
+            imeta.lore(coloredList);
+            if (isItemSet(name + ".customModelData")) {
+                imeta.setCustomModelData(CustomModel);
+            }
+            if (isItemSet(name + ".hide")) {
+                for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
+                    imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                }
+            }
+        });
+        return output;}
 
     private String getItemKey(ItemStack item) {
         List<Object> nodes = getNodes("itemDB", "");
@@ -224,7 +242,7 @@ public void wait(int ticks, Runnable task) {
     @EventHandler
     void ChatEvent(AsyncChatEvent e){
         Player p = e.getPlayer();
-        String message = Colorize(e.message().toString());
+        String message = e.message().toString();
         if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
 
         e.setCancelled(true);
