@@ -3,6 +3,7 @@ package org.zycong.fableCraft.listeners;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,16 +32,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.yamlManager;
 
 import static org.zycong.fableCraft.FableCraft.Colorize;
-import static org.zycong.fableCraft.core.PDCHelper.getPlayerPDC;
-import static org.zycong.fableCraft.core.PDCHelper.setPlayerPDC;
-import static org.zycong.fableCraft.core.yamlManager.getFileConfig;
-import static org.zycong.fableCraft.core.yamlManager.getNodes;
+import static org.zycong.fableCraft.core.PDCHelper.*;
+import static org.zycong.fableCraft.core.yamlManager.*;
 
 public class mainListeners implements Listener {
     Inventory menu;
@@ -49,9 +50,11 @@ public class mainListeners implements Listener {
     void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         if (p.hasPlayedBefore()) {
-            event.setJoinMessage((String) yamlManager.getConfig("messages.joinMessage", p, true));
+            event.setJoinMessage(getFileConfig("messages").getString("messages.joinMessage"));
+            setPlayerPDC("ItemEditorUsing", p, "notUsing");
         } else {
-            event.setJoinMessage((String)yamlManager.getConfig("messages.firstJoinMessage", p, true));
+            setPlayerPDC("ItemEditorUsing", p, "notUsing");
+            event.setJoinMessage(getFileConfig("messages").getString("messages.firstJoinMessage"));
         }
 
         String[] skills = getNodes("config", "stats").toArray(new String[0]);
@@ -82,7 +85,8 @@ public class mainListeners implements Listener {
     @EventHandler
     void onQuit(PlayerQuitEvent event) {
         Player p = event.getPlayer();
-        event.setQuitMessage((String)yamlManager.getConfig("messages.quitMessage", p, true));
+        setPlayerPDC("ItemEditorUsing", p, "notUsing");
+        event.setQuitMessage(getFileConfig("messages").getString("messages.quitMessage"));
         if (p.hasMetadata("currentHealth")) {
             setPlayerPDC("currentHealth", p, String.valueOf(((MetadataValue)p.getMetadata("currentHealth").getFirst()).asInt()));
         } else {
@@ -161,6 +165,7 @@ public class mainListeners implements Listener {
                 p.openInventory(Itemedit);
             }
         } else if (getPlayerPDC("ItemEditorUsing", p) == "GUI"){
+            event.setCancelled(true);
             int slot = event.getRawSlot();
             if(slot == 4){p.getInventory().addItem(event.getCurrentItem());}
             else if(slot == 9){
@@ -189,23 +194,47 @@ public class mainListeners implements Listener {
     }
 
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
-        ItemStack output = new ItemStack(material, amount);List<String> coloredList = List.of();ItemMeta input1 = output.getItemMeta();
+        ItemStack output = new ItemStack(material, amount);List<String> coloredList = new ArrayList<>();ItemMeta input1 = output.getItemMeta();
         input1.setDisplayName(Colorize(name));for(String text : lore){coloredList.add(Colorize(text));}input1.setLore(coloredList);input1.setCustomModelData(CustomModel);
         output.setItemMeta(input1);return output;}
+
+    private String getItemKey(ItemStack item) {
+        List<Object> nodes = getNodes("itemDB", "");
+        for (Object node : nodes) {String key = node.toString(); // Convert object to string (woodenSword, leatherChestplate, etc.) ty chatgpt for giving idea
+            if (getFileConfig("itemDB").getString(key + ".ItemID").equals(getItemPDC("ItemID", item))) {return key;}
+        }return null;}
+
+    // wait(2, () -> {}
+
+public void wait(int ticks, Runnable task) {
+    new BukkitRunnable() {
+        @Override
+        public void run() {
+            task.run();
+        }
+    }.runTaskLater(FableCraft.getPlugin(), ticks);
+}
+
+    @EventHandler
+    void Closeinv(InventoryCloseEvent e){
+        Player p = (Player) e.getPlayer();
+        if(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")){return;}
+    }
 
     @EventHandler
     void ChatEvent(AsyncChatEvent e){
         Player p = e.getPlayer();
         String message = Colorize(e.message().toString());
-        if (getPlayerPDC("ItemEditorUsing", p).equals(null) || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
+        if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
 
         e.setCancelled(true);
 
         if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
             getFileConfig("itemDB").set(itemKey + ".name", message);
-            p.sendMessage(Colorize("&aItem renamed to:&r " + message));
-            setPlayerPDC("ItemEditorUsing", p, null);
+            p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.rename.success")));
+            p.openInventory(makeItemEditor(getItem(itemKey)));
+            setPlayerPDC("ItemEditorUsing", p, "GUI");
         }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
@@ -213,9 +242,8 @@ public class mainListeners implements Listener {
             try {
                 if (message.contains(" ")) {p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.noSpace"));}
                 linenumber = Integer.parseInt(e.message().toString());
-            } catch (NumberFormatException er) {
-                p.sendMessage(Colorize("&cInvalid Number"));
-            }
+                if (linenumber <= 0){p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.null"));}
+            } catch (NumberFormatException er) {p.sendMessage(Colorize("&cInvalid Number"));}
             setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
             setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info2"));
@@ -223,10 +251,13 @@ public class mainListeners implements Listener {
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
             List<String> itemLore = getFileConfig("itemDB").getStringList(itemKey + ".lore");
             Integer lineNumber = Integer.parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p));
+            if (lineNumber > itemLore.size()){itemLore.add(message);getFileConfig("itemDB").set(itemKey + ".lore", itemLore);p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.create"));
+                return;}
             itemLore.set(lineNumber-1, message);
             getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
-            setPlayerPDC("ItemEditorUsing", p, null);
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.success"));
+            p.openInventory(makeItemEditor(getItem(itemKey)));
+            setPlayerPDC("ItemEditorUsing", p, "GUI");
         }
 
         try {
@@ -236,22 +267,10 @@ public class mainListeners implements Listener {
         }
     }
 
-    private String getItemKey(ItemStack item) {
-        List<Object> nodes = getNodes("itemDB", "");
-
-        for (Object node : nodes) {
-            String key = node.toString(); // Convert object to string (woodenSword, leatherChestplate, etc.) ty chatgpt for giving idea
-            if (getFileConfig("itemDB").getString(key + ".itemType").equals(item.getType().name()) && getFileConfig("itemDB").getString(key + ".name").equals(item.getItemMeta().getDisplayName())) {
-                return key;
-            }
-        }
-        return null;
-    }
-
     @EventHandler
     void CraftItem(CraftItemEvent event){
-        if (PDCHelper.getItemPDC("craftPerms", event.getCurrentItem()) != null){
-            if (!event.getWhoClicked().hasPermission(PDCHelper.getItemPDC("craftPerms", event.getCurrentItem()))){
+        if (getItemPDC("craftPerms", event.getCurrentItem()) != null){
+            if (!event.getWhoClicked().hasPermission(getItemPDC("craftPerms", event.getCurrentItem()))){
                 event.setCancelled(true);
                 event.getWhoClicked().sendMessage(yamlManager.getConfig("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false).toString());
             } else{
@@ -306,8 +325,8 @@ public class mainListeners implements Listener {
         Player p = event.getPlayer();
         if (!event.getOldItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
-                if (PDCHelper.getItemPDC(s, event.getOldItem()) != null) {
-                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, event.getOldItem()))));}
+                if (getItemPDC(s, event.getOldItem()) != null) {
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, event.getOldItem()))));}
 
                 }
             }
@@ -315,8 +334,8 @@ public class mainListeners implements Listener {
         //add new effects
         if (!event.getNewItem().equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
-                if (PDCHelper.getItemPDC(s, event.getNewItem()) != null) {
-                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, event.getNewItem())))); }
+                if (getItemPDC(s, event.getNewItem()) != null) {
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, event.getNewItem())))); }
                 }
             }
         }
@@ -333,16 +352,16 @@ public class mainListeners implements Listener {
 
         if (oldItem != null) { if (!oldItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
-                if (PDCHelper.getItemPDC(s, oldItem) != null) {
-                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(PDCHelper.getItemPDC(s, oldItem))));}
+                if (getItemPDC(s, oldItem) != null) {
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, oldItem))));}
                 }
             }
         } }
         //add new effects
         if (newItem != null) { if (!newItem.equals(ItemStack.of(Material.AIR))){
             for (String s : FableCraft.itemStats) {
-                if (PDCHelper.getItemPDC(s, newItem) != null) {
-                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(PDCHelper.getItemPDC(s, newItem)))); }
+                if (getItemPDC(s, newItem) != null) {
+                    if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, newItem)))); }
                 }
             }
         }

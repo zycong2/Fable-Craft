@@ -101,10 +101,8 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
         getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
         getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
-        getFileConfig("messages").addDefault("messages.itemeditor.rename.fail", "&cYou unsuccessfully renamed this item!");
         getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
-        getFileConfig("messages").addDefault("messages.itemeditor.lore.fail", "&cYou unsuccessfully set the lore of this item!");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
@@ -140,6 +138,7 @@ public class yamlManager {
         getFileConfig("config").options().copyDefaults(true);
 
         getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
+        getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
         getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
         getFileConfig("itemDB").addDefault("woodenSword.lore", List.of("Just a sword"));
         getFileConfig("itemDB").addDefault("woodenSword.customModelData", 1);
@@ -154,6 +153,7 @@ public class yamlManager {
         getFileConfig("itemDB").addDefault("woodenSword.recipe.permission", "craft.wooden_sword");
 
         getFileConfig("itemDB").addDefault("leatherChestplate.itemType", "LEATHER_CHESTPLATE");
+        getFileConfig("itemDB").addDefault("leatherChestplate.ItemID", "cool_chestplate");
         getFileConfig("itemDB").addDefault("leatherChestplate.Health", 10);
         getFileConfig("itemDB").addDefault("leatherChestplate.Defence", 10);
         getFileConfig("itemDB").addDefault("leatherChestplate.Mana", 10);
@@ -161,11 +161,13 @@ public class yamlManager {
         getFileConfig("itemDB").addDefault("leatherChestplate.recipe.type", "shapeless");
         getFileConfig("itemDB").addDefault("leatherChestplate.recipe.ingredients", List.of("DIAMOND:5", "LEATHER:2", "BLACK_DYE:1"));
         getFileConfig("itemDB").addDefault("customBook.itemType", "WRITTEN_BOOK");
+        getFileConfig("itemDB").addDefault("customBook.ItemID", "cool_book");
         getFileConfig("itemDB").addDefault("customBook.group", "books");
         getFileConfig("itemDB").addDefault("customBook.title", "title");
         getFileConfig("itemDB").addDefault("customBook.author", "author");
         getFileConfig("itemDB").addDefault("customBook.pages", List.of("Page1", "Page2\nwith an enter"));
         getFileConfig("itemDB").addDefault("customBread.itemType", "BREAD");
+        getFileConfig("itemDB").addDefault("customBread.ItemID", "bread_is_cool");
         getFileConfig("itemDB").addDefault("customBread.group", "food");
         getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
         getFileConfig("itemDB").options().copyDefaults(true);
@@ -237,16 +239,19 @@ public class yamlManager {
 
     public static List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList(getFileConfig("itemDB").getKeys(false).size());
-        String[] itemNames = (String[])(new ArrayList(getFileConfig("itemDB").getKeys(false))).toArray(new String[0]);
-
-        for(String name : itemNames) {
-            items.add(getItem(name));
+        List<Object> nodes = getNodes("itemDB", "");
+        for (Object node : nodes) {String key = node.toString();
+            items.add(getItem(key));
         }
 
         return items;
     }
 
     public static ItemStack getItem(String name) {
+        if(getFileConfig("itemDB").getString(name + ".ItemID") == null){
+            Bukkit.getLogger().info("Item does not have a ID");
+            return null;
+        }
         Material itemType = Material.getMaterial((String) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".itemType")));
         if (itemType == null) {
             Logger var10000 = Bukkit.getLogger();
@@ -256,8 +261,9 @@ public class yamlManager {
         } else {
             ItemStack item = ItemStack.of(itemType);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList(List.of());
+            List<TextComponent> lore = new ArrayList(List.of());
             List<String> PDC = new ArrayList(List.of());
+            PDC.add("ItemID;" + getFileConfig("itemDB").getString(name + ".ItemID"));
             int attributes = 0;
             if (isItemSet(name + ".hide")) {
                 for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
@@ -267,8 +273,8 @@ public class yamlManager {
 
             for(String s : FableCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
-                    String var41 = String.valueOf(getFileConfig("itemDB").get(name + "." + s));
-                    lore.add("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true));
+                    TextComponent var41 = Colorize(String.valueOf(getFileConfig("itemDB").get(name + "." + s)));
+                    lore.add(Colorize("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
                     //item = stats.setItemPDC(s, item, itemDB.get(name + "." + s));
@@ -276,8 +282,8 @@ public class yamlManager {
             }
 
             if (attributes != 0) {
-                lore.add("");
-                lore.addFirst("");
+                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
+                lore.addFirst((TextComponent) MiniMessage.miniMessage().deserialize(""));
             }
 
             if (isItemSet(name + ".name")) {
@@ -299,30 +305,30 @@ public class yamlManager {
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
                     TextComponent config = (TextComponent) getConfig("items.lore.prefix", null, true);
-                    lore.add(config.content());
+                    lore.add(config);
                 }
 
                 lore.addAll((List)getFileConfig("itemDB").get(name + ".lore"));
                 if (isConfigSet("items.lore.suffix")) {
                     TextComponent config = (TextComponent) getConfig("items.lore.suffix", null, true);
-                    lore.add(config.content());
+                    lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
-                lore.add("");
-                lore.add((String)getConfig("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"), null, true));
-                lore.add("");
+                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
+                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
             }
 
             List<String> coloredLore = new ArrayList(List.of());
 
-            for(String s : lore) {
-                coloredLore.add(ChatColor.translateAlternateColorCodes('&', s));
+            for(TextComponent tc : lore) {
+                MiniMessage.miniMessage().deserialize(tc.content());
             }
 
-            meta.setLore(coloredLore.toString());
-            item.setItemMeta(meta.toString());
+            meta.setLore(coloredLore);
+            item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta) {
                 LeatherArmorMeta leatherMeta = (LeatherArmorMeta)meta;
                 if (isItemSet(name + ".color")) {
