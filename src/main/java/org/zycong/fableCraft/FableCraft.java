@@ -68,7 +68,7 @@ public final class FableCraft extends JavaPlugin {
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                p.sendActionBar(Colorize(String.valueOf(yamlManager.getConfig("actionbar.message", p, true))));
+                p.sendActionBar(Colorize(yamlManager.getConfig("actionbar.message", p, true).toString()));
                 double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
                 double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
                 double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();

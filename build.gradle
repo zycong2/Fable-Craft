@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-    compileOnly files('D:/Users/tonnam/Documents/MAZE/M/M/Library/gui-library-0.1.jar')
     implementation("net.kyori:adventure-text-minimessage:4.19.0")
 
     compileOnly 'org.projectlombok:lombok:1.18.30'

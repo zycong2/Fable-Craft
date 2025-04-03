@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import org.zycong.fableCraft.core.GUI.GUIItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,6 +29,8 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.zycong.fableCraft.FableCraft;
@@ -318,23 +323,37 @@ public class yamlManager {
                 coloredLore.add(Colorize(String.valueOf(tc)));
             }*/
             item.editMeta(imeta -> {
-                if (isItemSet(name + ".name")) {
-                    imeta.displayName(MiniMessage.miniMessage().deserialize((String) getFileConfig("itemDB").get(name + ".name")));
+                PersistentDataContainer icontainer = imeta.getPersistentDataContainer();
+                List<Component> coloredLore = new ArrayList(List.of());
+                for(TextComponent tc : lore) {
+                    coloredLore.add(MiniMessage.miniMessage().deserialize(tc.toString()));
                 }
-                imeta.lore(lore);
-                if (isItemSet(name + ".customModelData")) {
-                    imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
-                }
-                if (isItemSet(name + ".hide")) {
-                    for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
-                        imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                if (getFileConfig("itemDB").getString(name + ".name") != null) {
+                    GUIItem itemlore = GUIItem.builder()
+                            .name(Colorize(getFileConfig("itemDB").getString(name + ".name")))
+                            .lore(coloredLore)
+                            .material(Material.PAPER)
+                            .build();
+                    ItemStack iS = itemlore.getItemStack();
+                    if (isItemSet(name + ".name")) {
+                        NamespacedKey namekey = new NamespacedKey("minecraft", "custom_name");
+                        icontainer.set(namekey, PersistentDataType.STRING, JSONComponentSerializer.json().serialize(Colorize(getFileConfig("itemDB").getString(name + ".name"))));
                     }
-                }
-                if (isItemSet(name + ".enchantments")) {
-                    for(Object enchantmentString : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".enchantments"))) {
-                        String[] enchantString = enchantmentString.toString().split(":");
-                        Enchantment enchantment = Enchantment.getByName(enchantString[0]);
-                        imeta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
+                    imeta.setLore(iS.getLore());
+                    if (isItemSet(name + ".customModelData")) {
+                        imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
+                    }
+                    if (isItemSet(name + ".hide")) {
+                        for (Object hide : (List) getFileConfig("itemDB").get(name + ".hide")) {
+                            imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                        }
+                    }
+                    if (isItemSet(name + ".enchantments")) {
+                        for (Object enchantmentString : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".enchantments"))) {
+                            String[] enchantString = enchantmentString.toString().split(":");
+                            Enchantment enchantment = Enchantment.getByName(enchantString[0]);
+                            imeta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
+                        }
                     }
                 }
             });
