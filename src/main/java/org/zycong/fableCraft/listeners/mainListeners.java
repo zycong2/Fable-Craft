@@ -7,11 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.guilib.guilib.api.GUI;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -51,11 +48,11 @@ public class mainListeners implements Listener {
     void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         if (p.hasPlayedBefore()) {
-            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true));
+            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true).content());
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
         } else {
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
-            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true));
+            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true).content());
         }
 
         String[] skills = getNodes("config", "stats").toArray(new String[0]);
@@ -173,13 +170,13 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-name");
 
                 p.closeInventory();
-                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.rename.info"));
+                p.sendMessage(yamlManager.getMessage("messages.itemeditor.rename.info", p, false));
             }
             else if(slot == 10) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-lore");
 
                 p.closeInventory();
-                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info"));
+                p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.info", p, false));
             }
         }
 

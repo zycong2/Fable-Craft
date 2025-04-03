@@ -422,14 +422,14 @@ public class yamlManager {
         }
     }
 
-    public static @Nullable String getMessage(String path, Player target, boolean round) {
+    public static @Nullable TextComponent getMessage(String path, Player target, boolean round) {
         Object a = getFileConfig("config").get(path);
         if (a == null) {
-            return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize("&cOption not found"));
+            return (TextComponent) MiniMessage.miniMessage().deserialize("&cOption not found");
         } else if (a instanceof String s) {
-            return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(setPlaceholders(s, round, target).toString()));
+            return (TextComponent) MiniMessage.miniMessage().deserialize(setPlaceholders(s, round, target).toString());
         } else {
-            return a.toString();
+            return (TextComponent) MiniMessage.miniMessage().deserialize(a.toString());
         }
     }
 
