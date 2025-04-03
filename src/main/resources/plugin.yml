@@ -4,6 +4,7 @@ main: org.zycong.fableCraft.FableCraft
 api-version: '1.21'
 authors: [ zycong, Tonnam_101 ]
 description: RPG style plugin.
+depend: [GUI-Library]
 
 commands:
   itemDB:

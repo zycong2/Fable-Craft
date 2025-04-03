@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -24,13 +25,11 @@ import org.zycong.fableCraft.commands.buildHelper;
 import org.zycong.fableCraft.commands.itemDB;
 import org.zycong.fableCraft.commands.mobs;
 import org.zycong.fableCraft.commands.stats;
-import org.zycong.fableCraft.core.GUI.GUIListener;
 import org.zycong.fableCraft.core.PDCHelper;
 import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
 import org.zycong.fableCraft.listeners.mainListeners;
 import org.zycong.fableCraft.listeners.skills;
-import org.bukkit.scheduler.BukkitRunnable;
 
 
 public final class FableCraft extends JavaPlugin {
@@ -63,8 +62,7 @@ public final class FableCraft extends JavaPlugin {
                 new buildHelper(),
                 new mobs(),
                 new skills(),
-                new lootTableHelper(),
-                new GUIListener()
+                new lootTableHelper()
         );
 
         BukkitScheduler scheduler = this.getServer().getScheduler();

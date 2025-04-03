@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -277,7 +278,7 @@ public class yamlManager {
 
             for(String s : FableCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
-                    TextComponent var41 = Colorize(String.valueOf(getFileConfig("itemDB").get(name + "." + s)));
+                    TextComponent var41 = Colorize(getFileConfig("itemDB").get(name + "." + s).toString());
                     lore.add(Colorize("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
@@ -286,30 +287,32 @@ public class yamlManager {
             }
 
             if (attributes != 0) {
-                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
-                lore.addFirst((TextComponent) MiniMessage.miniMessage().deserialize(""));
+                lore.add(Colorize(""));
+                lore.addFirst(Colorize(""));
             }
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    TextComponent config = (TextComponent) getConfig("items.lore.prefix", null, true);
+                    TextComponent config = Colorize(getConfig("items.lore.prefix", null, true).toString());
                     lore.add(config);
                 }
 
-                lore.addAll((List)getFileConfig("itemDB").get(name + ".lore"));
+                List<TextComponent> coloredLore = new ArrayList(List.of());
+                for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
+                    coloredLore.add(Colorize(str));
+                }
+                lore.addAll(coloredLore);
                 if (isConfigSet("items.lore.suffix")) {
-                    TextComponent config = (TextComponent) getConfig("items.lore.suffix", null, true);
+                    TextComponent config = Colorize(getConfig("items.lore.suffix", null, true).toString());
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
-                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
-                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
-                lore.add((TextComponent) MiniMessage.miniMessage().deserialize(""));
+                lore.add(Colorize(""));
+                lore.add(Colorize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add(Colorize(""));
             }
-
-            List<TextComponent> coloredLore = lore;
 
             /*for(TextComponent tc : lore) {
                 coloredLore.add(Colorize(String.valueOf(tc)));
@@ -318,7 +321,7 @@ public class yamlManager {
                 if (isItemSet(name + ".name")) {
                     imeta.displayName(MiniMessage.miniMessage().deserialize((String) getFileConfig("itemDB").get(name + ".name")));
                 }
-                //imeta.lore(lore);
+                imeta.lore(lore);
                 if (isItemSet(name + ".customModelData")) {
                     imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
                 }
@@ -422,11 +425,11 @@ public class yamlManager {
     public static @Nullable String getMessage(String path, Player target, boolean round) {
         Object a = getFileConfig("config").get(path);
         if (a == null) {
-            return Colorize("&cOption not found");
+            return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize("&cOption not found"));
         } else if (a instanceof String s) {
-            return (TextComponent) setPlaceholders(s, round, target);
+            return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(setPlaceholders(s, round, target).toString()));
         } else {
-            return (TextComponent) a;
+            return a.toString();
         }
     }
 
