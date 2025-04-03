@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -130,7 +131,11 @@ public final class FableCraft extends JavaPlugin {
         return item;
     }
 
-    public static TextComponent Colorize(String input) {
+    public static String ColorizeForItem(String input) {
+        return ChatColor.translateAlternateColorCodes('&', input);
+    }
+
+    public static TextComponent Colorize(String input){
         TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(input);
         return deserialized;
     }

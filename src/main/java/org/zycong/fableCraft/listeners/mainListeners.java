@@ -37,6 +37,7 @@ import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.yamlManager;
 
 import static org.zycong.fableCraft.FableCraft.Colorize;
+import static org.zycong.fableCraft.FableCraft.ColorizeForItem;
 import static org.zycong.fableCraft.core.PDCHelper.*;
 import static org.zycong.fableCraft.core.yamlManager.*;
 
@@ -193,22 +194,12 @@ public class mainListeners implements Listener {
 
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
         ItemStack output = new ItemStack(material, amount);
-        List<TextComponent> coloredList = new ArrayList<>();
-        for(String text : lore){coloredList.add(Colorize(text));}
-        output.editMeta(imeta -> {
-            if (isItemSet(name + ".name")) {
-                imeta.displayName(Colorize(name));
-            }
-            imeta.lore(coloredList);
-            if (isItemSet(name + ".customModelData")) {
-                imeta.setCustomModelData(CustomModel);
-            }
-            if (isItemSet(name + ".hide")) {
-                for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
-                    imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
-                }
-            }
-        });
+        List<String> coloredList = new ArrayList<>();
+        for(String text : lore){coloredList.add(ColorizeForItem(text));}
+        ItemMeta IMeta = output.getItemMeta();
+        IMeta.setDisplayName(ColorizeForItem(name));
+        IMeta.setLore(coloredList);
+        IMeta.setCustomModelData(CustomModel);
         return output;}
 
     private String getItemKey(ItemStack item) {

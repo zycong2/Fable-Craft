@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.zycong.fableCraft.FableCraft;
 
 import static org.zycong.fableCraft.FableCraft.Colorize;
+import static org.zycong.fableCraft.FableCraft.ColorizeForItem;
 
 
 public class yamlManager {
@@ -276,7 +277,7 @@ public class yamlManager {
         } else {
             ItemStack item = ItemStack.of(itemType);
             ItemMeta meta = item.getItemMeta();
-            List<TextComponent> lore = new ArrayList(List.of());
+            List<String> lore = new ArrayList(List.of());
             List<String> PDC = new ArrayList(List.of());
             PDC.add("ItemID;" + getFileConfig("itemDB").getString(name + ".ItemID"));
             int attributes = 0;
@@ -284,7 +285,7 @@ public class yamlManager {
             for(String s : FableCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
                     TextComponent var41 = Colorize(getFileConfig("itemDB").get(name + "." + s).toString());
-                    lore.add(Colorize("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
+                    lore.add(ColorizeForItem("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
                     //item = stats.setItemPDC(s, item, itemDB.get(name + "." + s));
@@ -292,71 +293,53 @@ public class yamlManager {
             }
 
             if (attributes != 0) {
-                lore.add(Colorize(""));
-                lore.addFirst(Colorize(""));
+                lore.add(ColorizeForItem(""));
+                lore.addFirst(ColorizeForItem(""));
+            }
+
+            if (isItemSet(name + ".name")) {
+                meta.setItemName((String)getFileConfig("itemDB").get(name + ".name"));
+            }
+
+            if (isItemSet(name + ".customModelData")) {
+                meta.setCustomModelData((Integer)getFileConfig("itemDB").get(name + ".customModelData"));
+            }
+
+            if (isItemSet(name + ".enchantments")) {
+                for(Object enchantmentString : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".enchantments"))) {
+                    String[] enchantString = enchantmentString.toString().split(":");
+                    Enchantment enchantment = Enchantment.getByName(enchantString[0]);
+                    meta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
+                }
             }
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    TextComponent config = Colorize(getConfig("items.lore.prefix", null, true).toString());
+                    String config = ColorizeForItem(getConfig("items.lore.prefix", null, true).toString());
                     lore.add(config);
                 }
 
-                List<TextComponent> coloredLore = new ArrayList(List.of());
+                List<String> coloredLore = new ArrayList(List.of());
                 for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
-                    coloredLore.add(Colorize(str));
+                    coloredLore.add(ColorizeForItem(str));
                 }
                 lore.addAll(coloredLore);
                 if (isConfigSet("items.lore.suffix")) {
-                    TextComponent config = Colorize(getConfig("items.lore.suffix", null, true).toString());
+                    String config = ColorizeForItem(getConfig("items.lore.suffix", null, true).toString());
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
-                lore.add(Colorize(""));
-                lore.add(Colorize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
-                lore.add(Colorize(""));
+                lore.add(ColorizeForItem(""));
+                lore.add(ColorizeForItem(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add(ColorizeForItem(""));
             }
 
             /*for(TextComponent tc : lore) {
                 coloredLore.add(Colorize(String.valueOf(tc)));
             }*/
-            item.editMeta(imeta -> {
-                PersistentDataContainer icontainer = imeta.getPersistentDataContainer();
-                List<Component> coloredLore = new ArrayList(List.of());
-                for(TextComponent tc : lore) {
-                    coloredLore.add(MiniMessage.miniMessage().deserialize(tc.toString()));
-                }
-                if (getFileConfig("itemDB").getString(name + ".name") != null) {
-                    GUIItem itemlore = GUIItem.builder()
-                            .name(Colorize(getFileConfig("itemDB").getString(name + ".name")))
-                            .lore(coloredLore)
-                            .material(Material.PAPER)
-                            .build();
-                    ItemStack iS = itemlore.getItemStack();
-                    if (isItemSet(name + ".name")) {
-                        NamespacedKey namekey = new NamespacedKey("minecraft", "custom_name");
-                        icontainer.set(namekey, PersistentDataType.STRING, JSONComponentSerializer.json().serialize(Colorize(getFileConfig("itemDB").getString(name + ".name"))));
-                    }
-                    imeta.setLore(iS.getLore());
-                    if (isItemSet(name + ".customModelData")) {
-                        imeta.setCustomModelData((Integer) getFileConfig("itemDB").get(name + ".customModelData"));
-                    }
-                    if (isItemSet(name + ".hide")) {
-                        for (Object hide : (List) getFileConfig("itemDB").get(name + ".hide")) {
-                            imeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
-                        }
-                    }
-                    if (isItemSet(name + ".enchantments")) {
-                        for (Object enchantmentString : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".enchantments"))) {
-                            String[] enchantString = enchantmentString.toString().split(":");
-                            Enchantment enchantment = Enchantment.getByName(enchantString[0]);
-                            imeta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
-                        }
-                    }
-                }
-            });
+            item.setItemMeta(meta);
             item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta) {
                 LeatherArmorMeta leatherMeta = (LeatherArmorMeta)meta;
