@@ -79,7 +79,6 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         } else {
             Entity entity=p.getWorld().spawnEntity(p, entityType);
 
-
             if (getFileConfig("mobDB").get(name + ".glowing") != null) { entity.setGlowing((Boolean) getFileConfig("mobDB").get(name + ".glowing")); }
             if (getFileConfig("mobDB").get(name + ".invulnerable") != null) { entity.setInvulnerable((boolean) getFileConfig("mobDB").get(name + ".invulnerable")); }
             LivingEntity LE = (LivingEntity) entity;
