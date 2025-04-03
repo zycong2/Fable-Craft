@@ -131,7 +131,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     void onSpawn(CreatureSpawnEvent event){
         if(event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL)) {
-            if ((Boolean) getConfig("mobs.removeAllVanillaSpawning", null, true)) {
+            if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
                 event.setCancelled(true);
             }
             randomSpawn(event);

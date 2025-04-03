@@ -418,24 +418,24 @@ public class yamlManager {
         if (a == null) {
             return Colorize("&cOption not found");
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target);
+            return setPlaceholders(s, round, target).toString();
         } else {
-            return a;
+            return a.toString();
         }
     }
 
-    public static @Nullable TextComponent getMessage(String path, Player target, boolean round) {
-        Object a = getFileConfig("config").get(path);
+    public static @Nullable Object getMessage(String path, Player target, boolean round) {
+        Object a = getFileConfig("messages").get(path);
         if (a == null) {
-            return (TextComponent) MiniMessage.miniMessage().deserialize("&cOption not found");
+            return Colorize("&cOption not found");
         } else if (a instanceof String s) {
-            return (TextComponent) MiniMessage.miniMessage().deserialize(setPlaceholders(s, round, target).toString());
+            return setPlaceholders(s, round, target).toString();
         } else {
-            return (TextComponent) MiniMessage.miniMessage().deserialize(a.toString());
+            return a.toString();
         }
     }
 
-    public static @NotNull Component setPlaceholders(String s, boolean round, Player target){
+    public static @NotNull String setPlaceholders(String s, boolean round, Player target){
         String[] msgs = s.split("#", 0);
         int count = 0;
 
@@ -481,7 +481,7 @@ public class yamlManager {
         finalMsg = finalMsg.replaceAll(",", "");
         finalMsg = finalMsg.replace("[", "");
         finalMsg = finalMsg.replace("]", "");
-        return MiniMessage.miniMessage().deserialize(finalMsg);
+        return finalMsg;
     } public static String setPlaceholders(String s, boolean round, Entity target){
         String[] msgs = s.split("#", 0);
         LivingEntity e = (LivingEntity) target;

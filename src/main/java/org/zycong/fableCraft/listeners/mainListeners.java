@@ -11,6 +11,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -32,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.zycong.fableCraft.FableCraft;
 import org.zycong.fableCraft.commands.stats;
 import org.zycong.fableCraft.core.yamlManager;
@@ -49,11 +51,17 @@ public class mainListeners implements Listener {
     void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         if (p.hasPlayedBefore()) {
-            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true).content());
+            for (Player pla : Bukkit.getServer().getOnlinePlayers()){
+                pla.sendMessage(Colorize(yamlManager.getMessage("messages.joinMessage", p, true).toString()));
+            }
+            event.setJoinMessage(null);
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
         } else {
+            for (Player pla : Bukkit.getServer().getOnlinePlayers()){
+                pla.sendMessage(Colorize(yamlManager.getMessage("messages.firstJoinMessage", p, true).toString()));
+            }
+            event.setJoinMessage(null);
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
-            event.setJoinMessage(yamlManager.getMessage("messages.joinMessage", p, true).content());
         }
 
         String[] skills = getNodes("config", "stats").toArray(new String[0]);
@@ -85,9 +93,12 @@ public class mainListeners implements Listener {
     void onQuit(PlayerQuitEvent event) {
         Player p = event.getPlayer();
         setPlayerPDC("ItemEditorUsing", p, "notUsing");
-        event.setQuitMessage(getFileConfig("messages").getString("messages.quitMessage"));
+        for (Player pla : Bukkit.getServer().getOnlinePlayers()){
+            pla.sendMessage(Colorize(yamlManager.getMessage("messages.quitMessage", p, true).toString()));
+        }
+        event.setQuitMessage(null);
         if (p.hasMetadata("currentHealth")) {
-            setPlayerPDC("currentHealth", p, String.valueOf(((MetadataValue)p.getMetadata("currentHealth").getFirst()).asInt()));
+            setPlayerPDC("currentHealth", p, String.valueOf(p.getMetadata("currentHealth").getFirst().asInt()));
         } else {
             setPlayerPDC("currentHealth", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
         }
@@ -171,13 +182,13 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-name");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.rename.info", p, false));
+                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.rename.info", p, false).toString()));
             }
             else if(slot == 10) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-lore");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.info", p, false));
+                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.lore.info", p, false).toString()));
             }
         }
 
@@ -186,8 +197,8 @@ public class mainListeners implements Listener {
     private Inventory makeItemEditor(ItemStack item){
         Inventory outputinv = Bukkit.createInventory(null, 36, "Item Editor");
         outputinv.setItem(4, item);
-        outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&rRename the item you can use color too!", "&rCurrent name\"" + item.getItemMeta().getDisplayName() + "\"", "&7 ", "&bClick Me!")));
-        outputinv.setItem(10, makeItem("&dLore", item.getType(), 1, 0, List.of("&rSet lore in the line you want", "&rYes, you can use color", "(hex code prob work I'll remove this after testing)", "&7 ", "&bClick Me!")));
+        outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&rRename the item you can use color too!", "&7 ", "&bClick Me!")));
+        outputinv.setItem(10, makeItem("&dLore", item.getType(), 1, 0, List.of("&rSet lore in the line you want", "&rYes, you can use color", "&7 ", "&bClick Me!")));
 
         return outputinv;
     }
@@ -195,11 +206,12 @@ public class mainListeners implements Listener {
     private ItemStack makeItem(String name, Material material, int amount,int CustomModel, List<String> lore){
         ItemStack output = new ItemStack(material, amount);
         List<String> coloredList = new ArrayList<>();
-        for(String text : lore){coloredList.add(ColorizeForItem(text));}
+        for(String str : lore){coloredList.add(ColorizeForItem(str));}
         ItemMeta IMeta = output.getItemMeta();
         IMeta.setDisplayName(ColorizeForItem(name));
         IMeta.setLore(coloredList);
         IMeta.setCustomModelData(CustomModel);
+        output.setItemMeta(IMeta);
         return output;}
 
     private String getItemKey(ItemStack item) {
@@ -214,13 +226,14 @@ public class mainListeners implements Listener {
     @EventHandler
     void Closeinv(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
-        if(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")){return;}
+        if(getPlayerPDC("ItemEditorUsing", p).equals("GUI")){setPlayerPDC("ItemEditorUsing", p, "notUsing");
+        }
     }
 
     @EventHandler
     void ChatEvent(AsyncChatEvent e){
         Player p = e.getPlayer();
-        String message = e.message().toString();
+        String message = String.valueOf(e.message());
         if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) return;
 
         e.setCancelled(true);
@@ -229,8 +242,13 @@ public class mainListeners implements Listener {
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
             getFileConfig("itemDB").set(itemKey + ".name", message);
             p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.rename.success")));
-            p.openInventory(makeItemEditor(getItem(itemKey)));
-            setPlayerPDC("ItemEditorUsing", p, "GUI");
+            FableCraft.wait(1, new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.openInventory(makeItemEditor(getItem(itemKey)));
+                    setPlayerPDC("ItemEditorUsing", p, "GUI");
+                }
+            });
         }else if(getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
@@ -252,8 +270,13 @@ public class mainListeners implements Listener {
             itemLore.set(lineNumber-1, message);
             getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.success"));
-            p.openInventory(makeItemEditor(getItem(itemKey)));
-            setPlayerPDC("ItemEditorUsing", p, "GUI");
+            FableCraft.wait(1, new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.openInventory(makeItemEditor(getItem(itemKey)));
+                    setPlayerPDC("ItemEditorUsing", p, "GUI");
+                }
+            });
         }
 
         try {
@@ -313,7 +336,7 @@ public class mainListeners implements Listener {
     @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));}
     @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlManager.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
     @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
-    @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && (boolean) yamlManager.getConfig("food.removeHunger", null, true)) { event.setCancelled(true); }}
+    @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
 
     @EventHandler
     void onArmorChange(PlayerArmorChangeEvent event) {
