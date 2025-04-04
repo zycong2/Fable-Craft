@@ -1,13 +1,10 @@
-import xyz.jpenilla.resourcefactory.bukkit.BukkitPluginYaml
-
 plugins {
   `java-library`
   id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
   id("xyz.jpenilla.run-paper") version "2.3.1" // Adds runServer and runMojangMappedServer tasks for testing
-  id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.2.0" // Generates plugin.yml based on the Gradle config
 }
 
-group = "io.papermc.paperweight"
+group = "io.RPGCraft.FableCraft"
 version = "1.0.0-SNAPSHOT"
 description = "RPG inspired plugin."
 
@@ -53,13 +50,4 @@ tasks {
     outputJar = layout.buildDirectory.file("libs/PaperweightTestPlugin-${project.version}.jar")
   }
    */
-}
-
-// Configure plugin.yml generation
-// - name, version, and description are inherited from the Gradle project.
-bukkitPluginYaml {
-  main = "io.RPGCraft.FableCraft.FableCraft"
-  load = BukkitPluginYaml.PluginLoadOrder.STARTUP
-  authors.add("Zycong, Tonnam_101")
-  apiVersion = "1.21.4"
 }
