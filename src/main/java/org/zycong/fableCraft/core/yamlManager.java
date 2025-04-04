@@ -420,7 +420,7 @@ public class yamlManager {
     }
 
     public static Object getConfig(String path, Player target, boolean round) {
-        Object a = getFileConfig("config").get(path);
+        Object a = getFileConfig("messages").get(path);
         if (a == null) {
             return Colorize("&cOption not found");
         } else if (a instanceof String s) {
