@@ -197,17 +197,17 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-customModelData");
 
                 p.closeInventory();
-                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.customModelData.info", p, false).toString()));
+                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.custommodel.info", p, false).toString()));
             } else if(slot == 13) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
 
                 p.closeInventory();
-                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.craftPerms.info", p, false).toString()));
+                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.craftingperm.info", p, false).toString()));
             } else if(slot == 14) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-stackSize");
 
                 p.closeInventory();
-                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.stackSize.info", p, false).toString()));
+                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.maxstack.info", p, false).toString()));
             } else if(slot == 35) {
                 String itemKey = getPlayerPDC("SelectedItemKey", p);
                 if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
@@ -272,10 +272,12 @@ public class mainListeners implements Listener {
 
         e.setCancelled(true);
 
+        // NAME
         if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
                 p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
             getFileConfig("itemDB").set(itemKey + ".name", message);
@@ -288,6 +290,7 @@ public class mainListeners implements Listener {
                 }
             });
             return;
+        // LORE
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -298,11 +301,13 @@ public class mainListeners implements Listener {
             try {
                 if (message.contains(" ")) {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.noSpace"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
                 linenumber = Integer.parseInt(e.message().toString());
                 if (linenumber <= 0) {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.null"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
                 return;
@@ -317,6 +322,7 @@ public class mainListeners implements Listener {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
                 p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
             List<String> itemLore = getFileConfig("itemDB").getStringList(itemKey + ".lore");
@@ -325,6 +331,14 @@ public class mainListeners implements Listener {
                 itemLore.add(message);
                 getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.create"));
+                setPlayerPDC("ItemEditorUsing", p, "GUI");
+                FableCraft.wait(1, new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.openInventory(makeItemEditor(getItem(itemKey)));
+                        setPlayerPDC("ItemEditorUsing", p, "GUI");
+                    }
+                });
                 return;
             }
             itemLore.set(lineNumber - 1, message);
@@ -338,37 +352,51 @@ public class mainListeners implements Listener {
                 }
             });
             return;
+        // ENCHANTMENTS
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-enchants")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
                 p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
             String[] split = message.split(" ");
             if (split.length != 2) {
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
+            List<String> itemEnchants = getFileConfig("itemDB").getStringList(itemKey + ".enchantments");
             String enchantment = split[0];
             Integer level = Integer.valueOf(split[1]);
             if (level <= 0) {
-                List<String> itemEnchants = getFileConfig("itemDB").getStringList(itemKey + ".enchantments");
                 if (enchantment != null) {
                 } else {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
                 if (itemEnchants.contains(enchantment)) {
                     itemEnchants.remove(enchantment);
                 } else {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.notFound"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
                 getFileConfig("itemDB").set(itemKey + ".enchantments", itemEnchants);
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.success"));
                 return;
             }
-            getFileConfig("itemDB").set(itemKey + ".enchantments." + enchantment, level);
+            Integer i = 0;
+            for(String s : itemEnchants) {
+                if (s.equals(enchantment.toLowerCase())) {
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
+                    i++;
+                    itemEnchants.set(i-1, enchantment + ":" + level);
+                    return;
+                }
+            }
+            getFileConfig("itemDB").set(itemKey + ".enchantments", itemEnchants);
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.success"));
             FableCraft.wait(1, new BukkitRunnable() {
                 @Override
@@ -383,10 +411,12 @@ public class mainListeners implements Listener {
 
             }
             return;
+            // CUSTOM MODEL DATA
         }else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-customModelData")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
                 p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
             int CustomModelData = 0;
@@ -394,10 +424,11 @@ public class mainListeners implements Listener {
                 CustomModelData = Integer.parseInt(message);
                 if (CustomModelData <= 0) {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
                 getFileConfig("itemDB").set(itemKey + ".customModelData", CustomModelData);
-                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.customModelData.success"));
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.custommodel.success"));
                 FableCraft.wait(1, new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -409,14 +440,51 @@ public class mainListeners implements Listener {
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
             }
             return;
+            // CRAFTING PERMISSIONS
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-craftPerms")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
                 p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
             String permission = message;
-            getFileConfig("itemDB").set(itemKey + "adaf", "aefad");
+            getFileConfig("itemDB").set(itemKey + ".recipe.permission", permission);
+            FableCraft.wait(1, new BukkitRunnable() {
+                @Override
+                public void run() {
+                    p.openInventory(makeItemEditor(getItem(itemKey)));
+                    setPlayerPDC("ItemEditorUsing", p, "GUI");
+                }
+            });
+            // MAX STACK SIZE
+        } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-stackSize")){
+            String itemKey = getPlayerPDC("SelectedItemKey", p);
+            if (itemKey == null) {
+                p.sendMessage(Colorize("&cError: No item selected!"));
+                setPlayerPDC("ItemEditorUsing", p, "notUsing");
+                return;
+            }
+            int stackSize = 0;
+            try {
+                stackSize = Integer.parseInt(message);
+                if (stackSize <= 0) {
+                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
+                    return;
+                }
+                getFileConfig("itemDB").set(itemKey + ".maxStackSize", stackSize);
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.maxstack.success"));
+                FableCraft.wait(1, new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.openInventory(makeItemEditor(getItem(itemKey)));
+                        setPlayerPDC("ItemEditorUsing", p, "GUI");
+                    }
+                });
+            } catch (NumberFormatException er) {
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+            }
         }
     }
 

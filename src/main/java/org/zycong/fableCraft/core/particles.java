@@ -1,4 +1,4 @@
-package org.zycong.fableCraft.core;
+/*package org.zycong.fableCraft.core;
 
 import com.destroystokyo.paper.ParticleBuilder;
 import org.bukkit.Particle;
@@ -15,4 +15,4 @@ public class particles {
             .particle(Particle.valueOf(particle))
             .spawn();;
   }
-}
+}*/
