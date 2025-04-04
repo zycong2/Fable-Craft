@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -203,18 +204,7 @@ public class mainListeners implements Listener {
 
                 p.closeInventory();
                 p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.craftingperm.info", p, false).toString()));
-            } else if(slot == 14) {
-                setPlayerPDC("ItemEditorUsing", p, "Chat-stackSize");
-
-                p.closeInventory();
-                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.maxstack.info", p, false).toString()));
-            } else if(slot == 35) {
-                String itemKey = getPlayerPDC("SelectedItemKey", p);
-                if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
-                getFileConfig("itemDB").set(itemKey, null);
-                try {getFileConfig("itemDB").save("itemDB.yml");} catch (IOException ignored) {}
-                p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.delete.success")));
-            } else if(slot == 36){
+            } else if(slot == 35){
                 p.closeInventory();
                 setPlayerPDC("ItemEditorUsing", p, "notUsing");
             }
@@ -230,9 +220,7 @@ public class mainListeners implements Listener {
         outputinv.setItem(11, makeItem("&dEnchantments", Material.ENCHANTING_TABLE, 1, 0, List.of("&fSet or add enchantments to your item!", "&fUse &8[&dEnchantment&8] &70 &fto remove", "&7 ", "&bClick Me!")));
         outputinv.setItem(12, makeItem("&bCustom Model Data", Material.COMPARATOR, 1, 0, List.of("&fSet the custom model data of the item", "&7 ", "&bClick Me!")));
         outputinv.setItem(13, makeItem("&aCrafting Permissions", Material.CRAFTING_TABLE, 1, 0, List.of("&fSet the permissions to craft this item!", "&7 ", "&bClick Me!")));
-        outputinv.setItem(14, makeItem("&aMax Stack Size", Material.NAUTILUS_SHELL, item.getMaxStackSize(), 0, List.of("&fSet the max stack size of the item", "&7 ", "&bClick Me!")));
-        outputinv.setItem(35, makeItem("&cDelete Item", Material.LAVA_BUCKET, 1, 0, List.of("&cAre you sure you want to delete this item?", "&cThis action is irreversible!", "&7 ", "&cClick Me!")));
-        outputinv.setItem(36, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
+        outputinv.setItem(35, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
 
         return outputinv;
     }
@@ -267,7 +255,7 @@ public class mainListeners implements Listener {
     @EventHandler
     void ChatEvent(AsyncChatEvent e) {
         Player p = e.getPlayer();
-        String message = String.valueOf(e.message());
+        String message = PlainTextComponentSerializer.plainText().serialize(e.message());
         if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {return;}
 
         e.setCancelled(true);
@@ -280,7 +268,7 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "notUsing");
                 return;
             }
-            getFileConfig("itemDB").set(itemKey + ".name", message);
+            getFileConfig("itemDB").set(itemKey + ".name", ColorizeForItem(message));
             p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.rename.success")));
             FableCraft.wait(1, new BukkitRunnable() {
                 @Override
@@ -297,26 +285,26 @@ public class mainListeners implements Listener {
                 p.sendMessage(Colorize("&cError: No item selected!"));
                 return;
             }
-            int linenumber = 0;
+            Integer linenumber = 0;
             try {
                 if (message.contains(" ")) {
-                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.noSpace"));
+                    p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.general.noSpace")));
                     setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
-                linenumber = Integer.parseInt(e.message().toString());
+                linenumber = Integer.parseInt(message);
                 if (linenumber <= 0) {
-                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.null"));
+                    p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.lore.null")));
                     setPlayerPDC("ItemEditorUsing", p, "notUsing");
                     return;
                 }
-                return;
             } catch (NumberFormatException er) {
                 p.sendMessage(Colorize("&cInvalid Number"));
+                return;
             }
             setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
             setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
-            p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info2"));
+            p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.lore.info2")));
             return;
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore2")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
@@ -326,12 +314,12 @@ public class mainListeners implements Listener {
                 return;
             }
             List<String> itemLore = getFileConfig("itemDB").getStringList(itemKey + ".lore");
-            Integer lineNumber = Integer.parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p));
+            Integer lineNumber = Integer.valueOf(getPlayerPDC("ItemEditorLoreLineNumber", p));
             if (lineNumber > itemLore.size()) {
                 itemLore.add(message);
                 getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.create"));
-                setPlayerPDC("ItemEditorUsing", p, "GUI");
+                setPlayerPDC("ItemEditorLoreLineNumber", p, null);
                 FableCraft.wait(1, new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -389,10 +377,9 @@ public class mainListeners implements Listener {
             }
             Integer i = 0;
             for(String s : itemEnchants) {
+                i++;
                 if (s.equals(enchantment.toLowerCase())) {
-                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
-                    i++;
-                    itemEnchants.set(i-1, enchantment + ":" + level);
+                    itemEnchants.set(i-1, enchantment.toLowerCase() + ":" + level);
                     return;
                 }
             }
@@ -457,34 +444,6 @@ public class mainListeners implements Listener {
                     setPlayerPDC("ItemEditorUsing", p, "GUI");
                 }
             });
-            // MAX STACK SIZE
-        } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-stackSize")){
-            String itemKey = getPlayerPDC("SelectedItemKey", p);
-            if (itemKey == null) {
-                p.sendMessage(Colorize("&cError: No item selected!"));
-                setPlayerPDC("ItemEditorUsing", p, "notUsing");
-                return;
-            }
-            int stackSize = 0;
-            try {
-                stackSize = Integer.parseInt(message);
-                if (stackSize <= 0) {
-                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
-                    setPlayerPDC("ItemEditorUsing", p, "notUsing");
-                    return;
-                }
-                getFileConfig("itemDB").set(itemKey + ".maxStackSize", stackSize);
-                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.maxstack.success"));
-                FableCraft.wait(1, new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        p.openInventory(makeItemEditor(getItem(itemKey)));
-                        setPlayerPDC("ItemEditorUsing", p, "GUI");
-                    }
-                });
-            } catch (NumberFormatException er) {
-                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
-            }
         }
     }
 

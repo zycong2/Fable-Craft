@@ -112,7 +112,6 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.info", "&rEnter the permission you want to set for this item (Enter remove to remove this). &cExample: &fcraft.wooden_sword");
         getFileConfig("messages").addDefault("messages.itemeditor.maxstack.success", "&aYou successfully change the Max Stack Size of this item!");
         getFileConfig("messages").addDefault("messages.itemeditor.maxstack.info", "&rEnter an Integer value for the max stack size.");
-        getFileConfig("messages").addDefault("messages.itemeditor.del.success", "&cYou successfully delete this item! &8(&7Can't be undone &b:&6D&8)");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
@@ -422,9 +421,17 @@ public class yamlManager {
     public static Object getConfig(String path, Player target, boolean round) {
         Object a = getFileConfig("messages").get(path);
         if (a == null) {
-            return Colorize("&cOption not found");
+            try {
+                return ColorizeForItem("&cOption not found");
+            } catch (NumberFormatException e) {
+                return ColorizeForItem("&cidk what to put here");
+            }
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target);
+            try {
+                return setPlaceholders(s, round, target);
+            } catch (NumberFormatException e) {
+                return ColorizeForItem("&cidk what to put here");
+            }
         } else {
             return a.toString();
         }
@@ -433,9 +440,17 @@ public class yamlManager {
     public static @Nullable Object getMessage(String path, Player target, boolean round) {
         Object a = getFileConfig("messages").get(path);
         if (a == null) {
-            return Colorize("&cOption not found");
+            try {
+                return ColorizeForItem("&cOption not found");
+            } catch (NumberFormatException e) {
+                return ColorizeForItem("&cidk what to put here");
+            }
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target);
+            try {
+                return setPlaceholders(s, round, target);
+            } catch (NumberFormatException e) {
+                return ColorizeForItem("&cidk what to put here");
+            }
         } else {
             return a.toString();
         }

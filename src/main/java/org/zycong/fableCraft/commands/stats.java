@@ -40,10 +40,15 @@ public class stats implements CommandExecutor, TabCompleter {
 
 
     public static void checkCurrentStats(Player p){
-        if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))){
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
-        } if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))){
-            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+        try {
+            if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))) {
+                p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
+            }
+            if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))) {
+                p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+            }
+        } catch (NumberFormatException e){
+
         }
     }
     @Override

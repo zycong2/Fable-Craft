@@ -71,22 +71,28 @@ public final class FableCraft extends JavaPlugin {
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                p.sendActionBar(ColorizeForItem(yamlManager.getConfig("actionbar.message", p, true).toString()));
-                double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
-                double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
-                double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-                double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
-                if (currentHealth < maxPlayerHealth) {
-                    double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
-                    currentHealth += (double)20.0F / maxPlayerHealth * amount;
-                    p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), currentHealth));
-                    p.setHealth((double)20.0F / maxPlayerHealth * currentHealth);
-                } else if (currentHealth > maxPlayerHealth) { p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), maxPlayerHealth)); }
-                if (currentMana < maxPlayerMana) {
-                    double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
-                    currentMana += (double)20.0F / maxPlayerMana * amount;
-                    p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), currentMana));
-                } else if (currentMana > maxPlayerMana) { p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), maxPlayerMana)); }
+                p.sendActionBar(ColorizeForItem(String.valueOf(yamlManager.getConfig("actionbar.message", p, true))));
+                try {
+                    double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+                    double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
+                    double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
+                    double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
+                    if (currentHealth < maxPlayerHealth) {
+                        double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
+                        currentHealth += (double) 20.0F / maxPlayerHealth * amount;
+                        p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), currentHealth));
+                        p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
+                    } else if (currentHealth > maxPlayerHealth) {
+                        p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), maxPlayerHealth));
+                    }
+                    if (currentMana < maxPlayerMana) {
+                        double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
+                        currentMana += (double) 20.0F / maxPlayerMana * amount;
+                        p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), currentMana));
+                    } else if (currentMana > maxPlayerMana) {
+                        p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), maxPlayerMana));
+                    }
+                } catch (NumberFormatException e) {}
             }
 
         }, 20L, 20L);
