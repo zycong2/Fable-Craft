@@ -9,7 +9,7 @@ plugins {
 
 group = "io.papermc.paperweight"
 version = "1.0.0-SNAPSHOT"
-description = "Test plugin for paperweight-userdev"
+description = "RPG inspired plugin."
 
 java {
   // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 11 installed for example.
@@ -27,6 +27,10 @@ tasks.assemble {
 
 dependencies {
   paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+  implementation("net.kyori:adventure-text-minimessage:4.19.0")
+  compileOnly("org.projectlombok:lombok:1.18.30")
+  annotationProcessor ("org.projectlombok:lombok:1.18.30")
+
   // paperweight.foliaDevBundle("1.21.4-R0.1-SNAPSHOT")
   // paperweight.devBundle("com.example.paperfork", "1.21.4-R0.1-SNAPSHOT")
 }
@@ -54,7 +58,7 @@ tasks {
 // Configure plugin.yml generation
 // - name, version, and description are inherited from the Gradle project.
 bukkitPluginYaml {
-  main = "io.papermc.paperweight.testplugin.TestPlugin"
+  main = "io.papermc.paperweight.testplugin.FableCraft"
   load = BukkitPluginYaml.PluginLoadOrder.STARTUP
   authors.add("Author")
   apiVersion = "1.21.4"
