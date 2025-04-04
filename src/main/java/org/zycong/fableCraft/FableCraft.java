@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -31,8 +30,6 @@ import org.zycong.fableCraft.core.lootTableHelper;
 import org.zycong.fableCraft.core.yamlManager;
 import org.zycong.fableCraft.listeners.mainListeners;
 import org.zycong.fableCraft.listeners.skills;
-
-import static org.zycong.fableCraft.core.yamlManager.getFileConfig;
 
 
 public final class FableCraft extends JavaPlugin {
@@ -71,7 +68,7 @@ public final class FableCraft extends JavaPlugin {
         BukkitScheduler scheduler = this.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                p.sendActionBar(ColorizeForItem(yamlManager.getConfig("actionbar.message", p, true).toString()));
+                p.sendActionBar(Colorize(String.valueOf(yamlManager.getConfig("actionbar.message", p, true))));
                 double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
                 double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
                 double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
@@ -105,7 +102,7 @@ public final class FableCraft extends JavaPlugin {
     }
 
     public void onDisable() {
-        getFileConfig("data").set("customMobs", customMobs);
+        yamlManager.getFileConfig("data").set("customMobs", customMobs);
         if (!yamlManager.saveData()) {
             Bukkit.getLogger().severe("Failed to save data!");
         }
@@ -132,31 +129,12 @@ public final class FableCraft extends JavaPlugin {
         item.setItemMeta(skullMeta);
         return item;
     }
-    public static String FormatForMiniMessage(String input){
-        String output = input.replace("&0", "<black>").replace("&1", "<dark_blue>")
-                .replace("&2", "<dark_green>").replace("&3", "<dark_aqua>")
-                .replace("&4", "<dark_red>").replace("&5", "<dark_purple>")
-                .replace("&6", "<gold>").replace("&7", "<gray>")
-                .replace("&8", "<dark_gray>").replace("&9", "<blue>")
-                .replace("&a", "<green>").replace("&b", "<aqua>")
-                .replace("&c", "<red>").replace("&d", "<light_purple>")
-                .replace("&e", "<yellow>").replace("&f", "<white>")
-                .replace("&l", "<bold>").replace("&m", "<strikethrough>")
-                .replace("&n", "<underline>").replace("&o", "<italic>")
-                .replace("&r", "<reset>");
-        return output;
-    }
 
-    public static String ColorizeForItem(String input) {
-        return ChatColor.translateAlternateColorCodes('&', input);
-    }
-
-    public static TextComponent Colorize(String input){
-        String s = FormatForMiniMessage(input);
-        TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
+    public static TextComponent Colorize(String input) {
+        TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(input);
         return deserialized;
     }
-    public static void wait(int ticks, Runnable task) {
+    public void wait(int ticks, Runnable task) {
         new BukkitRunnable() {
             @Override
             public void run() {
