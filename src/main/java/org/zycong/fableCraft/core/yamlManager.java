@@ -5,12 +5,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import org.zycong.fableCraft.core.GUI.GUIItem;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -29,8 +24,6 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.zycong.fableCraft.FableCraft;
@@ -110,12 +103,23 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
         getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
         getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
+        getFileConfig("messages").addDefault("messages.itemeditor.enchants.success", "&aYou successfully add/set/remove enchant this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.enchants.notFound", "&aThere no such enchantment in this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.enchants.info", "&rFirst enter the enchantment you want to add/set, then enter the level of the enchantment. &cExample: &fsharpness 5");
+        getFileConfig("messages").addDefault("messages.itemeditor.custommodel.success", "&aYou successfully change the custom model data of this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.custommodel.info", "&rEnter an Integer value for the custom model data. 0 to remove");
+        getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.success", "&aYou successfully change the crafting permission of this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.info", "&rEnter the permission you want to set for this item (Enter remove to remove this). &cExample: &fcraft.wooden_sword");
+        getFileConfig("messages").addDefault("messages.itemeditor.maxstack.success", "&aYou successfully change the Max Stack Size of this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.maxstack.info", "&rEnter an Integer value for the max stack size.");
+        getFileConfig("messages").addDefault("messages.itemeditor.del.success", "&cYou successfully delete this item! &8(&7Can't be undone &b:&6D&8)");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
         getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
+        getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -312,6 +316,11 @@ public class yamlManager {
                     meta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
                 }
             }
+            if (isItemSet(name + ".hide")) {
+                for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
+                    meta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                }
+            }
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
@@ -340,9 +349,7 @@ public class yamlManager {
                 coloredLore.add(Colorize(String.valueOf(tc)));
             }*/
             item.setItemMeta(meta);
-            item.setItemMeta(meta);
-            if (meta instanceof LeatherArmorMeta) {
-                LeatherArmorMeta leatherMeta = (LeatherArmorMeta)meta;
+            if (meta instanceof LeatherArmorMeta leatherMeta) {
                 if (isItemSet(name + ".color")) {
                     String[] colors = String.valueOf(getFileConfig("itemDB").get(name + ".color")).split(",");
                     Color color = Color.fromARGB(1, Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
@@ -350,8 +357,7 @@ public class yamlManager {
                 }
 
                 item.setItemMeta(leatherMeta);
-            } else if (meta instanceof BookMeta) {
-                BookMeta bookMeta = (BookMeta)meta;
+            } else if (meta instanceof BookMeta bookMeta) {
                 if (isItemSet(name + ".title")) {
                     bookMeta.setTitle((String)getFileConfig("itemDB").get(name + ".title"));
                 }
@@ -418,7 +424,7 @@ public class yamlManager {
         if (a == null) {
             return Colorize("&cOption not found");
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target).toString();
+            return setPlaceholders(s, round, target);
         } else {
             return a.toString();
         }
@@ -429,7 +435,7 @@ public class yamlManager {
         if (a == null) {
             return Colorize("&cOption not found");
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target).toString();
+            return setPlaceholders(s, round, target);
         } else {
             return a.toString();
         }
