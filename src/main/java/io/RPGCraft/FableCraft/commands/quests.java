@@ -1,10 +1,10 @@
-package io.papermc.paperweight.testplugin.commands;
+package io.RPGCraft.FableCraft.commands;
 import java.util.List;
 
-import io.papermc.paperweight.testplugin.FableCraft;
-import io.papermc.paperweight.testplugin.core.PDCHelper;
-import io.papermc.paperweight.testplugin.core.lootTableHelper;
-import io.papermc.paperweight.testplugin.core.yamlManager;
+import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.lootTableHelper;
+import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

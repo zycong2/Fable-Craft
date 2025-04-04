@@ -1,6 +1,6 @@
-package io.papermc.paperweight.testplugin.core;
+package io.RPGCraft.FableCraft.core;
 
-import io.papermc.paperweight.testplugin.FableCraft;
+import io.RPGCraft.FableCraft.FableCraft;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;

@@ -1,6 +1,6 @@
-package io.papermc.paperweight.testplugin.core.GUI;
+package io.RPGCraft.FableCraft.core.GUI;
 
-import io.papermc.paperweight.testplugin.FableCraft;
+import io.RPGCraft.FableCraft.FableCraft;
 import lombok.Builder;
 import lombok.Getter;
 import org.bukkit.scheduler.BukkitTask;

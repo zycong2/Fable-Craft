@@ -58,8 +58,8 @@ tasks {
 // Configure plugin.yml generation
 // - name, version, and description are inherited from the Gradle project.
 bukkitPluginYaml {
-  main = "io.papermc.paperweight.testplugin.FableCraft"
+  main = "io.RPGCraft.FableCraft.FableCraft"
   load = BukkitPluginYaml.PluginLoadOrder.STARTUP
-  authors.add("Author")
+  authors.add("Zycong, Tonnam_101")
   apiVersion = "1.21.4"
 }

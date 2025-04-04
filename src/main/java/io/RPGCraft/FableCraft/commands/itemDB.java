@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.commands;
+package io.RPGCraft.FableCraft.commands;
 
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.Command;
@@ -6,8 +6,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import io.papermc.paperweight.testplugin.core.yamlManager;
-import io.papermc.paperweight.testplugin.listeners.mainListeners;
+import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.listeners.mainListeners;
 
 public class itemDB implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {

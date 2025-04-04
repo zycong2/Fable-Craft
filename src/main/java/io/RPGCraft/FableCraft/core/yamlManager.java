@@ -1,11 +1,11 @@
-package io.papermc.paperweight.testplugin.core;
+package io.RPGCraft.FableCraft.core;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import io.papermc.paperweight.testplugin.FableCraft;
+import io.RPGCraft.FableCraft.FableCraft;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,8 +28,8 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.papermc.paperweight.testplugin.FableCraft.Colorize;
-import static io.papermc.paperweight.testplugin.FableCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.FableCraft.Colorize;
+import static io.RPGCraft.FableCraft.FableCraft.ColorizeForItem;
 
 
 public class yamlManager {

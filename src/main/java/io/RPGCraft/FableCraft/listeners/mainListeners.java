@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.listeners;
+package io.RPGCraft.FableCraft.listeners;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 
@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Objects;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
-import io.papermc.paperweight.testplugin.FableCraft;
-import io.papermc.paperweight.testplugin.commands.stats;
-import io.papermc.paperweight.testplugin.core.yamlManager;
+import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,17 +30,15 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import static io.papermc.paperweight.testplugin.FableCraft.Colorize;
-import static io.papermc.paperweight.testplugin.FableCraft.ColorizeForItem;
-import static io.papermc.paperweight.testplugin.core.PDCHelper.*;
-import static io.papermc.paperweight.testplugin.core.yamlManager.*;
+import static io.RPGCraft.FableCraft.FableCraft.Colorize;
+import static io.RPGCraft.FableCraft.FableCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.yamlManager.*;
 
 public class mainListeners implements Listener {
     Inventory menu;

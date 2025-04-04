@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.core;
+package io.RPGCraft.FableCraft.core;
 
 import java.util.List;
 import java.util.Random;

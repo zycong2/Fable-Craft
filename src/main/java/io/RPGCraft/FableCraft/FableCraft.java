@@ -1,17 +1,17 @@
-package io.papermc.paperweight.testplugin;
+package io.RPGCraft.FableCraft;
 
 import java.util.Arrays;
 import java.util.List;
 
-import io.papermc.paperweight.testplugin.commands.buildHelper;
-import io.papermc.paperweight.testplugin.commands.itemDB;
-import io.papermc.paperweight.testplugin.commands.mobs;
-import io.papermc.paperweight.testplugin.commands.stats;
-import io.papermc.paperweight.testplugin.core.PDCHelper;
-import io.papermc.paperweight.testplugin.core.lootTableHelper;
-import io.papermc.paperweight.testplugin.core.yamlManager;
-import io.papermc.paperweight.testplugin.listeners.mainListeners;
-import io.papermc.paperweight.testplugin.listeners.skills;
+import io.RPGCraft.FableCraft.commands.buildHelper;
+import io.RPGCraft.FableCraft.commands.itemDB;
+import io.RPGCraft.FableCraft.commands.mobs;
+import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.lootTableHelper;
+import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.listeners.mainListeners;
+import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -31,7 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import static io.papermc.paperweight.testplugin.core.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
 
 
 public final class FableCraft extends JavaPlugin {

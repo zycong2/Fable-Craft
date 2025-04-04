@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.core.GUI;
+package io.RPGCraft.FableCraft.core.GUI;
 
 import lombok.Builder;
 import lombok.Getter;

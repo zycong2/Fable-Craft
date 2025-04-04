@@ -1,9 +1,9 @@
-package io.papermc.paperweight.testplugin.commands;
+package io.RPGCraft.FableCraft.commands;
 
-import io.papermc.paperweight.testplugin.FableCraft;
-import io.papermc.paperweight.testplugin.core.PDCHelper;
-import io.papermc.paperweight.testplugin.core.lootTableHelper;
-import io.papermc.paperweight.testplugin.core.yamlManager;
+import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.lootTableHelper;
+import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import static io.papermc.paperweight.testplugin.FableCraft.customMobs;
-import static io.papermc.paperweight.testplugin.core.yamlManager.*;
+import static io.RPGCraft.FableCraft.FableCraft.customMobs;
+import static io.RPGCraft.FableCraft.core.yamlManager.*;
 
 
 public class mobs implements CommandExecutor, TabCompleter, Listener {

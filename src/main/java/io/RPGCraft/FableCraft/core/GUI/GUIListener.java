@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.core.GUI;
+package io.RPGCraft.FableCraft.core.GUI;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

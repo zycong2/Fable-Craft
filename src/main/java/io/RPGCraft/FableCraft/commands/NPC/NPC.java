@@ -1,4 +1,4 @@
-package io.papermc.paperweight.testplugin.commands.NPC;
+package io.RPGCraft.FableCraft.commands.NPC;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

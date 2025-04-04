@@ -1,6 +1,6 @@
-package io.papermc.paperweight.testplugin.listeners;
+package io.RPGCraft.FableCraft.listeners;
 
-import io.papermc.paperweight.testplugin.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.PDCHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

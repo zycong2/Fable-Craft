@@ -1,6 +1,6 @@
-package io.papermc.paperweight.testplugin.commands;
+package io.RPGCraft.FableCraft.commands;
 
-import io.papermc.paperweight.testplugin.FableCraft;
+import io.RPGCraft.FableCraft.FableCraft;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +16,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.papermc.paperweight.testplugin.core.yamlManager;
+import io.RPGCraft.FableCraft.core.yamlManager;
 
 import java.util.ArrayList;
 import java.util.List;
