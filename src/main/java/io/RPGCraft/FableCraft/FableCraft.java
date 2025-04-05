@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import io.RPGCraft.FableCraft.commands.NPC.NPC;
 import io.RPGCraft.FableCraft.commands.buildHelper;
 import io.RPGCraft.FableCraft.commands.itemDB;
 import io.RPGCraft.FableCraft.commands.mobs;
@@ -50,6 +51,7 @@ public final class FableCraft extends JavaPlugin {
   public void onEnable() {
 
     this.getCommand("itemDB").setExecutor(new itemDB());
+    this.getCommand("createNPC").setExecutor(new NPC());
     this.getCommand("resetStats").setExecutor(new stats());
     this.getCommand("resetStats").setTabCompleter(new stats());
     this.getCommand("buildHelper").setExecutor(new buildHelper());

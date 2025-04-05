@@ -3,11 +3,21 @@ package io.RPGCraft.FableCraft.commands.NPC;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import static io.RPGCraft.FableCraft.commands.NPC.PlayerNPC.PlayerNpcEntity.createNPC;
 
 public class NPC implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        return false;
+
+      if(commandSender instanceof Player){return false;}
+
+      Player player = (Player) commandSender;
+
+      createNPC(player.getLocation(), player);
+
+      return false;
     }
 }

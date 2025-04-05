@@ -11,6 +11,11 @@ commands:
     permission: FableCraft.itemDB
     aliases:
       - idb
+  createNPC:
+    description: idk
+    permission: FableCraft.createNPC
+    aliases:
+      - makenpc
   resetStats:
     description: Reset the stats of the specified player.
     permission: FableCraft.resetStats

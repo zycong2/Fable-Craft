@@ -1,76 +1,68 @@
 package io.RPGCraft.FableCraft.commands.NPC.PlayerNPC;
 
 import com.mojang.authlib.GameProfile;
+import io.RPGCraft.FableCraft.FableCraft;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ParticleStatus;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.player.ChatVisiblity;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class PlayerNpcEntity {
   private Map<UUID, ServerPlayer> npcs = new HashMap<>();
 
-  public void createNPC(Location loc, String name, String skin) {
-    MinecraftServer server = MinecraftServer.getServer();
-    ServerLevel level = ((CraftWorld) loc.getWorld()).getHandle();
+  public static void createNPC(Location location, Player player) {
+    MinecraftServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
+    ServerLevel serverLevel = ((CraftWorld) location.getWorld()).getHandle();
+    ServerPlayer serverPlayer = new ServerPlayer(minecraftServer, serverLevel, new GameProfile(UUID.randomUUID(), "NPC-Name"), ClientInformation.createDefault());
+    serverPlayer.setPos(location.getX(), location.getY(), location.getZ());
 
-    GameProfile gameProfile = new GameProfile(UUID.randomUUID(), name);
+    SynchedEntityData synchedEntityData = serverPlayer.getEntityData();
+    synchedEntityData.set(new EntityDataAccessor<>(17, EntityDataSerializers.BYTE), (byte) 127);
 
-    ClientInformation clientInformation = new ClientInformation(
-      "en_US",                // language
-      8,                      // viewDistance
-      ChatVisiblity.FULL, // chatVisibility
-      true,                   // chatColors
-      0x7F,                  // modelCustomisation
-      HumanoidArm.RIGHT,     // mainHand
-      false,                  // textFiltering
-      true,                   // allowsListing
-      ParticleStatus.MINIMAL  // particleStatus
-    );
+    setValue(serverPlayer, "c", ((CraftPlayer) player).getHandle().connection);
 
-    ServerPlayer npc = new ServerPlayer(server, level, gameProfile, clientInformation);
+    ServerEntity se = new ServerEntity(serverPlayer.serverLevel(), serverPlayer, 0, false, packet -> {}, Set.of());
+    Packet<?> packet = serverPlayer.getAddEntityPacket(se);
 
-    npc.setPos(loc.getX(), loc.getY(), loc.getZ());
+    sendPacket(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, serverPlayer), player);
+    sendPacket(packet, player);
+    sendPacket(new ClientboundSetEntityDataPacket(serverPlayer.getId(), synchedEntityData.getNonDefaultValues()), player);
+    Bukkit.getScheduler().runTaskLaterAsynchronously(FableCraft.getInstance(), new Runnable() {
+      @Override
+      public void run() {
+        sendPacket(new ClientboundPlayerInfoRemovePacket(Collections.singletonList(serverPlayer.getUUID())), player);
+      }
+    }, 40);
+  }
+  public static void sendPacket(Packet<?> packet, Player player) {
+    ((CraftPlayer) player).getHandle().connection.send(packet);
+  }
 
-    level.addNewPlayer(npc);
-
-    npcs.put(npc.getUUID(), npc);
-
-    for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-      ServerGamePacketListenerImpl connection = ((CraftPlayer) p).getHandle().connection;
-
-      // Add player to player list
-      connection.send(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, npc));
-
-      // Spawn player
-      // I give up here zycong
-
-      // Update head rotation
-      connection.send(new ClientboundRotateHeadPacket(npc, (byte) ((loc.getYaw() * 256.0F) / 360.0F)));
-
-      // Update player movement
-      connection.send(new ClientboundMoveEntityPacket.Rot(
-        npc.getId(),
-        (byte) ((loc.getYaw() * 256.0F) / 360.0F),
-        (byte) ((loc.getPitch() * 256.0F) / 360.0F),
-        true
-      ));
+  public static void setValue(Object packet, String fieldName, Object value) {
+    try {
+      Field field = packet.getClass().getDeclaredField(fieldName);
+      field.setAccessible(true);
+      field.set(packet, value);
+    } catch (Exception exception) {
+      exception.printStackTrace();
     }
   }
 }
