@@ -6,11 +6,16 @@ import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.minecraft.world.BossEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -95,6 +100,16 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Component.text(setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
             if (getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
+
+            if (getFileConfig("mobDB").get(name + ".bossBar.color") != null) {
+              BossBar bar = Bukkit.createBossBar(
+                entity.getCustomName(),
+                BarColor.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.color"))),
+                BarStyle.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.barStyle")))
+                );
+              entity.showBossBar((net.kyori.adventure.bossbar.BossBar) bar);
+            }
+
 
             if (getFileConfig("mobDB").get(name + ".lootTable") != null) { PDCHelper.setEntityPDC("lootTable", LE, (String) getFileConfig("mobDB").get(name + ".lootTable")); }
 
