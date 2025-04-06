@@ -72,7 +72,7 @@ public final class FableCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for(Player p : Bukkit.getOnlinePlayers()) {
-        p.sendActionBar(ColorizeForItem(String.valueOf(yamlManager.getConfig("actionbar.message", p, true))));
+        p.sendActionBar(Colorize(yamlManager.getConfig("actionbar.message", p, true).toString()));
         try {
           double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
           double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
@@ -150,7 +150,18 @@ public final class FableCraft extends JavaPlugin {
       .replace("&e", "<yellow>").replace("&f", "<white>")
       .replace("&l", "<bold>").replace("&m", "<strikethrough>")
       .replace("&n", "<underline>").replace("&o", "<italic>")
-      .replace("&r", "<reset>");
+      .replace("&r", "<reset>")
+      .replace("§0", "<black>").replace("§1", "<dark_blue>")
+      .replace("§2", "<dark_green>").replace("§3", "<dark_aqua>")
+      .replace("§4", "<dark_red>").replace("§5", "<dark_purple>")
+      .replace("§6", "<gold>").replace("§7", "<gray>")
+      .replace("§8", "<dark_gray>").replace("§9", "<blue>")
+      .replace("§a", "<green>").replace("§b", "<aqua>")
+      .replace("§c", "<red>").replace("§d", "<light_purple>")
+      .replace("§e", "<yellow>").replace("§f", "<white>")
+      .replace("§l", "<bold>").replace("§m", "<strikethrough>")
+      .replace("§n", "<underline>").replace("§o", "<italic>")
+      .replace("§r", "<reset>");
     return output;
   }
 

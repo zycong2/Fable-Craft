@@ -33,7 +33,7 @@ public class stats implements CommandExecutor, TabCompleter {
             PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlManager.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
         }
         stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
+        p.sendMessage(yamlManager.getMessage("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
         return true;
     }
 

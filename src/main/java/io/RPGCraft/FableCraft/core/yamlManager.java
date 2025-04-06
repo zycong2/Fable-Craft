@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import io.RPGCraft.FableCraft.FableCraft;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -285,17 +286,16 @@ public class yamlManager {
 
             for(String s : FableCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
-                    TextComponent var41 = Colorize(getFileConfig("itemDB").get(name + "." + s).toString());
-                    lore.add(ColorizeForItem("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
+                    String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
+                    lore.add("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
-                    //item = stats.setItemPDC(s, item, itemDB.get(name + "." + s));
                 }
             }
 
             if (attributes != 0) {
-                lore.add(ColorizeForItem(""));
-                lore.addFirst(ColorizeForItem(""));
+                lore.add("");
+                lore.addFirst("");
             }
 
             if (isItemSet(name + ".name")) {
@@ -315,36 +315,37 @@ public class yamlManager {
             }
             if (isItemSet(name + ".hide")) {
                 for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
-                    meta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf("HIDE_" + hide)});
+                    meta.addItemFlags(ItemFlag.valueOf("HIDE_" + hide));
                 }
             }
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    String config = ColorizeForItem(getConfig("items.lore.prefix", null, true).toString());
+                    String config = (String) getConfig("items.lore.prefix", null, true);
                     lore.add(config);
                 }
 
-                List<String> coloredLore = new ArrayList(List.of());
                 for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
-                    coloredLore.add(ColorizeForItem(str));
+                    lore.add(str);
                 }
-                lore.addAll(coloredLore);
                 if (isConfigSet("items.lore.suffix")) {
-                    String config = ColorizeForItem(getConfig("items.lore.suffix", null, true).toString());
+                    String config = (String) getConfig("items.lore.suffix", null, true);
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
-                lore.add(ColorizeForItem(""));
-                lore.add(ColorizeForItem(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
-                lore.add(ColorizeForItem(""));
+                lore.add("");
+                lore.add(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity")));
+                lore.add("");
             }
 
-            /*for(TextComponent tc : lore) {
-                coloredLore.add(Colorize(String.valueOf(tc)));
-            }*/
+            List<TextComponent> coloredLore = new ArrayList<>(List.of());
+            for(String tc : lore) {
+                coloredLore.add(Colorize(tc));
+            }
+
+
             item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta leatherMeta) {
                 if (isItemSet(name + ".color")) {
@@ -367,6 +368,7 @@ public class yamlManager {
                     bookMeta.setPages((List)getFileConfig("itemDB").get(name + ".pages"));
                 }
             }
+            meta.lore(coloredLore);
 
             if (getFileConfig("itemDB").get(name + ".recipe.permission") != null){
                 String permission = (String) getFileConfig("itemDB").get(name + ".recipe.permission");
@@ -417,7 +419,7 @@ public class yamlManager {
     }
 
     public static Object getConfig(String path, Player target, boolean round) {
-        Object a = getFileConfig("messages").get(path);
+        Object a = getFileConfig("config").get(path);
         if (a == null) {
             return ColorizeForItem("&cOption not found");
         } else if (a instanceof String s) {
@@ -427,15 +429,13 @@ public class yamlManager {
         }
     }
 
-    public static @Nullable Object getMessage(String path, Player target, boolean round) {
+    public static @Nullable Component getMessage(String path, Player target, boolean round) {
         Object a = getFileConfig("messages").get(path);
         if (a == null) {
-            return ColorizeForItem("&cOption not found");
+            return Colorize("&cOption not found");
         } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target);
-        } else {
-            return a.toString();
-        }
+            return Colorize(setPlaceholders(s, round, target));
+        } return null;
     }
 
     public static @NotNull String setPlaceholders(String s, boolean round, Player target){
