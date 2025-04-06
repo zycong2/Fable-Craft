@@ -200,18 +200,7 @@ public class mainListeners implements Listener {
 
                 p.closeInventory();
                 p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.craftPerms.info", p, false).toString()));
-            } else if(slot == 14) {
-                setPlayerPDC("ItemEditorUsing", p, "Chat-stackSize");
-
-                p.closeInventory();
-                p.sendMessage(Colorize(yamlManager.getMessage("messages.itemeditor.stackSize.info", p, false).toString()));
-            } else if(slot == 35) {
-                String itemKey = getPlayerPDC("SelectedItemKey", p);
-                if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
-                getFileConfig("itemDB").set(itemKey, null);
-                try {getFileConfig("itemDB").save("itemDB.yml");} catch (IOException ignored) {}
-                p.sendMessage(Colorize(getFileConfig("messages").getString("messages.itemeditor.delete.success")));
-            } else if(slot == 36){
+            } else if(slot == 35){
                 p.closeInventory();
                 setPlayerPDC("ItemEditorUsing", p, "notUsing");
             }
@@ -227,9 +216,7 @@ public class mainListeners implements Listener {
         outputinv.setItem(11, makeItem("&dEnchantments", Material.ENCHANTING_TABLE, 1, 0, List.of("&fSet or add enchantments to your item!", "&fUse &8[&dEnchantment&8] &70 &fto remove", "&7 ", "&bClick Me!")));
         outputinv.setItem(12, makeItem("&bCustom Model Data", Material.COMPARATOR, 1, 0, List.of("&fSet the custom model data of the item", "&7 ", "&bClick Me!")));
         outputinv.setItem(13, makeItem("&aCrafting Permissions", Material.CRAFTING_TABLE, 1, 0, List.of("&fSet the permissions to craft this item!", "&7 ", "&bClick Me!")));
-        outputinv.setItem(14, makeItem("&aMax Stack Size", Material.NAUTILUS_SHELL, item.getMaxStackSize(), 0, List.of("&fSet the max stack size of the item", "&7 ", "&bClick Me!")));
-        outputinv.setItem(35, makeItem("&cDelete Item", Material.LAVA_BUCKET, 1, 0, List.of("&cAre you sure you want to delete this item?", "&cThis action is irreversible!", "&7 ", "&cClick Me!")));
-        outputinv.setItem(36, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
+        outputinv.setItem(35, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
 
         return outputinv;
     }
@@ -264,11 +251,12 @@ public class mainListeners implements Listener {
     @EventHandler
     void ChatEvent(AsyncChatEvent e) {
         Player p = e.getPlayer();
-        String message = String.valueOf(e.message());
+        String message = ColorizeForItem(String.valueOf(e.message()));
         if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {return;}
 
         e.setCancelled(true);
 
+        // NAME
         if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -285,6 +273,8 @@ public class mainListeners implements Listener {
                 }
             });
             return;
+
+        // LORE
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -310,6 +300,8 @@ public class mainListeners implements Listener {
             setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.lore.info2"));
             return;
+
+        // LORE Part.2
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore2")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -335,6 +327,8 @@ public class mainListeners implements Listener {
                 }
             });
             return;
+
+        // ENCHANTMENTS
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-enchants")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -346,10 +340,10 @@ public class mainListeners implements Listener {
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
                 return;
             }
+            List<String> itemEnchants = getFileConfig("itemDB").getStringList(itemKey + ".enchantments");
             String enchantment = split[0];
             Integer level = Integer.valueOf(split[1]);
             if (level <= 0) {
-                List<String> itemEnchants = getFileConfig("itemDB").getStringList(itemKey + ".enchantments");
                 if (enchantment != null) {
                 } else {
                     p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
@@ -358,14 +352,26 @@ public class mainListeners implements Listener {
                 if (itemEnchants.contains(enchantment)) {
                     itemEnchants.remove(enchantment);
                 } else {
-                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.notFound"));
+                    p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
                     return;
                 }
                 getFileConfig("itemDB").set(itemKey + ".enchantments", itemEnchants);
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.success"));
                 return;
             }
-            getFileConfig("itemDB").set(itemKey + ".enchantments." + enchantment, level);
+            if (enchantment == null) {
+                p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
+                return;
+            }
+          Integer i = 0;
+            for(String s : itemEnchants) {
+                i++;
+                if (s.contains(enchantment)) {
+                    itemEnchants.set(i-1, enchantment.toLowerCase() + ':' + level);
+                    return;
+                }
+            }
+            getFileConfig("itemDB").set(itemKey + ".enchantments.", itemEnchants);
             p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.enchants.success"));
             FableCraft.wait(1, new BukkitRunnable() {
                 @Override
@@ -380,6 +386,8 @@ public class mainListeners implements Listener {
 
             }
             return;
+
+            // CUSTOM MODEL DATA
         }else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-customModelData")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -406,6 +414,7 @@ public class mainListeners implements Listener {
                 p.sendMessage(getFileConfig("messages").getString("messages.itemeditor.general.fail"));
             }
             return;
+        // CRAFTING PERMISSIONS
         } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-craftPerms")) {
             String itemKey = getPlayerPDC("SelectedItemKey", p);
             if (itemKey == null) {
@@ -413,7 +422,7 @@ public class mainListeners implements Listener {
                 return;
             }
             String permission = message;
-            getFileConfig("itemDB").set(itemKey + "adaf", "aefad");
+            getFileConfig("itemDB").set(itemKey + ".recipe.permission", message);
         }
     }
 
