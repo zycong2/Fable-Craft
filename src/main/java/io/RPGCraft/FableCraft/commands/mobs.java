@@ -1,19 +1,17 @@
 package io.RPGCraft.FableCraft.commands;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.minecraft.world.BossEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
@@ -36,7 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import static io.RPGCraft.FableCraft.FableCraft.customMobs;
+import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
 
 
@@ -126,7 +124,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         for (Object o : mobsObject) {mobs.add(o.toString());}
         for (String s : mobs){
             if(getFileConfig("mobDB").get(s + ".randomSpawns.frequency") != null){
-                for (int i = 0; i < (int)getFileConfig("mobDB").get(s + ".randomSpawns.frequency") * 100; i++) { FableCraft.spawns.add(s); }
+                for (int i = 0; i < (int)getFileConfig("mobDB").get(s + ".randomSpawns.frequency") * 100; i++) { RPGCraft.spawns.add(s); }
             }
         }
     }
@@ -158,20 +156,20 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         try {
             boolean spawned = false;
             boolean conditions = false;
-            if (getFileConfig("mobDb").get(FableCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn") != null) {
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(FableCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn"))) {
+            if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn") != null) {
+                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn"))) {
                     if (event.getLocation().subtract(0, 1, 0).getBlock().getType().equals(Material.valueOf(s))) {
-                        getEntity(FableCraft.spawns.get(randomInt), event.getLocation());
+                        getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
                         spawned = true;
                         conditions = true;
                         break;
                     }
                 }
             }
-            if (getFileConfig("mobDb").get(FableCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes") != null) {
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(FableCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes"))){
+            if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes") != null) {
+                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes"))){
                     if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s))){
-                        getEntity(FableCraft.spawns.get(randomInt), event.getLocation());
+                        getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
                         spawned = true;
                         conditions = true;
                         break;
@@ -180,7 +178,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             }
 
             if (!conditions){
-                getEntity(FableCraft.spawns.get(randomInt), event.getLocation());
+                getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
             } else if (!spawned){
                 randomSpawn(event);
             }

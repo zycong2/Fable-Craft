@@ -2,7 +2,7 @@ package io.RPGCraft.FableCraft.commands;
 
 import java.util.List;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.TextComponent;
@@ -40,9 +40,9 @@ public class stats implements CommandExecutor, TabCompleter {
 
     public static void checkCurrentStats(Player p){
         if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))){
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
         } if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))){
-            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
         }
     }
     @Override

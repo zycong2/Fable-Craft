@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.commands;
 import java.util.List;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
@@ -126,7 +126,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
             } else if (s.toString().contains("talk")){
               if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "talk") instanceof List lines){
                 for (Object s2 : lines){
-                  event.getPlayer().sendMessage(FableCraft.Colorize((String) s2));
+                  event.getPlayer().sendMessage(RPGCraft.Colorize((String) s2));
                   /*FableCraft.wait(40, );*/
                 }
               }

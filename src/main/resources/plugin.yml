@@ -1,6 +1,6 @@
-name: FableCraft
+name: RPGCraft
 version: '1.0-SNAPSHOT'
-main: io.RPGCraft.FableCraft.FableCraft
+main: io.RPGCraft.FableCraft.RPGCraft
 api-version: '1.21.4'
 authors: [ zycong, Tonnam_101, Timserned]
 description: RPG style plugin.

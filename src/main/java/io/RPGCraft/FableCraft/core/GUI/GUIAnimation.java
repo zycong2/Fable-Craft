@@ -1,6 +1,6 @@
 package io.RPGCraft.FableCraft.core.GUI;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import lombok.Builder;
 import lombok.Getter;
 import org.bukkit.scheduler.BukkitTask;
@@ -22,8 +22,8 @@ public class GUIAnimation {
         
         final int[] currentFrame = {0};
         
-        this.task = FableCraft.getInstance().getServer().getScheduler().runTaskTimer(
-                FableCraft.getInstance(),
+        this.task = RPGCraft.getInstance().getServer().getScheduler().runTaskTimer(
+                RPGCraft.getInstance(),
             () -> {
                 Frame frame = this.frames.get(currentFrame[0]);
                 frame.apply(gui);

@@ -1,12 +1,14 @@
 package io.RPGCraft.FableCraft.listeners;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -17,14 +19,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.RPGCraft.FableCraft.FableCraft.Colorize;
-import static io.RPGCraft.FableCraft.FableCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
 import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
 
-public class ItemEditor {
+public class ItemEditor implements Listener {
   public static Inventory makeItemEditor(ItemStack item){
     Inventory outputinv = Bukkit.createInventory(null, 4*9, "Item Editor");
     outputinv.setItem(4, item);
@@ -68,7 +70,7 @@ public class ItemEditor {
   @EventHandler
   void ChatEvent(AsyncChatEvent e) {
     Player p = e.getPlayer();
-    String message = String.valueOf(e.message());
+    String message = PlainTextComponentSerializer.plainText().serialize(e.message());
     if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {return;}
 
     e.setCancelled(true);
@@ -81,7 +83,7 @@ public class ItemEditor {
       }
       getFileConfig("itemDB").set(itemKey + ".name", message);
       p.sendMessage(yamlManager.getMessage("messages.itemeditor.rename.success", p, true));
-      FableCraft.wait(1, new BukkitRunnable() {
+      RPGCraft.wait(1, new BukkitRunnable() {
         @Override
         public void run() {
           p.openInventory(makeItemEditor(getItem(itemKey)));
@@ -101,14 +103,14 @@ public class ItemEditor {
           p.sendMessage(getMessage("messages.itemeditor.general.noSpace", p, true));
           return;
         }
-        linenumber = Integer.parseInt(e.message().toString());
+        linenumber = Integer.parseInt(message);
         if (linenumber <= 0) {
           p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.null", p, true));
           return;
         }
-        return;
       } catch (NumberFormatException er) {
         p.sendMessage(Colorize("&cInvalid Number"));
+        return;
       }
       setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
       setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
@@ -131,7 +133,7 @@ public class ItemEditor {
       itemLore.set(lineNumber - 1, message);
       getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
       p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.success", p, true));
-      FableCraft.wait(1, new BukkitRunnable() {
+      RPGCraft.wait(1, new BukkitRunnable() {
         @Override
         public void run() {
           p.openInventory(makeItemEditor(getItem(itemKey)));
@@ -171,7 +173,7 @@ public class ItemEditor {
       }
       getFileConfig("itemDB").set(itemKey + ".enchantments." + enchantment, level);
       p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.success", p, true));
-      FableCraft.wait(1, new BukkitRunnable() {
+      RPGCraft.wait(1, new BukkitRunnable() {
         @Override
         public void run() {
           p.openInventory(makeItemEditor(getItem(itemKey)));
@@ -199,7 +201,7 @@ public class ItemEditor {
         }
         getFileConfig("itemDB").set(itemKey + ".customModelData", CustomModelData);
         p.sendMessage(yamlManager.getMessage("messages.itemeditor.customModelData.success", p, true));
-        FableCraft.wait(1, new BukkitRunnable() {
+        RPGCraft.wait(1, new BukkitRunnable() {
           @Override
           public void run() {
             p.openInventory(makeItemEditor(getItem(itemKey)));
@@ -221,7 +223,9 @@ public class ItemEditor {
     } else if (getPlayerPDC("ItemEditorUsing", p).equals("chat-createItem")) {
       if(message != null){
         getFileConfig("itemDB").addDefault(message + ".ItemID", message);
+        getFileConfig("itemDB").addDefault(message + ".itemType", "BEDROCK");
         p.sendMessage(Colorize("&fItem created! (only the id tho edit it or it will be useless)"));
+        setPlayerPDC("ItemEditorUsing", p, "notUsing");
       }
     }
   }

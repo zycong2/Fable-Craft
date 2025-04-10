@@ -11,6 +11,7 @@ import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -35,18 +36,18 @@ import org.bukkit.scheduler.BukkitScheduler;
 import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
 
 
-public final class FableCraft extends JavaPlugin {
+public final class RPGCraft extends JavaPlugin {
   @Getter
-  private static FableCraft instance;
+  private static RPGCraft instance;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence");
+  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests");
   public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
 
-  public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("FableCraft"); }
+  public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
   public void onEnable() {
 
@@ -66,7 +67,8 @@ public final class FableCraft extends JavaPlugin {
       new buildHelper(),
       new mobs(),
       new skills(),
-      new lootTableHelper()
+      new lootTableHelper(),
+      new ItemEditor()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
@@ -180,6 +182,6 @@ public final class FableCraft extends JavaPlugin {
       public void run() {
         task.run();
       }
-    }.runTaskLater(FableCraft.getPlugin(), ticks);
+    }.runTaskLater(RPGCraft.getPlugin(), ticks);
   }
 }

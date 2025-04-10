@@ -1,6 +1,6 @@
 package io.RPGCraft.FableCraft.commands;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,10 +56,10 @@ public class buildHelper implements CommandExecutor, Listener, TabCompleter {
 
         if (args[0].equals("randomItems")){
             if (!p.hasMetadata("randomItems")){
-                p.setMetadata("randomItems", new FixedMetadataValue(FableCraft.getPlugin(), true));
+                p.setMetadata("randomItems", new FixedMetadataValue(RPGCraft.getPlugin(), true));
                 p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.randomItems.enabled", p, true));
             } else {
-                p.removeMetadata("randomItems", FableCraft.getPlugin());
+                p.removeMetadata("randomItems", RPGCraft.getPlugin());
                 p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.randomItems.disabled", p, true));
             }
             return true;

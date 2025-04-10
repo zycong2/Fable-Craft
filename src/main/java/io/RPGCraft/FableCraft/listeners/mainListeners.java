@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.yamlManager;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,10 +32,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import static io.RPGCraft.FableCraft.FableCraft.Colorize;
-import static io.RPGCraft.FableCraft.FableCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
@@ -73,17 +69,17 @@ public class mainListeners implements Listener {
         }
 
         if (getPlayerPDC("currentHealth", p) == null) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), yamlManager.getConfig("stats.Health.default", p, true).toString()));
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), yamlManager.getConfig("stats.Health.default", p, true).toString()));
             setPlayerPDC("Health", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
             p.setHealth(20);
         } else {
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), getPlayerPDC("currentHealth", p)));
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentHealth", p)));
         }
         if (getPlayerPDC("currentMana", p) == null) {
-            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), yamlManager.getConfig("stats.Mana.default", p, true).toString()));
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), yamlManager.getConfig("stats.Mana.default", p, true).toString()));
             setPlayerPDC("Mana", p, yamlManager.getConfig("stats.Mana.default", p, true).toString());
         } else {
-            p.setMetadata("currentMana", new FixedMetadataValue(FableCraft.getPlugin(), getPlayerPDC("currentMana", p)));
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentMana", p)));
         }
 
         stats.checkCurrentStats(p);
@@ -106,7 +102,7 @@ public class mainListeners implements Listener {
       if (p.getEquipment().getBoots() != null) { gear.add(p.getEquipment().getBoots()); }
       for (ItemStack item : gear) {
         if (!item.equals(ItemStack.of(Material.AIR))) {
-          for (String s : FableCraft.itemStats) {
+          for (String s : RPGCraft.itemStats) {
             if (getItemPDC(s, item) != null) {
               if (getPlayerPDC(s, p) != null) {
                 setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, item))));
@@ -119,7 +115,7 @@ public class mainListeners implements Listener {
       stats.checkCurrentStats(p);
 
 
-      for (String s : FableCraft.itemStats) {
+      for (String s : RPGCraft.itemStats) {
         if (p.hasMetadata("current" + s)) {
           setPlayerPDC("current" + s, p, String.valueOf(p.getMetadata("current" + s).getFirst().asInt()));
         }
@@ -139,7 +135,7 @@ public class mainListeners implements Listener {
                 formatedSkills[i] = var10002 + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i];
             }
 
-            this.menu.setItem(4, FableCraft.createGuiHead(event.getPlayer(), "Profile", formatedSkills));
+            this.menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "Profile", formatedSkills));
             event.getPlayer().openInventory(this.menu);
         }
     }
@@ -167,7 +163,7 @@ public class mainListeners implements Listener {
                     --page;
                 }
 
-                p.setMetadata("itemDBPage", new FixedMetadataValue(FableCraft.getPlugin(), page));
+                p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
                 p.openInventory(itemDB);
             } else if (event.getRawSlot() == 41) {
                 int page = 0;
@@ -180,7 +176,7 @@ public class mainListeners implements Listener {
                     ++page;
                 }
 
-                p.setMetadata("itemDBPage", new FixedMetadataValue(FableCraft.getPlugin(), page));
+                p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
                 p.openInventory(itemDB);
             } else if (Objects.equals(event.getCurrentItem(), ItemStack.of(Material.AIR))) {
               p.sendMessage(Colorize("&aYou have created a new item! Enter the ID of the item please!"));
@@ -268,7 +264,7 @@ public class mainListeners implements Listener {
     void inventoryClose(InventoryCloseEvent event) {
         Player p = (Player)event.getPlayer();
         if (event.getInventory().equals(itemDB)) {
-            p.removeMetadata("itemDBPage", FableCraft.getPlugin());
+            p.removeMetadata("itemDBPage", RPGCraft.getPlugin());
         }
 
     }
@@ -289,7 +285,7 @@ public class mainListeners implements Listener {
             double playerDefense = Double.parseDouble(getPlayerPDC("Defence", p));
             double damage = event.getDamage() - playerDefense * (double)10.0F;
             currentHealth -= damage;
-            p.setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), currentHealth));
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
             double scaledHealth = (double)20.0F / maxPlayerHealth * damage;
             event.setDamage(Math.abs(scaledHealth));
         } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
@@ -297,7 +293,7 @@ public class mainListeners implements Listener {
         }
     }
 
-    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(FableCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));}
+    @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));}
     @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlManager.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
     @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
     @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
@@ -307,7 +303,7 @@ public class mainListeners implements Listener {
         //remove old effects if existent
         Player p = event.getPlayer();
         if (!event.getOldItem().equals(ItemStack.of(Material.AIR))){
-            for (String s : FableCraft.itemStats) {
+            for (String s : RPGCraft.itemStats) {
                 if (getItemPDC(s, event.getOldItem()) != null) {
                     if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, event.getOldItem()))));}
 
@@ -316,7 +312,7 @@ public class mainListeners implements Listener {
         }
         //add new effects
         if (!event.getNewItem().equals(ItemStack.of(Material.AIR))){
-            for (String s : FableCraft.itemStats) {
+            for (String s : RPGCraft.itemStats) {
                 if (getItemPDC(s, event.getNewItem()) != null) {
                     if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem())))); }
                 }
@@ -334,7 +330,7 @@ public class mainListeners implements Listener {
         ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
 
         if (oldItem != null) { if (!oldItem.equals(ItemStack.of(Material.AIR))){
-            for (String s : FableCraft.itemStats) {
+            for (String s : RPGCraft.itemStats) {
                 if (getItemPDC(s, oldItem) != null) {
                     if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, oldItem))));}
                 }
@@ -342,7 +338,7 @@ public class mainListeners implements Listener {
         } }
         //add new effects
         if (newItem != null) { if (!newItem.equals(ItemStack.of(Material.AIR))){
-            for (String s : FableCraft.itemStats) {
+            for (String s : RPGCraft.itemStats) {
                 if (getItemPDC(s, newItem) != null) {
                     if (getPlayerPDC(s, p) != null) { setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, newItem)))); }
                 }
@@ -366,7 +362,7 @@ public class mainListeners implements Listener {
             if (p.getMetadata("itemDBPage").getFirst() != null) {
                 page = p.getMetadata("itemDBPage").getFirst().asInt();
             } else {
-                p.setMetadata("itemDBPage", new FixedMetadataValue(FableCraft.getPlugin(), 0));
+                p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), 0));
             }
 
             for(int i = 0; i <= 36; ++i) {

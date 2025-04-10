@@ -4,11 +4,12 @@
 1. [Getting Started](#getting-started)
 2. [Creating GUIs](#creating-guis)
 3. [Working with Items](#working-with-items)
-4. [Animations](#animations)
-5. [Event Handling](#event-handling)
-6. [Examples](#examples)
-7. [Best Practices](#best-practices)
-8. [Troubleshooting](#troubleshooting)
+4. [Custom Skulls](#custom-skulls)
+5. [Animations](#animations)
+6. [Event Handling](#event-handling)
+7. [Examples](#examples)
+8. [Best Practices](#best-practices)
+9. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
@@ -225,6 +226,77 @@ GUIItem item = GUIItem.builder()
 // Note: Only works on items with durability (tools, weapons, armor)
 ```
 
+## Custom Skulls
+
+### Creating Player Skulls
+The `GUISkull` class extends `GUIItem` to provide easy creation of player head items:
+
+```java
+// Create a skull using player name
+GUISkull playerSkull = GUISkull.skullBuilder()
+    .name(Component.text("Player's Head"))
+    .playerName("Notch")
+    .lore(List.of(Component.text("Click to view profile")))
+    .clickHandler(context -> {
+        Player player = context.player();
+        player.sendMessage("Viewing profile...");
+    })
+    .build();
+
+// Place the skull in GUI
+gui.setItem(13, playerSkull);
+```
+
+### Custom Texture Skulls
+You can create skulls with custom textures using texture URLs:
+
+```java
+GUISkull customSkull = GUISkull.skullBuilder()
+    .name(Component.text("Custom Skull"))
+    .texture("http://textures.minecraft.net/texture/YOUR_TEXTURE_HERE")
+    .amount(1)
+    .customModelData(1001)  // Optional
+    .build();
+```
+
+### Skull Properties
+
+#### Player Name
+```java
+// Set player name (uses player's skin)
+.playerName("Notch")
+```
+
+#### Texture URL
+```java
+// Set custom texture URL
+.texture("http://textures.minecraft.net/texture/...")
+```
+
+#### Additional Properties
+GUISkull supports all standard GUIItem properties:
+```java
+GUISkull skull = GUISkull.skullBuilder()
+    .name(Component.text("Special Skull"))
+    .lore(List.of(
+        Component.text("Line 1"),
+        Component.text("Line 2")
+    ))
+    .amount(1)
+    .customModelData(1001)
+    .clickHandler(context -> {
+        // Handle click
+    })
+    .texture("http://textures.minecraft.net/texture/...")
+    .build();
+```
+
+### Error Handling
+The GUISkull class includes built-in error handling:
+- Falls back to default player head if texture loading fails
+- Logs errors for debugging
+- Never throws exceptions to the GUI system
+
 ## Animations
 
 ### Creating Animations
@@ -266,7 +338,7 @@ gui.startAnimation(animation);
 ### Animation Tips
 - Use consistent frame intervals (20 ticks recommended minimum)
 - Keep animations simple to avoid performance issues
-- Consider using fewer frames for better performance
+- Keep frame count low
 - Test animations with multiple players viewing the GUI
 - Remember to stop animations when no longer needed
 
@@ -459,19 +531,19 @@ public class BrowserGUI {
 
 ### Performance Optimization
 1. **Minimize Animation Frames**
-    - Keep frame count low
-    - Use reasonable intervals (20+ ticks)
-    - Stop animations when GUI is closed
+  - Keep frame count low
+  - Use reasonable intervals (20+ ticks)
+  - Stop animations when GUI is closed
 
 2. **Efficient Item Creation**
-    - Cache commonly used items
-    - Avoid creating new items unnecessarily
-    - Use builder pattern efficiently
+  - Cache commonly used items
+  - Avoid creating new items unnecessarily
+  - Use builder pattern efficiently
 
 3. **Memory Management**
-    - Clean up resources when GUI closes
-    - Don't store unnecessary references
-    - Use weak references for long-term storage
+  - Clean up resources when GUI closes
+  - Don't store unnecessary references
+  - Use weak references for long-term storage
 
 ### Code Organization
 1. **GUI Class Structure**
@@ -549,24 +621,29 @@ public class SafeGUI {
 ### Common Issues and Solutions
 
 1. **Items Not Appearing**
-    - Check slot numbers (0-53 for 6 rows)
-    - Verify material is valid
-    - Ensure GUI is properly initialized
+  - Check slot numbers (0-53 for 6 rows)
+  - Verify material is valid
+  - Ensure GUI is properly initialized
 
 2. **Click Handlers Not Working**
-    - Verify click handler is set
-    - Check for exceptions in handler
-    - Ensure GUI is registered properly
+  - Verify click handler is set
+  - Check for exceptions in handler
+  - Ensure GUI is registered properly
 
 3. **Animations Not Playing**
-    - Check interval timing
-    - Verify frame content
-    - Ensure animation is started
+  - Check interval timing
+  - Verify frame content
+  - Ensure animation is started
 
 4. **Memory Leaks**
-    - Stop animations when unused
-    - Clear references when GUI closes
-    - Use proper cleanup methods
+  - Stop animations when unused
+  - Clear references when GUI closes
+  - Use proper cleanup methods
+
+5. **Skull Issues**
+  - Verify player names are correct
+  - Check texture URLs are valid
+  - Ensure proper error handling
 
 ### Debug Tips
 ```java
