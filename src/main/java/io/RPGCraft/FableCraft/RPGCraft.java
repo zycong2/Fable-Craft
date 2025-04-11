@@ -3,14 +3,13 @@ package io.RPGCraft.FableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.NPC;
-import io.RPGCraft.FableCraft.commands.buildHelper;
-import io.RPGCraft.FableCraft.commands.itemDB;
-import io.RPGCraft.FableCraft.commands.mobs;
-import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.core.GUI.GUIListener;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -33,25 +32,27 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.Utils.colorize;
 
 
-public final class FableCraft extends JavaPlugin {
+public final class RPGCraft extends JavaPlugin {
   @Getter
-  private static FableCraft instance;
+  private static RPGCraft instance;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence");
+  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests");
   public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
 
-  public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("FableCraft"); }
+  public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
   public void onEnable() {
 
     this.getCommand("itemDB").setExecutor(new itemDB());
     this.getCommand("createNPC").setExecutor(new NPC());
+    this.getCommand("todolist").setExecutor(new ToDoList());
     this.getCommand("resetStats").setExecutor(new stats());
     this.getCommand("resetStats").setTabCompleter(new stats());
     this.getCommand("buildHelper").setExecutor(new buildHelper());
@@ -66,13 +67,15 @@ public final class FableCraft extends JavaPlugin {
       new buildHelper(),
       new mobs(),
       new skills(),
-      new lootTableHelper()
+      new lootTableHelper(),
+      new GUIListener(),
+      new ItemEditor()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for(Player p : Bukkit.getOnlinePlayers()) {
-        p.sendActionBar(Colorize(yamlManager.getConfig("actionbar.message", p, true).toString()));
+        p.sendActionBar(colorize(yamlManager.getConfig("actionbar.message", p, true).toString()));
         try {
           double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
           double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
@@ -165,8 +168,8 @@ public final class FableCraft extends JavaPlugin {
     return output;
   }
 
-  public static String ColorizeForItem(String input) {
-    return ChatColor.translateAlternateColorCodes('&', input);
+  public static String colorize(String input) {
+    return Utils.colorize(input, '&');
   }
 
   public static TextComponent Colorize(String input){
@@ -180,6 +183,6 @@ public final class FableCraft extends JavaPlugin {
       public void run() {
         task.run();
       }
-    }.runTaskLater(FableCraft.getPlugin(), ticks);
+    }.runTaskLater(RPGCraft.getPlugin(), ticks);
   }
 }

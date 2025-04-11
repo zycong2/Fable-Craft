@@ -6,8 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static io.RPGCraft.FableCraft.commands.NPC.PlayerNPC.PlayerNpcEntity.createNPC;
-
 public class NPC implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -15,8 +13,6 @@ public class NPC implements CommandExecutor {
       if(commandSender instanceof Player){return false;}
 
       Player player = (Player) commandSender;
-
-      createNPC(player.getLocation(), player);
 
       return false;
     }

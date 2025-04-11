@@ -5,15 +5,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import io.RPGCraft.FableCraft.FableCraft;
+import io.RPGCraft.FableCraft.RPGCraft;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -30,8 +28,8 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.RPGCraft.FableCraft.FableCraft.Colorize;
-import static io.RPGCraft.FableCraft.FableCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.colorize;
 
 
 public class yamlManager {
@@ -41,8 +39,8 @@ public class yamlManager {
     }
 
     public static boolean defaultConfig() {
-        for (String config : FableCraft.yamlFiles) {
-            cfile = new File(FableCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
+        for (String config : RPGCraft.yamlFiles) {
+            cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             fileConfig = new YamlConfiguration();
 
             if (!cfile.exists()){
@@ -55,8 +53,8 @@ public class yamlManager {
     }
 
     public static boolean saveData() {
-        for (String config : FableCraft.yamlFiles) {
-            cfile = new File(FableCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
+        for (String config : RPGCraft.yamlFiles) {
+            cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             try {
                 getFileConfig(config).save(cfile);
             } catch (IOException ignored) {}
@@ -65,19 +63,19 @@ public class yamlManager {
     }
 
     public static boolean loadData() {
-        for (String s : FableCraft.yamlFiles) {
-            FableCraft.fileConfigurationList.add(new YamlConfiguration());
+        for (String s : RPGCraft.yamlFiles) {
+            RPGCraft.fileConfigurationList.add(new YamlConfiguration());
         }
-        for (String config : FableCraft.yamlFiles) {
-            cfile = new File(FableCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
+        for (String config : RPGCraft.yamlFiles) {
+            cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             if (cfile.exists()) {
                 getFileConfig("config") ;
                 int index = 0;
-                for (String s : FableCraft.yamlFiles) {
+                for (String s : RPGCraft.yamlFiles) {
                     if (Objects.equals(s, config)) {break;}
                     index++;
                 }
-                FableCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));
+                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));
             } else {
                 return defaultConfig();
             }
@@ -166,7 +164,7 @@ public class yamlManager {
         getFileConfig("itemDB").addDefault("leatherChestplate.itemType", "LEATHER_CHESTPLATE");
         getFileConfig("itemDB").addDefault("leatherChestplate.ItemID", "cool_chestplate");
         getFileConfig("itemDB").addDefault("leatherChestplate.Health", 10);
-        getFileConfig("itemDB").addDefault("leatherChestplate.Defence", 10);
+        getFileConfig("itemDB").addDefault("leatherChestplate.Defensre", 10);
         getFileConfig("itemDB").addDefault("leatherChestplate.Mana", 10);
         getFileConfig("itemDB").addDefault("leatherChestplate.color", "10,10,10");
         getFileConfig("itemDB").addDefault("leatherChestplate.recipe.type", "shapeless");
@@ -240,11 +238,11 @@ public class yamlManager {
 
     public static FileConfiguration getFileConfig(String options) {
         int index = 0;
-        for (String s : FableCraft.yamlFiles) {
+        for (String s : RPGCraft.yamlFiles) {
             if (Objects.equals(s, options)) {break;}
             index++;
         }
-        return FableCraft.fileConfigurationList.get(index);
+        return RPGCraft.fileConfigurationList.get(index);
     }
     public static Object getOption(String file, String path){
         if (getFileConfig(file).get(path) == null){ return null; }
@@ -287,10 +285,10 @@ public class yamlManager {
             PDC.add("ItemID;" + getFileConfig("itemDB").getString(name + ".ItemID"));
             int attributes = 0;
 
-            for(String s : FableCraft.itemStats){
+            for(String s : RPGCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
                     String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
-                    lore.add("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true));
+                    lore.add(colorize("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
                 }
@@ -324,31 +322,28 @@ public class yamlManager {
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    String config = (String) getConfig("items.lore.prefix", null, true);
+                    String config = colorize((String) getConfig("items.lore.prefix", null, true));
                     lore.add(config);
                 }
 
                 for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
-                    lore.add(str);
+                    lore.add(colorize(str));
                 }
                 if (isConfigSet("items.lore.suffix")) {
-                    String config = (String) getConfig("items.lore.suffix", null, true);
+                    String config = colorize((String) getConfig("items.lore.suffix", null, true));
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
                 lore.add("");
-                lore.add(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity")));
+                lore.add(colorize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
                 lore.add("");
             }
 
-            List<TextComponent> coloredLore = new ArrayList<>(List.of());
-            for(String tc : lore) {
-                coloredLore.add(Colorize(tc));
-            }
-
-
+            item.editMeta(imeta -> {
+                imeta.setLore(lore);
+            });
             item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta leatherMeta) {
                 if (isItemSet(name + ".color")) {
@@ -371,7 +366,6 @@ public class yamlManager {
                     bookMeta.setPages((List)getFileConfig("itemDB").get(name + ".pages"));
                 }
             }
-            meta.lore(coloredLore);
 
             if (getFileConfig("itemDB").get(name + ".recipe.permission") != null){
                 String permission = (String) getFileConfig("itemDB").get(name + ".recipe.permission");
@@ -379,7 +373,7 @@ public class yamlManager {
             }
             if (Bukkit.getRecipesFor(item).isEmpty() && isItemSet(name + ".recipe.type")) {
                 if (getFileConfig("itemDB").get(name + ".recipe.type").toString().toLowerCase(Locale.ROOT).equals("shaped")) {
-                    NamespacedKey key = new NamespacedKey(FableCraft.getPlugin(), name);
+                    NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), name);
                     ShapedRecipe recipe = new ShapedRecipe(key, item);
                     List<String> shapeString = (List)getFileConfig("itemDB").get(name + ".recipe.shape");
                     String[] shapes = shapeString.toArray(new String[shapeString.size()]);
@@ -392,7 +386,7 @@ public class yamlManager {
 
                     Bukkit.getServer().addRecipe(recipe);
                 } else {
-                    NamespacedKey key = new NamespacedKey(FableCraft.getPlugin(), name);
+                    NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), name);
                     ShapelessRecipe recipe = new ShapelessRecipe(key, item);
 
                     for(Object s : (List)getFileConfig("itemDB").get(name + ".recipe.ingredients")) {
@@ -424,7 +418,7 @@ public class yamlManager {
     public static Object getConfig(String path, Player target, boolean round) {
         Object a = getFileConfig("config").get(path);
         if (a == null) {
-            return ColorizeForItem("&cOption not found");
+            return colorize("&cOption not found");
         } else if (a instanceof String s) {
             return setPlaceholders(s, round, target);
         } else {
