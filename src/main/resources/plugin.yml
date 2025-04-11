@@ -36,3 +36,11 @@ commands:
     permission: FableCraft.lootTables
     aliases:
       - lt
+  todolist:
+    description: Todolist for you zycong and me too.
+    permission: FableCraft.todolist
+    aliases:
+      - todo
+      - tdl
+      - todol
+      - tdlist

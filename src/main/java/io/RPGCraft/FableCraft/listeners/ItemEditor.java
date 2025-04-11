@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.colorize;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
@@ -44,9 +44,9 @@ public class ItemEditor implements Listener {
   private static ItemStack makeItem(String name, Material material, int amount, int CustomModel, List<String> lore){
     ItemStack output = new ItemStack(material, amount);
     List<String> coloredList = new ArrayList<>();
-    for(String str : lore){coloredList.add(ColorizeForItem(str));}
+    for(String str : lore){coloredList.add(colorize(str));}
     ItemMeta IMeta = output.getItemMeta();
-    IMeta.setDisplayName(ColorizeForItem(name));
+    IMeta.setDisplayName(colorize(name));
     IMeta.setLore(coloredList);
     IMeta.setCustomModelData(CustomModel);
     output.setItemMeta(IMeta);

@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -30,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.colorize;
 
 
 public class yamlManager {
@@ -289,7 +288,7 @@ public class yamlManager {
             for(String s : RPGCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
                     String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
-                    lore.add(ColorizeForItem("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
+                    lore.add(colorize("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
                 }
@@ -323,22 +322,22 @@ public class yamlManager {
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    String config = ColorizeForItem((String) getConfig("items.lore.prefix", null, true));
+                    String config = colorize((String) getConfig("items.lore.prefix", null, true));
                     lore.add(config);
                 }
 
                 for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
-                    lore.add(ColorizeForItem(str));
+                    lore.add(colorize(str));
                 }
                 if (isConfigSet("items.lore.suffix")) {
-                    String config = ColorizeForItem((String) getConfig("items.lore.suffix", null, true));
+                    String config = colorize((String) getConfig("items.lore.suffix", null, true));
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
                 lore.add("");
-                lore.add(ColorizeForItem(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add(colorize(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
                 lore.add("");
             }
 
@@ -419,7 +418,7 @@ public class yamlManager {
     public static Object getConfig(String path, Player target, boolean round) {
         Object a = getFileConfig("config").get(path);
         if (a == null) {
-            return ColorizeForItem("&cOption not found");
+            return colorize("&cOption not found");
         } else if (a instanceof String s) {
             return setPlaceholders(s, round, target);
         } else {

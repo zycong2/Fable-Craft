@@ -16,10 +16,8 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 
 public class ToDoList implements CommandExecutor {
   List<String> todoList = List.of(
-    "&fAdd your todo here",
-    "&f1. Fix the death error",
-    "&f2. Fix the item editor",
-    "&f3. Fix itemDB"
+    "Fix the death error",
+    "Fix itemDB"
   );
 
   @Override
@@ -31,7 +29,7 @@ public class ToDoList implements CommandExecutor {
     Integer i = 0;
     for(String todo : this.todoList) {
       GUISkull todoItem = GUISkull.skullBuilder()
-        .name(Colorize(todo))
+        .name(Colorize( "&f" + i++ + ". &7" + todo))
         .playerName("Tonnam_101")
         .lore(List.of(
           Colorize("&fPlease do these tasks")
