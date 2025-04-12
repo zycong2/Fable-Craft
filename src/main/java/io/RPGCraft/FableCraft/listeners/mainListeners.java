@@ -278,6 +278,8 @@ public class mainListeners implements Listener {
 
     @EventHandler
     void onDamage(EntityDamageEvent event) {
+      boolean isCitizensNPC = event.getEntity().hasMetadata("NPC");
+      if(isCitizensNPC){return;}
         if (event.getEntityType().equals(EntityType.PLAYER)) {
             Player p = (Player)event.getEntity();
             double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));

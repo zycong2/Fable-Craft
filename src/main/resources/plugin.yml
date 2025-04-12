@@ -4,6 +4,7 @@ main: io.RPGCraft.FableCraft.RPGCraft
 api-version: '1.21.4'
 authors: [ zycong, Tonnam_101, Timserned]
 description: RPG style plugin.
+depend: [Citizens]
 
 commands:
   itemDB:
@@ -13,6 +14,7 @@ commands:
       - idb
   createNPC:
     description: idk
+    usage: /<command> <string>
     permission: FableCraft.createNPC
     aliases:
       - makenpc

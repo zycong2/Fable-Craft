@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.RPGCraft.FableCraft.commands.*;
-import io.RPGCraft.FableCraft.commands.NPC.NPC;
+import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.core.GUI.GUIListener;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
@@ -16,7 +16,6 @@ import lombok.Getter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -32,7 +31,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
-import static io.RPGCraft.FableCraft.Utils.colorize;
 
 
 public final class RPGCraft extends JavaPlugin {
@@ -51,7 +49,7 @@ public final class RPGCraft extends JavaPlugin {
   public void onEnable() {
 
     this.getCommand("itemDB").setExecutor(new itemDB());
-    this.getCommand("createNPC").setExecutor(new NPC());
+    this.getCommand("createNPC").setExecutor(new CreateNPC());
     this.getCommand("todolist").setExecutor(new ToDoList());
     this.getCommand("resetStats").setExecutor(new stats());
     this.getCommand("resetStats").setTabCompleter(new stats());

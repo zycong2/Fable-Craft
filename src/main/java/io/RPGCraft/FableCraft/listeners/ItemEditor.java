@@ -171,7 +171,7 @@ public class ItemEditor implements Listener {
         p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.success", p, true));
         return;
       }
-      getFileConfig("itemDB").set(itemKey + ".enchantments." + enchantment, level);
+      getFileConfig("itemDB").set(itemKey + ".enchantments" , enchantment + ":" + level);
       p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.success", p, true));
       RPGCraft.wait(1, new BukkitRunnable() {
         @Override

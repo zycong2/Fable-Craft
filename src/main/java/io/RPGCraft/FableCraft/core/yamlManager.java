@@ -308,7 +308,7 @@ public class yamlManager {
             }
 
             if (isItemSet(name + ".enchantments")) {
-                for(Object enchantmentString : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".enchantments"))) {
+                for(Object enchantmentString : Objects.requireNonNull(getFileConfig("itemDB").getStringList(name + ".enchantments"))) {
                     String[] enchantString = enchantmentString.toString().split(":");
                     Enchantment enchantment = Enchantment.getByName(enchantString[0]);
                     meta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
