@@ -211,17 +211,17 @@ public class mainListeners implements Listener {
 
                 p.closeInventory();
                 p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.info", p, false));
-            } else if(slot == 11) {
+            } /*else if(slot == 11) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-enchants");
 
                 p.closeInventory();
                 p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.info", p, false));
-            } else if(slot == 12){
+            }*/ else if(slot == 11){
                 setPlayerPDC("ItemEditorUsing", p, "Chat-customModelData");
 
                 p.closeInventory();
                 p.sendMessage(yamlManager.getMessage("messages.itemeditor.customModelData.info", p, false));
-            } else if(slot == 13) {
+            } else if(slot == 12) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
 
                 p.closeInventory();

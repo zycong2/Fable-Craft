@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
@@ -32,9 +32,9 @@ public class ItemEditor implements Listener {
     outputinv.setItem(4, item);
     outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&fRename the item you can use color too!", "&7 ", "&bClick Me!")));
     outputinv.setItem(10, makeItem("&dLore", Material.BOOK, 1, 0, List.of("&fSet lore in the line you want", "&fYes, you can use color", "&7 ", "&bClick Me!")));
-    outputinv.setItem(11, makeItem("&dEnchantments", Material.ENCHANTING_TABLE, 1, 0, List.of("&fSet or add enchantments to your item!", "&fUse &8[&dEnchantment&8] &70 &fto remove", "&7 ", "&bClick Me!")));
-    outputinv.setItem(12, makeItem("&bCustom Model Data", Material.COMPARATOR, 1, 0, List.of("&fSet the custom model data of the item", "&7 ", "&bClick Me!")));
-    outputinv.setItem(13, makeItem("&aCrafting Permissions", Material.CRAFTING_TABLE, 1, 0, List.of("&fSet the permissions to craft this item!", "&7 ", "&bClick Me!")));
+    // outputinv.setItem(11, makeItem("&dEnchantments", Material.ENCHANTING_TABLE, 1, 0, List.of("&fSet or add enchantments to your item!", "&fUse &8[&dEnchantment&8] &70 &fto remove", "&7 ", "&bClick Me!")));
+    outputinv.setItem(11, makeItem("&bCustom Model Data", Material.COMPARATOR, 1, 0, List.of("&fSet the custom model data of the item", "&7 ", "&bClick Me!")));
+    outputinv.setItem(12, makeItem("&aCrafting Permissions", Material.CRAFTING_TABLE, 1, 0, List.of("&fSet the permissions to craft this item!", "&7 ", "&bClick Me!")));
     outputinv.setItem(34, makeItem("&cDelete Item", Material.LAVA_BUCKET, 1, 0, List.of("&cAre you sure you want to delete this item?", "&cThis action is irreversible!", "&7 ", "&cClick Me!")));
     outputinv.setItem(35, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
 
@@ -44,9 +44,9 @@ public class ItemEditor implements Listener {
   private static ItemStack makeItem(String name, Material material, int amount, int CustomModel, List<String> lore){
     ItemStack output = new ItemStack(material, amount);
     List<String> coloredList = new ArrayList<>();
-    for(String str : lore){coloredList.add(colorize(str));}
+    for(String str : lore){coloredList.add(ColorizeForItem(str));}
     ItemMeta IMeta = output.getItemMeta();
-    IMeta.setDisplayName(colorize(name));
+    IMeta.setDisplayName(ColorizeForItem(name));
     IMeta.setLore(coloredList);
     IMeta.setCustomModelData(CustomModel);
     output.setItemMeta(IMeta);
@@ -141,7 +141,7 @@ public class ItemEditor implements Listener {
         }
       });
       return;
-    } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-enchants")) {
+    } /*else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-enchants")) {
       String itemKey = getPlayerPDC("SelectedItemKey", p);
       if (itemKey == null) {
         p.sendMessage(Colorize("&cError: No item selected!"));
@@ -186,7 +186,7 @@ public class ItemEditor implements Listener {
 
       }
       return;
-    }else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-customModelData")) {
+    }*/else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-customModelData")) {
       String itemKey = getPlayerPDC("SelectedItemKey", p);
       if (itemKey == null) {
         p.sendMessage(Colorize("&cError: No item selected!"));

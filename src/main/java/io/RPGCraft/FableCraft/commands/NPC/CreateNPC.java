@@ -16,14 +16,17 @@ public class CreateNPC implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
       if(commandSender instanceof Player) {
-        if (args[0].isBlank() || args[0].isEmpty()) {
-          commandSender.sendMessage(Colorize("Please enter the name"));
-          return false;
+        for (int i = 0; i <= 3; i++) {
+          if (args[i].isBlank()) {
+            commandSender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
+            return false;
+          }
         }
 
         Player player = (Player) commandSender;
 
         NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, args[0]);
+        //npc.
         npc.spawn(player.getLocation());
 
         return false;
