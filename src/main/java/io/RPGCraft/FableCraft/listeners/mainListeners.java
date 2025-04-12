@@ -34,6 +34,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
@@ -125,7 +126,7 @@ public class mainListeners implements Listener {
 
     @EventHandler
     void onInteraction(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_AIR && Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK && Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
             this.menu = Bukkit.createInventory(event.getPlayer(), 45, "Menu");
             String[] skills = getNodes("config", "stats").toArray(new String[0]);
             String[] formatedSkills = new String[skills.length];
@@ -278,8 +279,7 @@ public class mainListeners implements Listener {
 
     @EventHandler
     void onDamage(EntityDamageEvent event) {
-      boolean isCitizensNPC = event.getEntity().hasMetadata("NPC");
-      if(isCitizensNPC){return;}
+      if(isCitizensNPC(event.getEntity())){return;}
         if (event.getEntityType().equals(EntityType.PLAYER)) {
             Player p = (Player)event.getEntity();
             double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));

@@ -10,6 +10,7 @@ import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
+import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -67,7 +68,8 @@ public final class RPGCraft extends JavaPlugin {
       new skills(),
       new lootTableHelper(),
       new GUIListener(),
-      new ItemEditor()
+      new ItemEditor(),
+      new Chat()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();

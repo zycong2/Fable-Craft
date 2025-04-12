@@ -1,16 +1,43 @@
 package io.RPGCraft.FableCraft;
 
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.group.Group;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+  public static List<Group> getPossibleGroup(){
+    Set<Group> loadedGroups = LuckPermsProvider.get().getGroupManager().getLoadedGroups();
+    List<Group> groupsList = new ArrayList<>();
+
+    for(Group group : loadedGroups) {
+      groupsList.add(group);
+    }
+    return groupsList;
+  }
+
+  public static Group getPlayerGroup(Player player) {
+    for (Group group : getPossibleGroup()) {
+      String name = group.getName();
+      if (player.hasPermission("group." + name)) {
+        return group;
+      }
+    }
+    return null;
+  }
+
   private static Method COLOR_FROM_CHAT_COLOR;
   private static Method CHAT_COLOR_FROM_COLOR;
   private static final boolean hexSupport;
@@ -159,4 +186,6 @@ public class Utils {
       throw new RuntimeException(e);
     }
   }
+
+  public static boolean isCitizensNPC(Entity entity){return entity.hasMetadata("NPC");}
 }

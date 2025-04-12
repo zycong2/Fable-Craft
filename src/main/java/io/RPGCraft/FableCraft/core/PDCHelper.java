@@ -1,10 +1,12 @@
 package io.RPGCraft.FableCraft.core;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,6 +23,24 @@ public class PDCHelper {
         NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
         PersistentDataContainer container = p.getPersistentDataContainer();
         return container.get(key, PersistentDataType.STRING);
+    }
+
+    public static void setNPCPDC(String keyString, NPC npc, String data) {
+        NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
+        if (npc.getEntity().getType().equals(EntityType.PLAYER)){
+          Player p = (Player) npc;
+          p.getPersistentDataContainer().set(key, PersistentDataType.STRING, data);
+        }
+    }
+
+    public static String getNPCPDC(String keyString, NPC npc) {
+        NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
+      if (npc.getEntity().getType().equals(EntityType.PLAYER)) {
+        Player p = (Player) npc;
+        PersistentDataContainer container = p.getPersistentDataContainer();
+        return container.get(key, PersistentDataType.STRING);
+      }
+      return null;
     }
 
 

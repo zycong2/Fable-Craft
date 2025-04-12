@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.Utils.getPlayerGroup;
 
 
 public class yamlManager {
@@ -117,6 +118,7 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
         getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
         getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
+        getFileConfig("messages").addDefault("messages.format.chat", "#rankPrefix# #player# &7: #messageChat#");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -468,6 +470,12 @@ public class yamlManager {
                 } else {
                     msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(target.getMetadata("currentMana").getFirst().asFloat())));
                 }
+                msgs[count] = msgs[count].replaceAll("\\s","");
+            } else if (m.equals("rankPrefix")) {
+                msgs[count] = msgs[count].replaceAll(m, getPlayerGroup(target).getDisplayName());
+                msgs[count] = msgs[count].replaceAll("\\s","");
+            } else if (m.equals("player")) {
+                msgs[count] = msgs[count].replaceAll(m, target.getDisplayName());
                 msgs[count] = msgs[count].replaceAll("\\s","");
             }
 
