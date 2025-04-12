@@ -51,7 +51,6 @@ public final class RPGCraft extends JavaPlugin {
 
     this.getCommand("itemDB").setExecutor(new itemDB());
     this.getCommand("createNPC").setExecutor(new CreateNPC());
-    this.getCommand("todolist").setExecutor(new ToDoList());
     this.getCommand("resetStats").setExecutor(new stats());
     this.getCommand("resetStats").setTabCompleter(new stats());
     this.getCommand("buildHelper").setExecutor(new buildHelper());
