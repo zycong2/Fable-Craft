@@ -68,8 +68,7 @@ public final class RPGCraft extends JavaPlugin {
       new skills(),
       new lootTableHelper(),
       new GUIListener(),
-      new ItemEditor(),
-      new Chat()
+      new ItemEditor()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
