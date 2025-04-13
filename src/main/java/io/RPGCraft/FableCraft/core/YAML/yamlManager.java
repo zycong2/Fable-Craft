@@ -211,6 +211,7 @@ public class yamlManager {
         getFileConfig("data").options().copyDefaults(true);
 
         getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
+        getFileConfig("quests").addDefault("quest1.npcStarter", "John");
         getFileConfig("quests").addDefault("quest1.steps.amount", 1);
         getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
         getFileConfig("quests").addDefault("quest1.steps.1.value", 10);

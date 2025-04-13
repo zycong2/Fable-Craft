@@ -10,6 +10,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getNPCPDC;
 
+import io.RPGCraft.FableCraft.commands.quests;
+
 public class TypeHandler implements Listener {
 
     @EventHandler
@@ -24,6 +26,7 @@ public class TypeHandler implements Listener {
                 case "shop":
                     break;
                 case "quest":
+                    quests.talkedNPC(p, npc.getName());
                     break;
                 default:
                     break;
