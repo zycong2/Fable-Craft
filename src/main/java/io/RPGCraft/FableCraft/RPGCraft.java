@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -147,6 +148,27 @@ public final class RPGCraft extends JavaPlugin {
 
   public static String ColorizeReString(String input) {
     return ColorUtils.colorize(input, '&');
+  }
+
+  public static List<String> ColorizeList(List<String> input) {
+    List<String> output = new ArrayList<>(List.of());
+
+    for(String s : input) {
+      s = ColorUtils.colorize(s, '&');
+      output.add(s);
+    }
+    return output;
+  }
+
+  public static List<TextComponent> ColorizeListReComponent(List<String> input) {
+    List<TextComponent> output = new ArrayList<>(List.of());
+
+    for(String s : input) {
+      s = FormatForMiniMessage(s);
+      TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
+      output.add(deserialized);
+    }
+    return output;
   }
 
   public static TextComponent Colorize(String input){

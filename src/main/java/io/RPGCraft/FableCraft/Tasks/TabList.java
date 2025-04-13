@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.Tasks;
 
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeListReComponent;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class TabList implements Runnable {
@@ -34,9 +35,9 @@ public class TabList implements Runnable {
       if (footerPosition >= getFileConfig("format").getInt("format.tab.header.animationcycle")-1)
         footerPosition = 0;
 
-      String headerLines = getFileConfig("format").getString("format.tab.header.animation" + headerPosition+1);
-      String footerLines = getFileConfig("format").getString("format.tab.footer.animation" + footerPosition+1);
-      player.sendPlayerListHeaderAndFooter(Colorize(headerLines), Colorize(footerLines));
+      List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + headerPosition+1);
+      List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + footerPosition+1);
+      player.sendPlayerListHeaderAndFooter((ComponentLike) ColorizeListReComponent(headerLines), (ComponentLike) ColorizeListReComponent(footerLines));
 
       headerPositions.put(player.getUniqueId(), headerPosition + 1);
       footerPositions.put(player.getUniqueId(), footerPosition + 1);
