@@ -1,10 +1,11 @@
-package io.RPGCraft.FableCraft.Utils;
+package io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.Utils.Utils.getPlayerGroup;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 
 public class PlayerPlaceholders {
@@ -13,7 +14,7 @@ public class PlayerPlaceholders {
   }
 
   public static String currentHealth(Entity e) {
-    if (e instanceof LivingEntity) {
+    if (e instanceof Player) {
       Player p = (Player) e;
       return getPlayerPDC("currentHealth", p);
     }else{
@@ -31,7 +32,7 @@ public class PlayerPlaceholders {
   }
 
   public static String maxHealth(Entity e) {
-    if (e instanceof LivingEntity) {
+    if (e instanceof Player) {
       Player p = (Player) e;
       return getPlayerPDC("Health", p);
     }else{
@@ -49,18 +50,27 @@ public class PlayerPlaceholders {
   }
 
   public static String currentMana(Entity e) {
-    if (e instanceof LivingEntity) {
+    if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerPDC("currentHealth", p);
+      return getPlayerPDC("currentMana", p);
     }else{
       return ColorizeReString("The mob is not a living entity");
     }
   }
 
   public static String maxMana(Entity e) {
-    if (e instanceof LivingEntity) {
+    if (e instanceof Player) {
       Player p = (Player) e;
       return getPlayerPDC("Mana", p);
+    }else{
+      return ColorizeReString("The mob is not a living entity");
+    }
+  }
+
+  public static String RankPrefix(Entity e) {
+    if (e instanceof Player p) {
+      String prefix = ColorizeReString(getPlayerGroup(p).getCachedData().getMetaData().getPrefix());
+      return prefix;
     }else{
       return ColorizeReString("The mob is not a living entity");
     }

@@ -86,7 +86,6 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
         getFileConfig("messages").addDefault("messages.error.questAlreadyStarted", "&cYou already activated this quest!");
         getFileConfig("messages").addDefault("messages.error.questNotStarted", "&cYou don't have a quest active with this name!");
-        getFileConfig("messages").addDefault("messages.info.format.chat", "%rankPrefix% %player% &7: %messageChat%");
         getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of %target%!");
         getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
         getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");
@@ -226,6 +225,32 @@ public class yamlManager {
         getFileConfig("quests").addDefault("quest1.steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
         getFileConfig("quests").addDefault("quest1.reward", "quest1");
         getFileConfig("quests").options().copyDefaults(true);
+
+        getFileConfig("format").addDefault("format.chat", "%rankPrefix% %target% &7: %messageChat%");
+        getFileConfig("format").addDefault("format.tab.header.animationcycle", 18);
+        getFileConfig("format").setComments("format.tab", List.of("Animation Interval is in ticks", "If you don't want an animation, set the both value to 1"));
+        getFileConfig("format").addDefault("format.tab.animationinterval", 10);
+        getFileConfig("format").addDefault("format.tab.header.animation1", List.of("<#C90A0A>Welcome to RPGCraft<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation2", List.of("<#C90A0A>Welcome to RPGCraf_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation3", List.of("<#C90A0A>Welcome to RPGCra_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation4", List.of("<#C90A0A>Welcome to RPGCr_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation5", List.of("<#C90A0A>Welcome to RPGC_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation6", List.of("<#C90A0A>Welcome to RPG_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation7", List.of("<#C90A0A>Welcome to RP_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation8", List.of("<#C90A0A>Welcome to R_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation9", List.of("<#C90A0A>Welcome to _<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation10", List.of("<#C90A0A>Welcome to <#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation11", List.of("<#C90A0A>Welcome to _<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation12", List.of("<#C90A0A>Welcome to R_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation13", List.of("<#C90A0A>Welcome to RP_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation14", List.of("<#C90A0A>Welcome to RPG_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation15", List.of("<#C90A0A>Welcome to RPGC_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation16", List.of("<#C90A0A>Welcome to RPGCr_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation17", List.of("<#C90A0A>Welcome to RPGCra_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.header.animation18", List.of("<#C90A0A>Welcome to RPGCraf_<#FF8787>", "&aHave fun!"));
+        getFileConfig("format").addDefault("format.tab.footer.animationcycle", 1);
+        getFileConfig("format").addDefault("format.tab.footer.animation1", List.of("<#C90A0A>Hope you have a great stay!<#FF8787>", "&aBottom Text!"));
+        getFileConfig("format").options().copyDefaults(true);
 
         saveData();
         return true;

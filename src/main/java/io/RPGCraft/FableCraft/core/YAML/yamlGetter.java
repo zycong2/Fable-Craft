@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ public class yamlGetter {
       if (a == null) {
           return ColorizeReString("&cOption not found");
       } else if (a instanceof String s) {
-          return Placeholder.setPlaceholders(s, round, target);
+          return Placeholder.setPlaceholders(s, round, (Entity) target);
       } else {
           return a.toString();
       }
@@ -33,7 +34,7 @@ public class yamlGetter {
       if (a == null) {
           return ColorizeReString("&cOption not found");
       } else if (a instanceof String s) {
-          return Placeholder.setPlaceholders(s, round, target);
+          return Placeholder.setPlaceholders(s, round, (Entity) target);
       } else {
           return a.toString();
       }
@@ -44,7 +45,7 @@ public class yamlGetter {
       if (a == null) {
           return Colorize("&cOption not found");
       } else if (a instanceof String s) {
-          return Colorize(Placeholder.setPlaceholders(s, round, target));
+          return Colorize(Placeholder.setPlaceholders(s, round, (Entity) target));
       } return null;
   }
 

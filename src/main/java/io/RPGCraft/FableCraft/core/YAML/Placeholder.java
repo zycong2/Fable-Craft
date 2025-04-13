@@ -6,12 +6,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
-import static io.RPGCraft.FableCraft.Utils.PlaceholdersRegistry.parse;
-import static io.RPGCraft.FableCraft.Utils.PlaceholdersRegistry.round;
+import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.*;
 
 public class Placeholder {
-  public static @NotNull String setPlaceholders(String s, boolean round, Player target){
-    String parsed = parse(s, target);
+  public static @NotNull <T> String setPlaceholders(String s, boolean round, T context){
+    String parsed = parseDynamic(s, context);
     if(isNumber(parsed)) {
       if (round) {
         return round(Double.valueOf(parsed));
@@ -20,15 +19,6 @@ public class Placeholder {
     return parsed;
   }
 
-  public static String setPlaceholders(String s, boolean round, Entity target){
-    String parsed = parse(s, target);
-    if(isNumber(parsed)) {
-      if (round) {
-        return round(Double.valueOf(parsed));
-      }
-    }
-    return parsed;
-  }
   public static boolean isNumber(String input) {
     return isValidInteger(input) || isValidFloatOrDouble(input);
   }

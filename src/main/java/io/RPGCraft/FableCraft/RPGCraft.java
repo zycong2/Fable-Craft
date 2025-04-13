@@ -4,8 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
+import io.RPGCraft.FableCraft.Tasks.TabList;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
-import io.RPGCraft.FableCraft.Utils.PlaceholdersRegistry;
+import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.core.GUI.GUIListener;
@@ -31,7 +32,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.jetbrains.annotations.Async;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
@@ -44,7 +44,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests");
+  public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests", "format");
   public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
@@ -76,6 +76,7 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
+    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), 20L);
     if (!yamlManager.loadData()) {
       Bukkit.getLogger().severe("Failed to load data!");
     }
