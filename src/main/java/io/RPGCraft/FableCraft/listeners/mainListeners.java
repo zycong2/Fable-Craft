@@ -5,6 +5,7 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import io.RPGCraft.FableCraft.RPGCraft;

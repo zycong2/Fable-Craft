@@ -3,7 +3,9 @@ package io.RPGCraft.FableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
+import io.RPGCraft.FableCraft.Utils.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.core.GUI.GUIListener;
@@ -29,6 +31,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.jetbrains.annotations.Async;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
@@ -47,6 +50,8 @@ public final class RPGCraft extends JavaPlugin {
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
   public void onEnable() {
+
+    new PlaceholdersRegistry();
 
     this.getCommand("itemDB").setExecutor(new itemDB());
     this.getCommand("createNPC").setExecutor(new CreateNPC());
@@ -70,9 +75,7 @@ public final class RPGCraft extends JavaPlugin {
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
-    scheduler.scheduleSyncRepeatingTask(this, () -> {
-
-    }, 20L, 20L);
+    scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     if (!yamlManager.loadData()) {
       Bukkit.getLogger().severe("Failed to load data!");
     }

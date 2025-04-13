@@ -169,7 +169,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             }
             if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes") != null) {
                 for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes"))){
-                    if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s))){
+                    if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
                         getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
                         spawned = true;
                         conditions = true;

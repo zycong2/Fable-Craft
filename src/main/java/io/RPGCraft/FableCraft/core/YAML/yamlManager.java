@@ -176,7 +176,7 @@ public class yamlManager {
         getFileConfig("itemDB").options().copyDefaults(true);
 
         getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
-        getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%currentHealth%/%maxHealth%");
+        getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%entitycurrentHealth%/%entitymaxHealth%");
         getFileConfig("mobDB").addDefault("spider.customName.visible", true);
         getFileConfig("mobDB").addDefault("spider.glowing", false);
         getFileConfig("mobDB").addDefault("spider.invulnerable", false);

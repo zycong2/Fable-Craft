@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.List;
+
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 
@@ -20,16 +22,18 @@ public class Actionbar implements Runnable{
     for(Player p : Bukkit.getOnlinePlayers()) {
       p.sendActionBar(ColorizeReString(yamlGetter.getConfig("actionbar.message", p, true).toString()));
       try {
-        double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
-        double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
-        double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-        double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
-        FormatStats(currentHealth, maxPlayerHealth, p, "Health");
-        FormatStats(currentMana, maxPlayerMana, p, "Mana");
+        List<Double> health = getStats(p, "Health");
+        List<Double> mana = getStats(p, "Mana");
+        FormatStats(health.get(1), health.get(0), p, "Health");
+        FormatStats(mana.get(1), mana.get(0), p, "Mana");
       } catch (NumberFormatException e) {}
     }
   }
-
+  public List<Double> getStats(Player var3, String var67){
+    double var1 = Double.parseDouble(PDCHelper.getPlayerPDC(var67, var3));
+    double var4 = Double.parseDouble(PDCHelper.getPlayerPDC("current" + var67, var3));
+    return List.of(var1, var4);
+  }
   public void FormatStats(double var12, double var24, Player p, String stats){
     String var10 = "";
     if (stats == "Health"){var10 = "";}
