@@ -92,7 +92,7 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
-    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), 20L);
+    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), getFileConfig("format").getLong("format.tab.animationinterval"));
   }
 
   private void registerListeners(Listener... l) {
