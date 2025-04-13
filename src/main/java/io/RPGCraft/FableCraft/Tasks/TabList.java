@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.Tasks;
 
-import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -9,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeListReComponent;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class TabList implements Runnable {
@@ -37,10 +36,24 @@ public class TabList implements Runnable {
 
       List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + headerPosition+1);
       List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + footerPosition+1);
-      player.sendPlayerListHeaderAndFooter((ComponentLike) ColorizeListReComponent(headerLines), (ComponentLike) ColorizeListReComponent(footerLines));
+      player.sendPlayerListHeaderAndFooter(Colorize(ListConnector(headerLines)), Colorize(ListConnector(footerLines)));
 
       headerPositions.put(player.getUniqueId(), headerPosition + 1);
       footerPositions.put(player.getUniqueId(), footerPosition + 1);
     }
   }
+
+  private String ListConnector(List<String> input){
+    String output = "";
+    for(String str : input){
+      if(str == input.getLast()){
+        output += str;
+        break;
+      }else {
+        output += str + "\n";
+      }
+    }
+    return output;
+  }
+
 }
