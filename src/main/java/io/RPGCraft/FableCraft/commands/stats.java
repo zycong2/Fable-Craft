@@ -21,7 +21,7 @@ public class stats implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", (Player) p, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0 || Bukkit.getPlayer(args[0]) == null){
             p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
@@ -39,10 +39,19 @@ public class stats implements CommandExecutor, TabCompleter {
 
 
     public static void checkCurrentStats(Player p){
-        if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))){
+        if (p.getMetadata("currentHealth").getFirst() != null) {
+          if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))) {
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
-        } if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))){
+          }
+        } else {
+          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
+        }
+        if (p.getMetadata("currentMana").getFirst() != null){
+          if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))) {
             p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+          }
+        } else {
+          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
         }
     }
     @Override

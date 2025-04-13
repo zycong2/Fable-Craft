@@ -349,7 +349,8 @@ public class mainListeners implements Listener {
             }
         }
             stats.checkCurrentStats(p);
-        } }
+        }
+    }
 
     public static void itemDBMenu(Player p) {
         Inventory menu = Bukkit.createInventory(p, 45, "ItemDB");
