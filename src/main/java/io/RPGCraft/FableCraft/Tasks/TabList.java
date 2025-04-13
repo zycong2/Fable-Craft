@@ -17,16 +17,15 @@ public class TabList implements Runnable {
     return instance;
   }
 
-  private final Map<UUID, Integer> headerPositions = new HashMap<>();
-  private final Map<UUID, Integer> footerPositions = new HashMap<>();
+  private final Map<String, Integer> positions = new HashMap<>();
 
   private TabList() {}
 
   @Override
   public void run() {
     for (Player player : Bukkit.getOnlinePlayers()) {
-      int headerPosition = headerPositions.getOrDefault(player.getUniqueId(), 0);
-      int footerPosition = footerPositions.getOrDefault(player.getUniqueId(), 0);
+      int headerPosition = positions.getOrDefault("header", 0);
+      int footerPosition = positions.getOrDefault("footer", 0);
 
       if (headerPosition >= getFileConfig("format").getInt("format.tab.header.animationcycle")-1)
         headerPosition = 0;
@@ -34,12 +33,12 @@ public class TabList implements Runnable {
       if (footerPosition >= getFileConfig("format").getInt("format.tab.header.animationcycle")-1)
         footerPosition = 0;
 
-      List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + headerPosition+1);
-      List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + footerPosition+1);
+      List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + (headerPosition+1));
+      List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + (footerPosition+1));
       player.sendPlayerListHeaderAndFooter(Colorize(ListConnector(headerLines)), Colorize(ListConnector(footerLines)));
 
-      headerPositions.put(player.getUniqueId(), headerPosition + 1);
-      footerPositions.put(player.getUniqueId(), footerPosition + 1);
+      positions.put("header", headerPosition + 1);
+      positions.put("footer", footerPosition + 1);
     }
   }
 

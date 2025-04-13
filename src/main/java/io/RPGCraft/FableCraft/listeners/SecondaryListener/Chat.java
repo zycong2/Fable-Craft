@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class Chat implements Listener {
@@ -24,7 +24,7 @@ public class Chat implements Listener {
     String str2 = Placeholder.setPlaceholders(str1, false, e);
 
     for(Player pla : Bukkit.getOnlinePlayers()){
-      pla.sendMessage(ColorizeReString(str2));
+      pla.sendMessage(Colorize(str2));
     }
     e.setCancelled(true);
   }

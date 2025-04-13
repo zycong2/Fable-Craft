@@ -67,7 +67,7 @@ public class PlayerPlaceholders {
     }
   }
 
-  public static String RankPrefix(Entity e) {
+  public static String rankPrefix(Entity e) {
     if (e instanceof Player p) {
       String prefix = ColorizeReString(getPlayerGroup(p).getCachedData().getMetaData().getPrefix());
       return prefix;
