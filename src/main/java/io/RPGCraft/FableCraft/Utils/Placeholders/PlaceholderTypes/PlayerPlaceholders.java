@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.Utils.ColorUtils.convertSimpleGradient;
 import static io.RPGCraft.FableCraft.Utils.Utils.getPlayerGroup;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 
@@ -69,8 +70,8 @@ public class PlayerPlaceholders {
 
   public static String rankPrefix(Entity e) {
     if (e instanceof Player p) {
-      String prefix = ColorizeReString(getPlayerGroup(p).getCachedData().getMetaData().getPrefix());
-      return prefix;
+      String prefix = getPlayerGroup(p).getCachedData().getMetaData().getPrefix();
+      return convertSimpleGradient(prefix);
     }else{
       return ColorizeReString("The mob is not a living entity");
     }

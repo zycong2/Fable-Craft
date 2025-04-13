@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class Chat implements Listener {
@@ -26,7 +27,7 @@ public class Chat implements Listener {
 
     for(Player pla : Bukkit.getOnlinePlayers()){
       Bukkit.getLogger().info(str2);
-      pla.sendMessage(Colorize(str2));
+      pla.sendMessage(ColorizeReString(str2));
     }
   }
 }

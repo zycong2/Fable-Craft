@@ -29,6 +29,38 @@ public class ColorUtils {
     hexSupport = CHAT_COLOR_FROM_COLOR != null;
   }
 
+  public static String convertSimpleGradient(String input) {
+    StringBuilder content = new StringBuilder();
+    String startColor = null;
+    String endColor = null;
+
+    int i = 0;
+    while (i < input.length()) {
+      if (input.startsWith("&#", i) && i + 8 <= input.length()) {
+        String hex = input.substring(i + 2, i + 8);
+        if (startColor == null) {
+          startColor = hex;
+        }
+        endColor = hex;
+        i += 8; // Skip past &#xxxxxx
+
+        if (i < input.length()) {
+          content.append(input.charAt(i));
+          i++;
+        }
+      } else {
+        i++; // Skip non-gradient formatting (just in case)
+      }
+    }
+
+    if (startColor == null || endColor == null || content.length() == 0) {
+      return input; // No gradient found, return as-is
+    }
+
+    return "<&#" + startColor + ">" + content + "</&#" + endColor + ">";
+  }
+
+
   public static String colorize(String text, char colorSymbol) {
     Matcher g = gradient.matcher(text);
     Matcher l = legacyGradient.matcher(text);
