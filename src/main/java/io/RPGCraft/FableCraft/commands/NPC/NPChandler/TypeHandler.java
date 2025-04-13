@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.commands.NPC.NPChandler;
 
 import net.citizensnpcs.api.npc.NPC;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,15 +19,17 @@ public class TypeHandler implements Listener {
     public void OnNPCRightClick(PlayerInteractEntityEvent e) {
         Player p = e.getPlayer();
         Entity gotClickedEntity = e.getRightClicked();
+        Bukkit.getLogger().info("clicked");
         if(isCitizensNPC(gotClickedEntity)) {
-            NPC npc = (NPC) gotClickedEntity;
+          Bukkit.getLogger().info("isNPC");
             boolean isEditing = p.hasPermission("rpgcraft.edit") && p.isSneaking();
             
-            switch(getNPCPDC("NPCType", npc)) {
+            switch(getNPCPDC("NPCType", (NPC) gotClickedEntity)) {
                 case "shop":
                     break;
                 case "quest":
-                    quests.talkedNPC(p, npc.getName());
+                    Bukkit.getLogger().info("questNPC");
+                    quests.talkedNPC(p, gotClickedEntity.getName());
                     break;
                 default:
                     break;

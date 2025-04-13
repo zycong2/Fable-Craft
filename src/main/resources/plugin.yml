@@ -38,6 +38,11 @@ commands:
     permission: FableCraft.lootTables
     aliases:
       - lt
+  setNPCType:
+    description: Set the type of the npc.
+    permission: FableCraft.npcType
+    aliases:
+      - snt
   todolist:
     description: Todolist for you zycong and me too.
     permission: FableCraft.todolist

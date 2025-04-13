@@ -10,12 +10,13 @@ import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
+import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
+import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.core.GUI.GUIListener;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -65,6 +66,8 @@ public final class RPGCraft extends JavaPlugin {
     this.getCommand("mobs").setTabCompleter(new mobs());
     this.getCommand("lootTables").setExecutor(new lootTableHelper());
     this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
+    this.getCommand("setNPCType").setExecutor(new setPDC());
+    this.getCommand("setNPCType").setTabCompleter(new setPDC());
 
     registerListeners(
       new mainListeners(),
@@ -74,12 +77,9 @@ public final class RPGCraft extends JavaPlugin {
       new lootTableHelper(),
       new GUIListener(),
       new ItemEditor(),
-      new Chat()
+      new TypeHandler()
     );
 
-    BukkitScheduler scheduler = this.getServer().getScheduler();
-    scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
-    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), 20L);
     if (!yamlManager.loadData()) {
       Bukkit.getLogger().severe("Failed to load data!");
     }
@@ -88,6 +88,9 @@ public final class RPGCraft extends JavaPlugin {
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
 
+    BukkitScheduler scheduler = this.getServer().getScheduler();
+    scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
+    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), 20L);
   }
 
   private void registerListeners(Listener... l) {

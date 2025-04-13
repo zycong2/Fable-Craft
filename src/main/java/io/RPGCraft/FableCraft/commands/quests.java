@@ -7,6 +7,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -176,9 +177,12 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
       }
     }
     if (yamlManager.getOption("quests","") instanceof List l) {
+      Bukkit.getLogger().info("is list");
       for (Object quest : l) {
         if (!activeQuests.contains(quest)){
+          Bukkit.getLogger().info("doesnt contain quest");
           if (yamlManager.getOption("quests", quest + "npcStarter").toString().equalsIgnoreCase(NPC)){
+            Bukkit.getLogger().info("is right npc");
             startQuest(p, quests);
           }
         }
