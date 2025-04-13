@@ -3,8 +3,9 @@ import java.util.List;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
-import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -27,7 +28,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (args.length == 0){
-      p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+      p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
     }
 
     if (args[0].equalsIgnoreCase("startNew")){
@@ -36,9 +37,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         PDCHelper.setPlayerPDC("quests", p, quests + ";" + args[1]);
         PDCHelper.setPlayerPDC(args[1] + ".step", p, String.valueOf(1));
         PDCHelper.setPlayerPDC(args[1] + ".progress", p, String.valueOf(0));
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.start", p, true));
+        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.quests.start", p, true));
       } else {
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.questAlreadyStarted", null, true));
+        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.questAlreadyStarted", null, true));
       }
     } if (args[0].equalsIgnoreCase("disband")){
       String quests = PDCHelper.getPlayerPDC("quests", p);
@@ -46,9 +47,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         PDCHelper.setPlayerPDC("quests", p, quests.replace(";" + args[1], ""));
         PDCHelper.setPlayerPDC(args[1] + ".step", p, null);
         PDCHelper.setPlayerPDC(args[1] + ".progress", p, null);
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.disband", p, true));
+        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.quests.disband", p, true));
       } else {
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.questNotStarted", null, true));
+        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.questNotStarted", null, true));
       }
     }
 
@@ -115,7 +116,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
     for (String quest : quests.split(";")){
       if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".type").toString().equalsIgnoreCase("talkToNPC")){
         if (event.getRightClicked().getName().equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".NPCName"))){
-          for (Object s : yamlManager.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions")){
+          for (Object s : yamlGetter.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions")){
             if (s.toString().contains("removeItem")){
               if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", event.getPlayer()) + ".actions." + s + "removeItems") instanceof List list){
                 for (Object s2 : list){
@@ -155,7 +156,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
 
 
   public void finishedQuest(Player p, String quest){
-    p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.quests.completed", p, true));
+    p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.quests.completed", p, true));
     if (yamlManager.getOption("quests", quest + ".rewards") != null){
       if (yamlManager.getOption("quests", quest + ".rewards") instanceof String){
         List<ItemStack> rewards = lootTableHelper.getLootTable(yamlManager.getOption("quests", quest + ".rewards").toString());

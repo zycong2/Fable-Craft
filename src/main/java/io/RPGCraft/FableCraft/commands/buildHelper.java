@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +17,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import io.RPGCraft.FableCraft.core.yamlManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,20 +47,20 @@ public class buildHelper implements CommandExecutor, Listener, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.build")) {
-            p.sendMessage((TextComponent)  yamlManager.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage((TextComponent)  yamlGetter.getConfig("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0){
-            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
 
         if (args[0].equals("randomItems")){
             if (!p.hasMetadata("randomItems")){
                 p.setMetadata("randomItems", new FixedMetadataValue(RPGCraft.getPlugin(), true));
-                p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.randomItems.enabled", p, true));
+                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.randomItems.enabled", p, true));
             } else {
                 p.removeMetadata("randomItems", RPGCraft.getPlugin());
-                p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.randomItems.disabled", p, true));
+                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.randomItems.disabled", p, true));
             }
             return true;
         }
@@ -72,7 +72,7 @@ public class buildHelper implements CommandExecutor, Listener, TabCompleter {
                 World world = p.getWorld();
                 Material blockMat = Material.getMaterial(args[2]);
                 if (blockMat == null) {
-                    p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+                    p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
                     return true;
                 }
 
@@ -84,15 +84,15 @@ public class buildHelper implements CommandExecutor, Listener, TabCompleter {
                         world.getBlockAt(loc).setType(blockMat);
                     }
                 }
-                p.sendMessage((TextComponent) yamlManager.getConfig("messages.info.perlinCylSuccess", p, true));
+                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.perlinCylSuccess", p, true));
             } else {
-                p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
                 return true;
             }
             return true;
         }
 
-        p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
         return true;
     }
 }

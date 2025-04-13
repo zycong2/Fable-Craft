@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
-import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,19 +21,19 @@ public class stats implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
-            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermission", (Player) p, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", (Player) p, true));
             return true;
         }if (args.length == 0 || Bukkit.getPlayer(args[0]) == null){
-            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
 
-        String[] skills = yamlManager.getNodes("config", "stats").toArray(new String[0]);
+        String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
         for(String skill : skills) {
-            PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlManager.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
+            PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlGetter.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
         }
         stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
-        p.sendMessage(yamlManager.getMessage("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
+        p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
         return true;
     }
 

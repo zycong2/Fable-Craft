@@ -2,8 +2,9 @@ package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.YAML.Placeholder;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
-import io.RPGCraft.FableCraft.core.yamlManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -35,7 +36,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
-import static io.RPGCraft.FableCraft.core.yamlManager.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 
 
 public class mobs implements CommandExecutor, TabCompleter, Listener {
@@ -43,10 +44,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.mobs")) {
-            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0){
-            p.sendMessage((TextComponent) yamlManager.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
             return true;
         }
         if (args[0].equals("spawn")) { getEntity(args[1], p.getLocation()); }
@@ -65,7 +66,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         if (args.length == 1){
             return List.of("spawn", "killAll", "reload");
         } if (args.length == 2 && args[0].equals("spawn")){
-            List<Object> o =  getNodes("mobDB", "");
+            List<Object> o =  yamlGetter.getNodes("mobDB", "");
             List<String> completion = new java.util.ArrayList<>(List.of());
             for (Object v : o){ completion.add(v.toString()); }
             return completion;
@@ -95,7 +96,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             if (getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getFileConfig("mobDB").get(name + ".speed")));}
 
 
-            if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Component.text(setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
+            if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Component.text(Placeholder.setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
             if (getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
 
@@ -119,7 +120,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         }
     }
     public static void reloadSpawns(){
-        List<Object> mobsObject = getNodes("mobDB", "");
+        List<Object> mobsObject = yamlGetter.getNodes("mobDB", "");
         List<String> mobs = new java.util.ArrayList<>(List.of());
         for (Object o : mobsObject) {mobs.add(o.toString());}
         for (String s : mobs){
@@ -131,7 +132,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     void damage(EntityDamageEvent event){
         if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-            event.getEntity().setCustomName(setPlaceholders((String) Objects.requireNonNull(getFileConfig("mobDb").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity()));
+            event.getEntity().setCustomName(Placeholder.setPlaceholders((String) Objects.requireNonNull(getFileConfig("mobDb").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity()));
         }
     }
     @EventHandler

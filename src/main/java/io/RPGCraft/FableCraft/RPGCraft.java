@@ -3,14 +3,14 @@ package io.RPGCraft.FableCraft;
 import java.util.Arrays;
 import java.util.List;
 
+import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.core.GUI.GUIListener;
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
-import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -25,13 +25,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 
 public final class RPGCraft extends JavaPlugin {
@@ -72,37 +71,13 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, () -> {
-      for(Player p : Bukkit.getOnlinePlayers()) {
-        p.sendActionBar(ColorizeForItem(yamlManager.getConfig("actionbar.message", p, true).toString()));
-        try {
-          double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
-          double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
-          double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-          double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
-          if (currentHealth < maxPlayerHealth) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
-            currentHealth += (double) 20.0F / maxPlayerHealth * amount;
-            p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), currentHealth));
-            p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
-          } else if (currentHealth > maxPlayerHealth) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(getPlugin(), maxPlayerHealth));
-          }
-          if (currentMana < maxPlayerMana) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
-            currentMana += (double) 20.0F / maxPlayerMana * amount;
-            p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), currentMana));
-          } else if (currentMana > maxPlayerMana) {
-            p.setMetadata("currentMana", new FixedMetadataValue(getPlugin(), maxPlayerMana));
-          }
-        } catch (NumberFormatException e) {}
-      }
 
     }, 20L, 20L);
     if (!yamlManager.loadData()) {
       Bukkit.getLogger().severe("Failed to load data!");
     }
 
-    if (yamlManager.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
+    if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
 
@@ -166,8 +141,8 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
-  public static String ColorizeForItem(String input) {
-    return Utils.colorize(input, '&');
+  public static String ColorizeReString(String input) {
+    return ColorUtils.colorize(input, '&');
   }
 
   public static TextComponent Colorize(String input){

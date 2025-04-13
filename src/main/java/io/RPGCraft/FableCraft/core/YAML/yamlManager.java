@@ -1,4 +1,4 @@
-package io.RPGCraft.FableCraft.core;
+package io.RPGCraft.FableCraft.core.YAML;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,18 +6,14 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import net.kyori.adventure.text.Component;
+import io.RPGCraft.FableCraft.core.PDCHelper;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -25,12 +21,8 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
-import static io.RPGCraft.FableCraft.Utils.getPlayerGroup;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 
 
 public class yamlManager {
@@ -85,16 +77,17 @@ public class yamlManager {
     }
 
     public static boolean setDefaults() {
-        getFileConfig("messages").addDefault("messages.joinMessage", "&6#target# &ajoined the game!");
-        getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6#target# &ajoined the server for the first time!");
-        getFileConfig("messages").addDefault("messages.quitMessage", "&6#target#&a left!");
+        getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
+        getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
+        getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
         getFileConfig("messages").addDefault("messages.error.noPermissionCraft", "&cYou don't have permission to make this item!");
         getFileConfig("messages").addDefault("messages.error.noPermission", "&cYou don't have permission to execute this command!");
         getFileConfig("messages").addDefault("messages.error.noValidArgument", "&cInvalid arguments!");
         getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
         getFileConfig("messages").addDefault("messages.error.questAlreadyStarted", "&cYou already activated this quest!");
         getFileConfig("messages").addDefault("messages.error.questNotStarted", "&cYou don't have a quest active with this name!");
-        getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of #target#!");
+        getFileConfig("messages").addDefault("messages.info.format.chat", "%rankPrefix% %player% &7: %messageChat%");
+        getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of %target%!");
         getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
         getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");
         getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
@@ -118,7 +111,6 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
         getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
         getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
-        getFileConfig("messages").addDefault("messages.format.chat", "#rankPrefix# #player# &7: #messageChat#");
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -137,15 +129,15 @@ public class yamlManager {
         getFileConfig("config").addDefault("stats.Health.char", "&c❤");
         getFileConfig("config").addDefault("stats.Regeneration.default", 1);
         getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
-        getFileConfig("config").addDefault("stats.Defence.default", 0);
-        getFileConfig("config").addDefault("stats.Defence.char", "&7\ud83d\udee1");
+        getFileConfig("config").addDefault("stats.Defense.default", 0);
+        getFileConfig("config").addDefault("stats.Defense.char", "&7\ud83d\udee1");
         getFileConfig("config").addDefault("stats.Mana.default", 20);
         getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
         getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);
         getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
         getFileConfig("config").addDefault("stats.Damage.default", 1);
         getFileConfig("config").addDefault("stats.Damage.char", "&4⚔");
-        getFileConfig("config").addDefault("actionbar.message", "&c#currentHealth#/#maxHealth#❤&r   &9#currentMana#/#maxMana#ᛄ");
+        getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
         getFileConfig("config").options().copyDefaults(true);
 
         getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
@@ -184,7 +176,7 @@ public class yamlManager {
         getFileConfig("itemDB").options().copyDefaults(true);
 
         getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
-        getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c#currentHealth#/#maxHealth#");
+        getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%currentHealth%/%maxHealth%");
         getFileConfig("mobDB").addDefault("spider.customName.visible", true);
         getFileConfig("mobDB").addDefault("spider.glowing", false);
         getFileConfig("mobDB").addDefault("spider.invulnerable", false);
@@ -252,15 +244,12 @@ public class yamlManager {
 
     }
     public static void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
-    public static List<Object> getNodes(String file, String path) {
-        Set<String> nodes = getFileConfig(file).getConfigurationSection(path).getKeys(false);
-        return new ArrayList<>(nodes);
-    }
-    public static void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
+
+  public static void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 
     public static List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList(getFileConfig("itemDB").getKeys(false).size());
-        List<Object> nodes = getNodes("itemDB", "");
+        List<Object> nodes = yamlGetter.getNodes("itemDB", "");
         for (Object node : nodes) {String key = node.toString();
             items.add(getItem(key));
         }
@@ -290,7 +279,7 @@ public class yamlManager {
             for(String s : RPGCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
                     String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
-                    lore.add(ColorizeForItem("&8" + s + ": &f+" + var41 + getConfig("stats." + s + ".char", null, true)));
+                    lore.add(ColorizeReString("&8" + s + ": &f+" + var41 + yamlGetter.getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
                     PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
                 }
@@ -324,22 +313,22 @@ public class yamlManager {
 
             if (isItemSet(name + ".lore")) {
                 if (isConfigSet("items.lore.prefix")) {
-                    String config = ColorizeForItem((String) getConfig("items.lore.prefix", null, true));
+                    String config = ColorizeReString((String) yamlGetter.getConfig("items.lore.prefix", null, true));
                     lore.add(config);
                 }
 
                 for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
-                    lore.add(ColorizeForItem(str));
+                    lore.add(ColorizeReString(str));
                 }
                 if (isConfigSet("items.lore.suffix")) {
-                    String config = ColorizeForItem((String) getConfig("items.lore.suffix", null, true));
+                    String config = ColorizeReString((String) yamlGetter.getConfig("items.lore.suffix", null, true));
                     lore.add(config);
                 }
             }
 
             if (isItemSet(name + ".rarity")) {
                 lore.add("");
-                lore.add(ColorizeForItem(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add(ColorizeReString(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
                 lore.add("");
             }
 
@@ -415,112 +404,4 @@ public class yamlManager {
         return getFileConfig("config").get(path) != null;
     }
 
-    public static Object getConfig(String path, Player target, boolean round) {
-        Object a = getFileConfig("config").get(path);
-        if (a == null) {
-            return ColorizeForItem("&cOption not found");
-        } else if (a instanceof String s) {
-            return setPlaceholders(s, round, target);
-        } else {
-            return a.toString();
-        }
-    }
-
-    public static @Nullable Component getMessage(String path, Player target, boolean round) {
-        Object a = getFileConfig("messages").get(path);
-        if (a == null) {
-            return Colorize("&cOption not found");
-        } else if (a instanceof String s) {
-            return Colorize(setPlaceholders(s, round, target));
-        } return null;
-    }
-
-    public static @NotNull String setPlaceholders(String s, boolean round, Player target){
-        String[] msgs = s.split("#", 0);
-        int count = 0;
-
-        for(String m : msgs) {
-            if (m.equals("target")) {
-                msgs[count] = msgs[count].replaceAll(m, target.getName());
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("maxHealth")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, PDCHelper.getPlayerPDC("Health", target));
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(Double.parseDouble(PDCHelper.getPlayerPDC("Health", target)))));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("currentHealth")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, target.getMetadata("currentHealth").getFirst().asString());
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(target.getMetadata("currentHealth").getFirst().asFloat())));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("maxMana")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, PDCHelper.getPlayerPDC("Mana", target));
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(Double.parseDouble(PDCHelper.getPlayerPDC("Mana", target)))));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("currentMana")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, target.getMetadata("currentMana").getFirst().asString());
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(target.getMetadata("currentMana").getFirst().asFloat())));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("rankPrefix")) {
-                msgs[count] = msgs[count].replaceAll(m, getPlayerGroup(target).getDisplayName());
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("player")) {
-                msgs[count] = msgs[count].replaceAll(m, target.getDisplayName());
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            }
-
-            ++count;
-        }
-
-        String finalMsg = String.join("", msgs);
-        finalMsg = finalMsg.replaceAll("#", "");
-        finalMsg = finalMsg.replaceAll(",", "");
-        finalMsg = finalMsg.replace("[", "");
-        finalMsg = finalMsg.replace("]", "");
-        return finalMsg;
-    } public static String setPlaceholders(String s, boolean round, Entity target){
-        String[] msgs = s.split("#", 0);
-        LivingEntity e = (LivingEntity) target;
-        int count = 0;
-
-        for(String m : msgs) {
-            if (m.equals("target")) {
-                msgs[count] = msgs[count].replaceAll(m, target.getName());
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("maxHealth")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(e.getMaxHealth()));
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(e.getMaxHealth())));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            } else if (m.equals("currentHealth")) {
-                if (!round) {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(e.getHealth()));
-                } else {
-                    msgs[count] = msgs[count].replaceAll(m, String.valueOf(Math.round(Float.parseFloat(String.valueOf(e.getHealth())))));
-                }
-                msgs[count] = msgs[count].replaceAll("\\s","");
-            }
-
-            ++count;
-        }
-
-        String finalMsg = String.join("", msgs);
-        finalMsg = finalMsg.replaceAll("#", "");
-        finalMsg = finalMsg.replaceAll(",", "");
-        finalMsg = finalMsg.replace("[", "");
-        finalMsg = finalMsg.replace("]", "");
-        return ChatColor.translateAlternateColorCodes('&', finalMsg);
-    }
 }

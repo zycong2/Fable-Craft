@@ -9,7 +9,8 @@ import java.util.Objects;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
-import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,9 +35,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.Utils.isCitizensNPC;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.yamlManager.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
 
@@ -49,36 +51,36 @@ public class mainListeners implements Listener {
         Player p = event.getPlayer();
         if (p.hasPlayedBefore()) {
             for (Player pla : Bukkit.getServer().getOnlinePlayers()){
-                pla.sendMessage(yamlManager.getMessage("messages.joinMessage", p, true));
+                pla.sendMessage(yamlGetter.getMessage("messages.joinMessage", p, true));
             }
             event.setJoinMessage(null);
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
         } else {
             for (Player pla : Bukkit.getServer().getOnlinePlayers()){
-                pla.sendMessage(yamlManager.getMessage("messages.firstJoinMessage", p, true));
+                pla.sendMessage(yamlGetter.getMessage("messages.firstJoinMessage", p, true));
             }
             event.setJoinMessage(null);
             setPlayerPDC("ItemEditorUsing", p, "notUsing");
         }
 
-        String[] skills = getNodes("config", "stats").toArray(new String[0]);
+        String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
 
         for(String skill : skills) {
             if (getPlayerPDC(skill, p) == null) {
-                setPlayerPDC(skill, p, String.valueOf(yamlManager.getConfig("stats." + skill + ".default", p, true)));
+                setPlayerPDC(skill, p, String.valueOf(yamlGetter.getConfig("stats." + skill + ".default", p, true)));
             }
         }
 
         if (getPlayerPDC("currentHealth", p) == null) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), yamlManager.getConfig("stats.Health.default", p, true).toString()));
-            setPlayerPDC("Health", p, yamlManager.getConfig("stats.Health.default", p, true).toString());
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats.Health.default", p, true).toString()));
+            setPlayerPDC("Health", p, yamlGetter.getConfig("stats.Health.default", p, true).toString());
             p.setHealth(20);
         } else {
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentHealth", p)));
         }
         if (getPlayerPDC("currentMana", p) == null) {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), yamlManager.getConfig("stats.Mana.default", p, true).toString()));
-            setPlayerPDC("Mana", p, yamlManager.getConfig("stats.Mana.default", p, true).toString());
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats.Mana.default", p, true).toString()));
+            setPlayerPDC("Mana", p, yamlGetter.getConfig("stats.Mana.default", p, true).toString());
         } else {
             p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentMana", p)));
         }
@@ -92,7 +94,7 @@ public class mainListeners implements Listener {
         Player p = event.getPlayer();
         setPlayerPDC("ItemEditorUsing", p, "notUsing");
         for (Player pla : Bukkit.getServer().getOnlinePlayers()){
-            pla.sendMessage(yamlManager.getMessage("messages.quitMessage", p, true));
+            pla.sendMessage(yamlGetter.getMessage("messages.quitMessage", p, true));
         }
         event.setQuitMessage(null);
 
@@ -126,14 +128,14 @@ public class mainListeners implements Listener {
 
     @EventHandler
     void onInteraction(PlayerInteractEvent event) {
-        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK && Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
+        if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.getItem().equals(new ItemStack(Material.NETHER_STAR))) {
             this.menu = Bukkit.createInventory(event.getPlayer(), 45, "Menu");
-            String[] skills = getNodes("config", "stats").toArray(new String[0]);
+            String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
             String[] formatedSkills = new String[skills.length];
 
             for(int i = 0; i < skills.length; ++i) {
-                String var10002 = String.valueOf(yamlManager.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-                formatedSkills[i] = var10002 + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i];
+                String var10002 = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
+                formatedSkills[i] = ColorizeReString(var10002 + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
             }
 
             this.menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "Profile", formatedSkills));
@@ -206,12 +208,12 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-name");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.rename.info", p, false));
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
             } else if(slot == 10) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-lore");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.info", p, false));
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
             } /*else if(slot == 11) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-enchants");
 
@@ -221,12 +223,12 @@ public class mainListeners implements Listener {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-customModelData");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.customModelData.info", p, false));
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.info", p, false));
             } else if(slot == 12) {
                 setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
 
                 p.closeInventory();
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.craftPerms.info", p, false));
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
             } /* No you click on the item on the 4th slot
             else if(slot == 33){
               p.closeInventory();
@@ -238,7 +240,7 @@ public class mainListeners implements Listener {
                 if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
                 getFileConfig("itemDB").set(itemKey, null);
                 try {getFileConfig("itemDB").save("itemDB.yml");} catch (IOException ignored) {}
-                p.sendMessage(yamlManager.getMessage("messages.itemeditor.delete.success", p, true));
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.delete.success", p, true));
             } else if(slot == 35){
                 p.closeInventory();
                 setPlayerPDC("ItemEditorUsing", p, "notUsing");
@@ -252,7 +254,7 @@ public class mainListeners implements Listener {
         if (getItemPDC("craftPerms", event.getCurrentItem()) != null){
             if (!event.getWhoClicked().hasPermission(getItemPDC("craftPerms", event.getCurrentItem()))){
                 event.setCancelled(true);
-                event.getWhoClicked().sendMessage((TextComponent) yamlManager.getMessage("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false));
+                event.getWhoClicked().sendMessage((TextComponent) yamlGetter.getMessage("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false));
             } else{
                 Bukkit.getLogger().info("has permission");
             }
@@ -296,7 +298,7 @@ public class mainListeners implements Listener {
     }
 
     @EventHandler void onRespawn(PlayerRespawnEvent event){ event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));}
-    @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlManager.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
+    @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
     @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
     @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
 

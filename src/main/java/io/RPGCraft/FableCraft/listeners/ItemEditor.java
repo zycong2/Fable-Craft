@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.core.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -15,16 +15,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeForItem;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
-import static io.RPGCraft.FableCraft.core.yamlManager.*;
-import static io.RPGCraft.FableCraft.core.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class ItemEditor implements Listener {
   public static Inventory makeItemEditor(ItemStack item){
@@ -44,16 +43,16 @@ public class ItemEditor implements Listener {
   private static ItemStack makeItem(String name, Material material, int amount, int CustomModel, List<String> lore){
     ItemStack output = new ItemStack(material, amount);
     List<String> coloredList = new ArrayList<>();
-    for(String str : lore){coloredList.add(ColorizeForItem(str));}
+    for(String str : lore){coloredList.add(ColorizeReString(str));}
     ItemMeta IMeta = output.getItemMeta();
-    IMeta.setDisplayName(ColorizeForItem(name));
+    IMeta.setDisplayName(ColorizeReString(name));
     IMeta.setLore(coloredList);
     IMeta.setCustomModelData(CustomModel);
     output.setItemMeta(IMeta);
     return output;}
 
   public static String getItemKey(ItemStack item) {
-    List<Object> nodes = getNodes("itemDB", "");
+    List<Object> nodes = yamlGetter.getNodes("itemDB", "");
     for (Object node : nodes) {String key = node.toString(); // Convert object to string (woodenSword, leatherChestplate, etc.) ty chatgpt for giving idea
       if (getFileConfig("itemDB").getString(key + ".ItemID").equals(getItemPDC("ItemID", item))) {return key;}
     }return null;}
@@ -82,7 +81,7 @@ public class ItemEditor implements Listener {
         return;
       }
       getFileConfig("itemDB").set(itemKey + ".name", message);
-      p.sendMessage(yamlManager.getMessage("messages.itemeditor.rename.success", p, true));
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
       RPGCraft.wait(1, new BukkitRunnable() {
         @Override
         public void run() {
@@ -100,12 +99,12 @@ public class ItemEditor implements Listener {
       int linenumber = 0;
       try {
         if (message.contains(" ")) {
-          p.sendMessage(getMessage("messages.itemeditor.general.noSpace", p, true));
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.noSpace", p, true));
           return;
         }
         linenumber = Integer.parseInt(message);
         if (linenumber <= 0) {
-          p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.null", p, true));
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.null", p, true));
           return;
         }
       } catch (NumberFormatException er) {
@@ -114,7 +113,7 @@ public class ItemEditor implements Listener {
       }
       setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
       setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
-      p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.info2", p, true));
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
       return;
     } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore2")) {
       String itemKey = getPlayerPDC("SelectedItemKey", p);
@@ -127,12 +126,12 @@ public class ItemEditor implements Listener {
       if (lineNumber > itemLore.size()) {
         itemLore.add(message);
         getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
-        p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.create", p, true));
+        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.create", p, true));
         return;
       }
       itemLore.set(lineNumber - 1, message);
       getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
-      p.sendMessage(yamlManager.getMessage("messages.itemeditor.lore.success", p, true));
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
       RPGCraft.wait(1, new BukkitRunnable() {
         @Override
         public void run() {
@@ -196,11 +195,11 @@ public class ItemEditor implements Listener {
       try {
         CustomModelData = Integer.parseInt(message);
         if (CustomModelData <= 0) {
-          p.sendMessage(yamlManager.getMessage("messages.itemeditor.general.fail", p, true));
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
           return;
         }
         getFileConfig("itemDB").set(itemKey + ".customModelData", CustomModelData);
-        p.sendMessage(yamlManager.getMessage("messages.itemeditor.customModelData.success", p, true));
+        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.success", p, true));
         RPGCraft.wait(1, new BukkitRunnable() {
           @Override
           public void run() {
@@ -209,7 +208,7 @@ public class ItemEditor implements Listener {
           }
         });
       } catch (NumberFormatException er) {
-        p.sendMessage(yamlManager.getMessage("messages.itemeditor.general.fail", p, true));
+        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
       }
       return;
     } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-craftPerms")) {
