@@ -18,14 +18,15 @@ public class Chat implements Listener {
 
   @EventHandler
   public void AsyncChat(AsyncChatEvent e){
+    e.setCancelled(true);
     Player p = e.getPlayer();
     String format = getFileConfig("format").getString("format.chat");
     String str1 = Placeholder.setPlaceholders(format, false, (Entity) p);
     String str2 = Placeholder.setPlaceholders(str1, false, e);
 
     for(Player pla : Bukkit.getOnlinePlayers()){
+      Bukkit.getLogger().info(str2);
       pla.sendMessage(Colorize(str2));
     }
-    e.setCancelled(true);
   }
 }
