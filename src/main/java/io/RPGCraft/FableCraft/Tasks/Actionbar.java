@@ -10,6 +10,7 @@ import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getActionBar;
 
 public class Actionbar implements Runnable{
   private static final Actionbar instance = new Actionbar();
@@ -20,7 +21,7 @@ public class Actionbar implements Runnable{
   @Override
   public void run() {
     for(Player p : Bukkit.getOnlinePlayers()) {
-      p.sendActionBar(ColorizeReString(yamlGetter.getConfig("actionbar.message", p, true).toString()));
+      p.sendActionBar(ColorizeReString(getActionBar(p, true).toString()));
       try {
         List<Double> health = getStats(p, "Health");
         List<Double> mana = getStats(p, "Mana");

@@ -4,7 +4,8 @@ main: io.RPGCraft.FableCraft.RPGCraft
 api-version: '1.21.4'
 authors: [ zycong, Tonnam_101, Timserned]
 description: RPG style plugin.
-depend: [Citizens]
+depend: [Citizens, LuckPerms]
+license: MIT
 
 commands:
   itemDB:

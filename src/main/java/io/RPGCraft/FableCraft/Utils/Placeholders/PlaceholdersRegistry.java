@@ -2,45 +2,34 @@ package io.RPGCraft.FableCraft.Utils.Placeholders;
 
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes.ChatPlaceholders;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes.PlayerPlaceholders;
+import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderUtils.Placeholder;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import lombok.Getter;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class PlaceholdersRegistry {
-  private static final Map<String, Function<Entity, String>> placeholders = new HashMap<>();
-  private static final Map<String, Function<AsyncChatEvent, String>> chateventPlaceholders = new HashMap<>();
+  @Getter
+  private static final Map<String, Method> placeholders = new HashMap<>();
+
+  @Getter
+  private static final Map<String, Method> chateventPlaceholders = new HashMap<>();
 
   public PlaceholdersRegistry() {
-    registerPlaceholders(PlayerPlaceholders.class, Entity.class, placeholders);
-    registerPlaceholders(ChatPlaceholders.class, AsyncChatEvent.class, chateventPlaceholders);
+    registerPlaceholders(PlayerPlaceholders.class, placeholders);
+    registerPlaceholders(ChatPlaceholders.class, chateventPlaceholders);
   }
 
-  public static <T> void registerPlaceholders(Class<?> c, Class<T> type, Map<String, Function<T, String>> map) {
-    for (Method method : c.getDeclaredMethods()) {
-      if (Modifier.isStatic(method.getModifiers()) &&
-        method.getReturnType() == String.class &&
-        method.getParameterCount() == 1 &&
-        method.getParameterTypes()[0] == type) {
-
-        String name = method.getName();
-
-        map.put("%" + name + "%", (T input) -> {
-          try {
-            Object result = method.invoke(null, input);
-            return result != null ? result.toString() : "null";
-          } catch (Exception e) {
-            e.printStackTrace();
-            return "ERR";
-          }
-        });
+  public static <T> void registerPlaceholders(Class<?> c, Map<String, Method> map) {
+    for (Method m : c.getDeclaredMethods()) {
+      if (m.isAnnotationPresent(Placeholder.class)) {
+        Placeholder ann = m.getAnnotation(Placeholder.class);
+        map.put("%" + ann.name() + "%", m);
       }
     }
   }
@@ -48,33 +37,40 @@ public class PlaceholdersRegistry {
   @SuppressWarnings("unchecked")
   public static <T> String parseDynamic(String input, T context) {
     if (context instanceof Entity) {
-      return parse(input, (Entity) context);
+      return parse(input, placeholders, (Entity) context);
     } else if (context instanceof AsyncChatEvent) {
-      return parse(input, (AsyncChatEvent) context);
+      return parse(input, chateventPlaceholders, (AsyncChatEvent) context);
     }
     return input;
   }
 
-  // Entity version
-  public static String parse(String input, Entity entity) {
-    return parse(input, entity, placeholders);
-  }
+  private static <T> String parse(String text, Map<String, Method> map, T context) {
+    for (Map.Entry<String, Method> entry : map.entrySet()) {
+      String placeholder = entry.getKey();
+      if (!text.contains(placeholder)) continue;
 
-  // Chat event version
-  public static String parse(String input, AsyncChatEvent event) {
-    return parse(input, event, chateventPlaceholders);
-  }
+      try {
+        Method m = entry.getValue();
+        List<Object> args = new ArrayList<>();
+        if (m.getParameterCount() > 1) {return text;}
+        for (Class<?> param : m.getParameterTypes()) {
+          if (param.isInstance(context)) {
+            args.add(context);
+          } else {
+            args.add(null); // fill in nulls if the type doesn't match
+          }
+        }
+        Object result = m.invoke(null, args.toArray());
+        text = text.replace(placeholder, result != null ? result.toString() : "null");
 
-  // Generic core method (private)
-  private static <T> String parse(String input, T context, Map<String, Function<T, String>> map) {
-    for (Map.Entry<String, Function<T, String>> entry : map.entrySet()) {
-      String replacement = entry.getValue().apply(context);
-      if (replacement != null) {
-        input = input.replace(entry.getKey(), replacement);
+      } catch (Exception e) {
+        text = text.replace(placeholder, "ERR");
+        e.printStackTrace();
       }
     }
-    return input;
+    return text;
   }
+
 
 
   public static String round(Double input){

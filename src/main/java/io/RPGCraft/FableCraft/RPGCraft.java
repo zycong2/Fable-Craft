@@ -17,7 +17,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
-// io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
+import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -38,6 +38,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat.startPinnedMessageTask;
 
 
 public final class RPGCraft extends JavaPlugin {
@@ -78,7 +79,7 @@ public final class RPGCraft extends JavaPlugin {
       new lootTableHelper(),
       new GUIListener(),
       new ItemEditor(),
-      /*new Chat(),*/
+      new Chat(),
       new TypeHandler()
     );
 
@@ -93,6 +94,7 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
+    startPinnedMessageTask();
   }
 
   private void registerListeners(Listener... l) {

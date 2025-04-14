@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.Utils.ColorUtils.convertToComponent;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class TabList implements Runnable {
@@ -34,14 +34,14 @@ public class TabList implements Runnable {
 
       List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + (headerPosition+1));
       List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + (footerPosition+1));
-      player.sendPlayerListHeaderAndFooter(Colorize(ListConnector(headerLines)), Colorize(ListConnector(footerLines)));
+      player.sendPlayerListHeaderAndFooter(convertToComponent(TabListConnector(headerLines)), convertToComponent(TabListConnector(footerLines)));
 
       positions.put("header", headerPosition + 1);
       positions.put("footer", footerPosition + 1);
     }
   }
 
-  private String ListConnector(List<String> input){
+  private String TabListConnector(List<String> input){
     String output = "";
     for(String str : input){
       if(str == input.getLast()){
