@@ -17,7 +17,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
+// io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -78,7 +78,7 @@ public final class RPGCraft extends JavaPlugin {
       new lootTableHelper(),
       new GUIListener(),
       new ItemEditor(),
-      new Chat(),
+      /*new Chat(),*/
       new TypeHandler()
     );
 
@@ -92,7 +92,7 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
-    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), getFileConfig("format").getLong("format.tab.animationinterval"), getFileConfig("format").getLong("format.tab.animationinterval"));
+    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
   }
 
   private void registerListeners(Listener... l) {
