@@ -31,33 +31,46 @@ public class Chat implements Listener {
 
   private static Queue<String> messageQueue = new LinkedList<>();
   private final int MESSAGE_LIMIT = 25;
-  private static List<String> pinnedMessage = yamlManager.getFileConfig("messages").getStringList("messages.pinned.messages");
+  private static List<String> pinnedMessage = (List<String>) yamlManager.getOption("messages", "messages.pinned.messages");
 
   //startPinnedMessageTask();
 
   private static void sendUpdatedChat() {
-    pinnedMessage = ColorizeList(pinnedMessage);
-    // Calculate the number of lines the messages will take up
-    int messageLineCount = messageQueue.size();  // 1 line per message
-    int pinnedMessageLineCount = 1;  // Assuming pinned message takes 1 line
+    if (pinnedMessage != null) {
+      pinnedMessage = ColorizeList(pinnedMessage);
+      // Calculate the number of lines the messages will take up
+      int messageLineCount = messageQueue.size();  // 1 line per message
+      int pinnedMessageLineCount = pinnedMessage.size();  // Assuming pinned message takes 1 line
 
-    // Calculate the number of empty lines needed to reach 100 lines
-    int emptyLinesToSend = 100 - (messageLineCount + pinnedMessageLineCount);
+      // Calculate the number of empty lines needed to reach 100 lines
+      int emptyLinesToSend = 100 - (messageLineCount + pinnedMessageLineCount);
 
-    // Send empty lines
-    sendEmptyLines(emptyLinesToSend);
+      // Send empty lines
+      sendEmptyLines(emptyLinesToSend);
 
-    // Send all the messages in the queue
-    for (String msg : messageQueue) {
-      for (Player player : Bukkit.getOnlinePlayers()) {
-        player.sendMessage(msg);
+      // Send all the messages in the queue
+      for (String msg : messageQueue) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+          player.sendMessage(msg);
+        }
       }
-    }
 
-    // Send the pinned message at the bottom
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      for(String line : pinnedMessage) {
-        player.sendMessage(line);
+      // Send the pinned message at the bottom
+      for (Player player : Bukkit.getOnlinePlayers()) {
+        for (String line : pinnedMessage) {
+          player.sendMessage(line);
+        }
+      }
+    } else {
+      int messageLineCount = messageQueue.size();
+      int emptyLinesToSend = 100 - messageLineCount;
+
+      // Send empty lines
+      sendEmptyLines(emptyLinesToSend);
+      for (String msg : messageQueue) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+          player.sendMessage(msg);
+        }
       }
     }
   }
@@ -90,7 +103,7 @@ public class Chat implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.NORMAL)
   public void AsyncChat(AsyncChatEvent e){
     Player p = e.getPlayer();
     if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return;}

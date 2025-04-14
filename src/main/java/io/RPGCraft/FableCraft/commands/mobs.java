@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 
@@ -96,7 +97,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             if (getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getFileConfig("mobDB").get(name + ".speed")));}
 
 
-            if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Component.text(Placeholder.setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
+            if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Colorize(Placeholder.setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
             if (getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
 
