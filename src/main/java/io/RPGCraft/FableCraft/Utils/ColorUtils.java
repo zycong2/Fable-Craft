@@ -15,6 +15,8 @@ public class ColorUtils {
   private static final Pattern gradient = Pattern.compile("<(#[A-Za-z0-9]{6})>(.*?)</(#[A-Za-z0-9]{6})>");
   private static final Pattern legacyGradient = Pattern.compile("<(&[A-Za-z0-9])>(.*?)</(&[A-Za-z0-9])>");
   private static final Pattern rgb = Pattern.compile("&\\{(#......)}");
+  private static final Pattern singleCharGradient = Pattern.compile("(&#([A-Fa-f0-9]{6}))(.)");
+
   static Method COLOR_FROM_CHAT_COLOR;
   static Method CHAT_COLOR_FROM_COLOR;
 
@@ -29,68 +31,68 @@ public class ColorUtils {
     hexSupport = CHAT_COLOR_FROM_COLOR != null;
   }
 
-  public static String convertSimpleGradient(String input) {
-    StringBuilder content = new StringBuilder();
-    String startColor = null;
-    String endColor = null;
-
-    int i = 0;
-    while (i < input.length()) {
-      if (input.startsWith("&#", i) && i + 8 <= input.length()) {
-        String hex = input.substring(i + 2, i + 8);
-        if (startColor == null) {
-          startColor = hex;
-        }
-        endColor = hex;
-        i += 8; // Skip past &#xxxxxx
-
-        if (i < input.length()) {
-          content.append(input.charAt(i));
-          i++;
-        }
-      } else {
-        i++; // Skip non-gradient formatting (just in case)
-      }
-    }
-
-    if (startColor == null || endColor == null || content.length() == 0) {
-      return input; // No gradient found, return as-is
-    }
-
-    return "<&#" + startColor + ">" + content + "</&#" + endColor + ">";
-  }
-
-
   public static String colorize(String text, char colorSymbol) {
-    Matcher g = gradient.matcher(text);
-    Matcher l = legacyGradient.matcher(text);
-    Matcher r = rgb.matcher(text);
-    while (g.find()) {
-      Color start = Color.decode(g.group(1));
-      String between = g.group(2);
-      Color end = Color.decode(g.group(3));
-      if (hexSupport) text = text.replace(g.group(0), rgbGradient(between, start, end, colorSymbol));
-      else text = text.replace(g.group(0), between);
-    }
-    while (l.find()) {
-      char first = l.group(1).charAt(1);
-      String between = l.group(2);
-      char second = l.group(3).charAt(1);
-      ChatColor firstColor = ChatColor.getByChar(first);
-      ChatColor secondColor = ChatColor.getByChar(second);
-      if (firstColor == null) firstColor = ChatColor.WHITE;
-      if (secondColor == null) secondColor = ChatColor.WHITE;
-      if (hexSupport) text = text.replace(l.group(0), rgbGradient(between, fromChatColor(firstColor), fromChatColor(secondColor), colorSymbol));
-      else text = text.replace(l.group(0), between);
-    }
-    while (r.find()) {
-      if (hexSupport) {
-        ChatColor color = fromColor(Color.decode(r.group(1)));
-        text = text.replace(r.group(0), color + "");
-      } else {
-        text = text.replace(r.group(0), "");
+    if (hexSupport) {
+      // Handle <#hex>text</#hex> gradient
+      Matcher g = gradient.matcher(text);
+      StringBuffer sbG = new StringBuffer();
+      while (g.find()) {
+        Color start = Color.decode(g.group(1));
+        String between = g.group(2);
+        Color end = Color.decode(g.group(3));
+        String replacement = rgbGradient(between, start, end, colorSymbol);
+        g.appendReplacement(sbG, Matcher.quoteReplacement(replacement));
       }
+      g.appendTail(sbG);
+      text = sbG.toString();
+
+      // Handle <&a>text</&b> legacy gradient
+      Matcher l = legacyGradient.matcher(text);
+      StringBuffer sbL = new StringBuffer();
+      while (l.find()) {
+        char first = l.group(1).charAt(1);
+        String between = l.group(2);
+        char second = l.group(3).charAt(1);
+        ChatColor firstColor = ChatColor.getByChar(first);
+        ChatColor secondColor = ChatColor.getByChar(second);
+        if (firstColor == null) firstColor = ChatColor.WHITE;
+        if (secondColor == null) secondColor = ChatColor.WHITE;
+        String replacement = rgbGradient(between, fromChatColor(firstColor), fromChatColor(secondColor), colorSymbol);
+        l.appendReplacement(sbL, Matcher.quoteReplacement(replacement));
+      }
+      l.appendTail(sbL);
+      text = sbL.toString();
+
+      // Handle &{#hex}
+      Matcher r = rgb.matcher(text);
+      StringBuffer sbR = new StringBuffer();
+      while (r.find()) {
+        ChatColor color = fromColor(Color.decode(r.group(1)));
+        r.appendReplacement(sbR, Matcher.quoteReplacement(color.toString()));
+      }
+      r.appendTail(sbR);
+      text = sbR.toString();
+
+      // Handle &#hexA&#hexB&#hexC single-char gradients
+      Matcher scg = singleCharGradient.matcher(text);
+      StringBuffer sbSCG = new StringBuffer();
+      while (scg.find()) {
+        String hex = scg.group(2);
+        char character = scg.group(3).charAt(0);
+        ChatColor color = fromColor(Color.decode("#" + hex));
+        String replacement = color + String.valueOf(character);
+        scg.appendReplacement(sbSCG, Matcher.quoteReplacement(replacement));
+      }
+      scg.appendTail(sbSCG);
+      text = sbSCG.toString();
+    } else {
+      // If hex is not supported, strip gradients and only keep raw text
+      text = gradient.matcher(text).replaceAll("$2");
+      text = legacyGradient.matcher(text).replaceAll("$2");
+      text = rgb.matcher(text).replaceAll("");
+      text = singleCharGradient.matcher(text).replaceAll("$3");
     }
+
     return ChatColor.translateAlternateColorCodes(colorSymbol, text);
   }
 

@@ -26,10 +26,10 @@ public class TabList implements Runnable {
       int headerPosition = positions.getOrDefault("header", 0);
       int footerPosition = positions.getOrDefault("footer", 0);
 
-      if (headerPosition >= getFileConfig("format").getInt("format.tab.header.animationcycle")-1)
+      if (headerPosition > (getFileConfig("format").getInt("format.tab.header.animationcycle")-1))
         headerPosition = 0;
 
-      if (footerPosition >= getFileConfig("format").getInt("format.tab.header.animationcycle")-1)
+      if (footerPosition > (getFileConfig("format").getInt("format.tab.footer.animationcycle")-1))
         footerPosition = 0;
 
       List<String> headerLines = getFileConfig("format").getStringList("format.tab.header.animation" + (headerPosition+1));
