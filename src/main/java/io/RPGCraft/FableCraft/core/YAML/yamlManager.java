@@ -77,9 +77,6 @@ public class yamlManager {
     }
 
     public static boolean setDefaults() {
-        getFileConfig("messages").addDefault("messages.pinned.messages", List.of("&aThis is a pinned message!", "&bIt support multiple lines!"));
-        getFileConfig("messages").addDefault("messages.pinned.refresh-interval-seconds", 8);
-        getFileConfig("messages").addDefault("messages.pinned.saved-message-count", 25);
         getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
         getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
         getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
