@@ -39,6 +39,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
@@ -72,20 +73,15 @@ public class mainListeners implements Listener {
             }
         }
 
-        if (getPlayerPDC("currentHealth", p) == null) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats.Health.default", p, true).toString()));
-            setPlayerPDC("Health", p, yamlGetter.getConfig("stats.Health.default", p, true).toString());
-            p.setHealth(20);
-        } else {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentHealth", p)));
+        for (String s : RPGCraft.itemStats) {
+            if (getPlayerPDC("current" + s, p) == null) {
+                p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
+                setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
+            } else {
+                p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + s, p)));
+                setPlayerPDC("current" + s, p, String.valueOf(getPlayerPDC("current" + s, p)));
+            }
         }
-        if (getPlayerPDC("currentMana", p) == null) {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats.Mana.default", p, true).toString()));
-            setPlayerPDC("Mana", p, yamlGetter.getConfig("stats.Mana.default", p, true).toString());
-        } else {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("currentMana", p)));
-        }
-
         stats.checkCurrentStats(p);
 
     }
@@ -111,7 +107,6 @@ public class mainListeners implements Listener {
               if (getPlayerPDC(s, p) != null) {
                 setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, item))));
               }
-
             }
           }
         }
@@ -129,7 +124,7 @@ public class mainListeners implements Listener {
 
     @EventHandler
     void onInteraction(PlayerInteractEvent event) {
-        if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.getItem().equals(new ItemStack(Material.NETHER_STAR))) {
+        if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
             this.menu = Bukkit.createInventory(event.getPlayer(), 45, "Menu");
             String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
             String[] formatedSkills = new String[skills.length];

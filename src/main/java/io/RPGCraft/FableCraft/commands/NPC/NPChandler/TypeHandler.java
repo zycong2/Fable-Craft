@@ -21,18 +21,20 @@ public class TypeHandler implements Listener {
         Entity gotClickedEntity = e.getRightClicked();
         Bukkit.getLogger().info("clicked");
         if(isCitizensNPC(gotClickedEntity)) {
-          Bukkit.getLogger().info("isNPC");
+            Bukkit.getLogger().info("isNPC");
             boolean isEditing = p.hasPermission("rpgcraft.edit") && p.isSneaking();
-            
-            switch(getPlayerPDC("NPCType", (Player) gotClickedEntity)) {
+            String type = getPlayerPDC("NPCType", (Player) gotClickedEntity);
+            if (type != null) {
+              switch (type) {
                 case "shop":
-                    break;
+                  break;
                 case "quest":
-                    Bukkit.getLogger().info("questNPC");
-                    quests.talkedNPC(p, gotClickedEntity.getName());
-                    break;
+                  Bukkit.getLogger().info("questNPC");
+                  quests.talkedNPC(p, gotClickedEntity.getName());
+                  break;
                 default:
-                    break;
+                  break;
+              }
             }
         }
     }

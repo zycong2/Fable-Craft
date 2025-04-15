@@ -24,6 +24,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+
 public class quests implements CommandExecutor, TabCompleter, Listener {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -40,9 +42,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         PDCHelper.setPlayerPDC("quests", p, quests.replace(";" + args[1], ""));
         PDCHelper.setPlayerPDC(args[1] + ".step", p, null);
         PDCHelper.setPlayerPDC(args[1] + ".progress", p, null);
-        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.quests.disband", p, true));
+        p.sendMessage(Colorize((String)yamlGetter.getConfig("messages.info.quests.disband", p, true)));
       } else {
-        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.questNotStarted", null, true));
+        p.sendMessage(Colorize((String) yamlGetter.getConfig("messages.error.questNotStarted", null, true)));
       }
     }
 
@@ -51,19 +53,20 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
 
   public static void startQuest(Player p, String quest){
     String quests = PDCHelper.getPlayerPDC("quests", p);
+    if (quests == null) { quests = ""; }
     if (!quests.contains(quest)){
       PDCHelper.setPlayerPDC("quests", p, quests + ";" + quest);
       PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(1));
       PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
-      p.sendMessage((TextComponent) yamlGetter.getConfig("messages.info.quests.start", p, true));
+      p.sendMessage(Colorize((String) yamlGetter.getConfig("messages.info.quests.start", p, true)));
     } else {
-        p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.questAlreadyStarted", null, true));
+        p.sendMessage(Colorize((String) yamlGetter.getConfig("messages.error.questAlreadyStarted", null, true)));
       }
   }
 
   @Override
   public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-    return List.of("execute");
+    return List.of("startNew", "disband");
   }
 
   @EventHandler
@@ -135,55 +138,58 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
   public static void talkedNPC(Player p, String NPC){
     String quests = PDCHelper.getPlayerPDC("quests", p);
     List<String> activeQuests = new java.util.ArrayList<>(List.of());
-    for (String quest : quests.split(";")){
-      activeQuests.add(quest);
-      if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")){
-        if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")){
-          if (NPC.equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".NPCName"))){
-            for (Object s : yamlGetter.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions")){
-              if (s.toString().contains("removeItem")){
-                if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "removeItems") instanceof List list){
-                  for (Object s2 : list){
-                    String[] data = s2.toString().split(":");
-                    p.getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
+    if (quests != null && !quests.isEmpty()) {
+      for (String quest : quests.split(";")) {
+        activeQuests.add(quest);
+        if (!quest.isEmpty()) {
+          if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) {
+            if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) {
+              if (NPC.equals(yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".NPCName"))) {
+                for (Object s : yamlGetter.getNodes("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions")) {
+                  if (s.toString().contains("removeItem")) {
+                    if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "removeItems") instanceof List list) {
+                      for (Object s2 : list) {
+                        String[] data = s2.toString().split(":");
+                        p.getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
+                      }
+                    }
+                  } else if (s.toString().contains("talk")) {
+                    if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines) {
+                      for (Object s2 : lines) {
+                        p.sendMessage(Colorize((String) s2));
+                        /*FableCraft.wait(40, );*/
+                      }
+                    }
+                  } else if (s.toString().contains("giveItem")) {
+                    if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "giveItems") instanceof List l) {
+                      for (Object s2 : l) {
+                        String[] data = s2.toString().split(":");
+                        p.getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
+                      }
+                    }
                   }
-                }
-              } else if (s.toString().contains("talk")){
-                if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines){
-                  for (Object s2 : lines){
-                    p.sendMessage(RPGCraft.Colorize((String) s2));
-                    /*FableCraft.wait(40, );*/
-                  }
-                }
-              }
-              else if (s.toString().contains("giveItem")){
-                if (yamlManager.getOption("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions." + s + "giveItems") instanceof List l){
-                  for (Object s2 : l){
-                    String[] data = s2.toString().split(":");
-                    p.getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
-                  }
-                }
-              }
-              PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", p) + 1);
-              if (Integer.parseInt(PDCHelper.getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())){
-                finishedQuest(p, quest);
+                  PDCHelper.setPlayerPDC(quest + ".step", p, PDCHelper.getPlayerPDC(quest + ".step", p) + 1);
+                  if (Integer.parseInt(PDCHelper.getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())) {
+                    finishedQuest(p, quest);
 
-              } else{
-                PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
+                  } else {
+                    PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
+                  }
+                }
               }
             }
           }
         }
       }
     }
-    if (yamlManager.getOption("quests","") instanceof List l) {
+    if (yamlGetter.getNodes("quests","") instanceof List l) {
       Bukkit.getLogger().info("is list");
       for (Object quest : l) {
         if (!activeQuests.contains(quest)){
           Bukkit.getLogger().info("doesnt contain quest");
-          if (yamlManager.getOption("quests", quest + "npcStarter").toString().equalsIgnoreCase(NPC)){
-            Bukkit.getLogger().info("is right npc");
-            startQuest(p, quests);
+          if (yamlManager.getOption("quests", quest + ".npcStarter").toString().equalsIgnoreCase(NPC)){
+            Bukkit.getLogger().info("is right npc quest:" + quests);
+            startQuest(p, (String) quest);
           }
         }
       }

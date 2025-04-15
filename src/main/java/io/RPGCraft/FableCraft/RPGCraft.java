@@ -77,6 +77,8 @@ public final class RPGCraft extends JavaPlugin {
     this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
     this.getCommand("setNPCType").setExecutor(new setPDC());
     this.getCommand("setNPCType").setTabCompleter(new setPDC());
+    this.getCommand("quests").setExecutor(new quests());
+    this.getCommand("quests").setTabCompleter(new quests());
 
     registerListeners(
       new mainListeners(),

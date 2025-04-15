@@ -30,9 +30,9 @@ public class Actionbar implements Runnable{
       } catch (NumberFormatException e) {}
     }
   }
-  public List<Double> getStats(Player var3, String var67){
-    double var1 = Double.parseDouble(PDCHelper.getPlayerPDC(var67, var3));
-    double var4 = Double.parseDouble(PDCHelper.getPlayerPDC("current" + var67, var3));
+  public List<Double> getStats(Player p, String stat){
+    double var1 = Double.parseDouble(PDCHelper.getPlayerPDC(stat, p));
+    double var4 = Double.parseDouble(PDCHelper.getPlayerPDC("current" + stat, p));
     return List.of(var1, var4);
   }
   public void FormatStats(double var12, double var24, Player p, String stats){

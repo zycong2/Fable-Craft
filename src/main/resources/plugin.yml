@@ -45,10 +45,13 @@ commands:
     aliases:
       - snt
   todolist:
-    description: Todolist for you zycong and me too.
+    description: Todolist for the devs.
     permission: FableCraft.todolist
     aliases:
       - todo
       - tdl
       - todol
       - tdlist
+  quests:
+    description: Manage your quests.
+    permission: FableCraft.quest
