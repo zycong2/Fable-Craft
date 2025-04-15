@@ -38,6 +38,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat.startListenPacketPINNED;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat.startPinnedMessageTask;
 
 
@@ -94,7 +95,8 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
-    startPinnedMessageTask();
+    //startPinnedMessageTask();
+    //startListenPacketPINNED(this);
   }
 
   private void registerListeners(Listener... l) {

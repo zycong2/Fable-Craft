@@ -15,6 +15,7 @@ java {
 repositories {
   mavenCentral()
   maven("https://maven.citizensnpcs.co/repo")
+  maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
@@ -25,6 +26,7 @@ dependencies {
   compileOnly("net.citizensnpcs:citizens-main:2.0.38-SNAPSHOT") {
     exclude(group = "*", module = "*")
   }
+  compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
   annotationProcessor ("org.projectlombok:lombok:1.18.30")
 }
 
