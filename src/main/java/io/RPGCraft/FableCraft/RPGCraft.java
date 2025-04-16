@@ -55,12 +55,13 @@ public final class RPGCraft extends JavaPlugin {
 
   public void onEnable() {
 
-    if (!yamlManager.loadData()) {
+    if (!yamlManager.loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load data!");
     }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
+    setPDC.initializeNPCs();
 
 
     new PlaceholdersRegistry();
@@ -90,7 +91,8 @@ public final class RPGCraft extends JavaPlugin {
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),
-      new SweepAttackListener()
+      new SweepAttackListener(),
+      new quests()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
