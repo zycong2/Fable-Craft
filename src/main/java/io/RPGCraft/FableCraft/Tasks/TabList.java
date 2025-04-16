@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.Utils.ColorUtils.convertToComponent;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
@@ -16,15 +17,16 @@ public class TabList implements Runnable {
     return instance;
   }
 
-  private final Map<String, Integer> positions = new HashMap<>();
+  private final Map<UUID, Integer> Headerpositions = new HashMap<>();
+  private final Map<UUID, Integer> Footerpositions = new HashMap<>();
 
   private TabList() {}
 
   @Override
   public void run() {
     for (Player player : Bukkit.getOnlinePlayers()) {
-      int headerPosition = positions.getOrDefault("header", 0);
-      int footerPosition = positions.getOrDefault("footer", 0);
+      int headerPosition = Headerpositions.getOrDefault(player.getUniqueId(), 0);
+      int footerPosition = Footerpositions.getOrDefault(player.getUniqueId(), 0);
 
       if (headerPosition > (getFileConfig("format").getInt("format.tab.header.animationcycle")-1))
         headerPosition = 0;
@@ -36,8 +38,8 @@ public class TabList implements Runnable {
       List<String> footerLines = getFileConfig("format").getStringList("format.tab.footer.animation" + (footerPosition+1));
       player.sendPlayerListHeaderAndFooter(convertToComponent(TabListConnector(headerLines)), convertToComponent(TabListConnector(footerLines)));
 
-      positions.put("header", headerPosition + 1);
-      positions.put("footer", footerPosition + 1);
+      Headerpositions.put(player.getUniqueId(), headerPosition + 1);
+      Footerpositions.put(player.getUniqueId(), footerPosition + 1);
     }
   }
 
