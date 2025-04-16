@@ -20,7 +20,8 @@ public class SweepAttackListener implements Listener {
 
   @EventHandler
   public void onPlayerLeftClick(PlayerInteractEvent event) {
-    if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) && !event.getPlayer().getItemInHand().equals(new ItemStack(Material.AIR))) {
+    if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK)
+        && event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_SWORD")) {
       Slash(event.getPlayer());
     }
   }
@@ -33,18 +34,14 @@ public class SweepAttackListener implements Listener {
   }
 
   private void Slash( final Player p ) {
+    Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(139, 232, 240), 1);
+    double alpha = 0;
     for(int i = 0; i < 19; i++) {
-      new BukkitRunnable() {
-        double alpha = 0;
+      alpha += Math.PI / 16;
 
-        public void run() {
-          alpha += Math.PI / 16;
-
-          Location loc = p.getLocation();
-          Location firstLocation = loc.clone().add(Math.cos(alpha), Math.sin(alpha) + 1, Math.sin(alpha));
-          p.spawnParticle(Particle.CRIT, firstLocation, 0, 0, 0, 0, 0);
-        }
-      }.runTaskTimer(RPGCraft.getPlugin(), 0, 1);
+      Location loc = p.getLocation();
+      Location firstLocation = loc.clone().add(Math.cos(alpha), Math.sin(alpha) + 1, Math.sin(alpha));
+      p.getLocation().getWorld().spawnParticle(Particle.ASH, firstLocation.getX(), firstLocation.getY(), firstLocation.getZ(), 1, 0.001, 1, 0, 1, dustOptions);
     }
   }
 }
