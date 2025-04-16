@@ -107,18 +107,22 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
   public void onPlayerPickUp(PlayerPickupItemEvent event){
     Player p = event.getPlayer();
     String quests = getPlayerPDC("quests", p);
-    List<String> questsList = List.of(quests.split(";"));
-    for (String quest : questsList){
-      if (yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")){
-        if (event.getItem().getType().toString().equals(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))){
-          PDCHelper.setPlayerPDC(quest + ".progress", p, getPlayerPDC(quest + ".progress", p) + 1);
-          if (getPlayerPDC(quest + ".progress", p) == yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")){
-            PDCHelper.setPlayerPDC(quest + ".step", p, getPlayerPDC(quest + ".step", p) + 1);
-            if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())){
-              finishedQuest(p, quest);
+    if (quests != null && !quests.isEmpty()) {
+      List<String> questsList = List.of(quests.split(";"));
+      for (String quest : questsList) {
+        if (quest != null && !quest.isEmpty()) {
+          if (yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")) {
+            if (event.getItem().getType().toString().equals(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))) {
+              PDCHelper.setPlayerPDC(quest + ".progress", p, getPlayerPDC(quest + ".progress", p) + 1);
+              if (getPlayerPDC(quest + ".progress", p) == yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")) {
+                PDCHelper.setPlayerPDC(quest + ".step", p, getPlayerPDC(quest + ".step", p) + 1);
+                if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())) {
+                  finishedQuest(p, quest);
 
-            } else{
-              PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
+                } else {
+                  PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
+                }
+              }
             }
           }
         }
