@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static org.codehaus.plexus.util.StringUtils.equalsIgnoreCase;
 
 public class quests implements CommandExecutor, TabCompleter, Listener {
   @Override
