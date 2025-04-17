@@ -225,13 +225,27 @@ public class mainListeners implements Listener {
 
                 p.closeInventory();
                 p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
-            } /* No you click on the item on the 4th slot
-            else if(slot == 33){
-              p.closeInventory();
-              setPlayerPDC("ItemEditorUsing", p, "notUsing");
-              p.give(event.getInventory().getItem(4));
+            } else if(slot == 18) {
+                setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
 
-            }*/else if(slot == 34) {
+                p.closeInventory();
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+            } else if(slot == 19) {
+                setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
+
+                p.closeInventory();
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+            } else if(slot == 20) {
+                setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
+
+                p.closeInventory();
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+            } else if(slot == 21) {
+                setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
+
+                p.closeInventory();
+                p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+            } else if(slot == 34) {
                 String itemKey = getPlayerPDC("SelectedItemKey", p);
                 if (itemKey == null) {p.sendMessage(Colorize("&cError: No item selected!"));return;}
                 getFileConfig("itemDB").set(itemKey, null);

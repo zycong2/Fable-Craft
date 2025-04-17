@@ -16,7 +16,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
@@ -26,36 +28,52 @@ import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class ItemEditor implements Listener {
-  public static Inventory makeItemEditor(ItemStack item){
-    Inventory outputinv = Bukkit.createInventory(null, 4*9, "Item Editor");
-    outputinv.setItem(4, item);
-    outputinv.setItem(9, makeItem("&aDisplay Name", Material.NAME_TAG, 1, 0, List.of("&fRename the item you can use color too!", "&7 ", "&bClick Me!")));
-    outputinv.setItem(10, makeItem("&dLore", Material.BOOK, 1, 0, List.of("&fSet lore in the line you want", "&fYes, you can use color", "&7 ", "&bClick Me!")));
-    // outputinv.setItem(11, makeItem("&dEnchantments", Material.ENCHANTING_TABLE, 1, 0, List.of("&fSet or add enchantments to your item!", "&fUse &8[&dEnchantment&8] &70 &fto remove", "&7 ", "&bClick Me!")));
-    outputinv.setItem(11, makeItem("&bCustom Model Data", Material.COMPARATOR, 1, 0, List.of("&fSet the custom model data of the item", "&7 ", "&bClick Me!")));
-    outputinv.setItem(12, makeItem("&aCrafting Permissions", Material.CRAFTING_TABLE, 1, 0, List.of("&fSet the permissions to craft this item!", "&7 ", "&bClick Me!")));
-    outputinv.setItem(34, makeItem("&cDelete Item", Material.LAVA_BUCKET, 1, 0, List.of("&cAre you sure you want to delete this item?", "&cThis action is irreversible!", "&7 ", "&cClick Me!")));
-    outputinv.setItem(35, makeItem("&cClose Menu", Material.BARRIER, 1, 0, List.of("&cClose the menu!", "&7 ", "&cClick Me!")));
+  public static Inventory makeItemEditor(ItemStack item) {
+    Inventory inv = Bukkit.createInventory(null, 36, "Item Editor");
 
-    return outputinv;
+    inv.setItem(4, item);
+    inv.setItem(9, createButton("&aDisplay Name", Material.NAME_TAG, "&fRename the item. Color codes allowed!"));
+    inv.setItem(10, createButton("&dLore", Material.BOOK, "&fSet specific lore lines. Colors too!"));
+    // inv.setItem(11, createButton("&dEnchantments", Material.ENCHANTING_TABLE, "&fAdd/remove enchantments. Use '&7[ench] 0' to remove."));
+    inv.setItem(11, createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."));
+    inv.setItem(12, createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."));
+    inv.setItem(18, createButton("&aDefense", Material.SHIELD, "&fDefine Defemse stats."));
+    inv.setItem(19, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
+    inv.setItem(20, createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."));
+    inv.setItem(21, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
+    inv.setItem(34, createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."));
+    inv.setItem(35, createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."));
+
+    return inv;
   }
 
-  private static ItemStack makeItem(String name, Material material, int amount, int CustomModel, List<String> lore){
-    ItemStack output = new ItemStack(material, amount);
-    List<String> coloredList = new ArrayList<>();
-    for(String str : lore){coloredList.add(ColorizeReString(str));}
-    ItemMeta IMeta = output.getItemMeta();
-    IMeta.setDisplayName(ColorizeReString(name));
-    IMeta.setLore(coloredList);
-    IMeta.setCustomModelData(CustomModel);
-    output.setItemMeta(IMeta);
-    return output;}
+
+  private static ItemStack createButton(String name, Material mat, String... loreLines) {
+    ItemStack item = new ItemStack(mat);
+    ItemMeta meta = item.getItemMeta();
+
+    meta.setDisplayName(ColorizeReString(name));
+    meta.setLore(Arrays.stream(loreLines)
+      .map(str -> ColorizeReString(str))
+      .toList());
+
+    // Optional: If you want to allow custom model data via overload later
+    // meta.setCustomModelData(0);
+
+    item.setItemMeta(meta);
+    return item;
+  }
+
 
   public static String getItemKey(ItemStack item) {
-    List<Object> nodes = yamlGetter.getNodes("itemDB", "");
-    for (Object node : nodes) {String key = node.toString(); // Convert object to string (woodenSword, leatherChestplate, etc.) ty chatgpt for giving idea
-      if (getFileConfig("itemDB").getString(key + ".ItemID").equals(getItemPDC("ItemID", item))) {return key;}
-    }return null;}
+    return yamlGetter.getNodes("itemDB", "").stream()
+      .map(Object::toString)
+      .filter(key -> getFileConfig("itemDB").getString(key + ".ItemID")
+        .equals(getItemPDC("ItemID", item)))
+      .findFirst()
+      .orElse(null);
+  }
+
 
   // wait(2, () -> {}
 
@@ -70,162 +88,111 @@ public class ItemEditor implements Listener {
   void ChatEvent(AsyncChatEvent e) {
     Player p = e.getPlayer();
     String message = PlainTextComponentSerializer.plainText().serialize(e.message());
-    if (getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {return;}
+    String state = getPlayerPDC("ItemEditorUsing", p);
+
+    if (state.equals("notUsing") || state.equals("GUI")) return;
 
     e.setCancelled(true);
 
-    if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-name")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      getFileConfig("itemDB").set(itemKey + ".name", message);
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
-      RPGCraft.wait(1, new BukkitRunnable() {
-        @Override
-        public void run() {
-          p.openInventory(makeItemEditor(getItem(itemKey)));
-          setPlayerPDC("ItemEditorUsing", p, "GUI");
-        }
-      });
-      return;
-    } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      int linenumber = 0;
-      try {
-        if (message.contains(" ")) {
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.noSpace", p, true));
-          return;
-        }
-        linenumber = Integer.parseInt(message);
-        if (linenumber <= 0) {
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.null", p, true));
-          return;
-        }
-      } catch (NumberFormatException er) {
-        p.sendMessage(Colorize("&cInvalid Number"));
-        return;
-      }
-      setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
-      setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(linenumber));
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
-      return;
-    } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-lore2")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      List<String> itemLore = getFileConfig("itemDB").getStringList(itemKey + ".lore");
-      Integer lineNumber = Integer.parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p));
-      if (lineNumber > itemLore.size()) {
-        itemLore.add(message);
-        getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
-        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.create", p, true));
-        return;
-      }
-      itemLore.set(lineNumber - 1, message);
-      getFileConfig("itemDB").set(itemKey + ".lore", itemLore);
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
-      RPGCraft.wait(1, new BukkitRunnable() {
-        @Override
-        public void run() {
-          p.openInventory(makeItemEditor(getItem(itemKey)));
-          setPlayerPDC("ItemEditorUsing", p, "GUI");
-        }
-      });
-      return;
-    } /*else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-enchants")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      String[] split = message.split(" ");
-      if (split.length != 2) {
-        p.sendMessage(yamlManager.getMessage("messages.itemeditor.general.fail", p, true));
-        return;
-      }
-      String enchantment = split[0];
-      Integer level = Integer.valueOf(split[1]);
-      if (level <= 0) {
-        List<String> itemEnchants = getFileConfig("itemDB").getStringList(itemKey + ".enchantments");
-        if (enchantment != null) {
-        } else {
-          p.sendMessage(yamlManager.getMessage("messages.itemeditor.general.fail", p, true));
-          return;
-        }
-        if (itemEnchants.contains(enchantment)) {
-          itemEnchants.remove(enchantment);
-        } else {
-          p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.notFound", p, true));
-          return;
-        }
-        getFileConfig("itemDB").set(itemKey + ".enchantments", itemEnchants);
-        p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.success", p, true));
-        return;
-      }
-      getFileConfig("itemDB").set(itemKey + ".enchantments" , enchantment + ":" + level);
-      p.sendMessage(yamlManager.getMessage("messages.itemeditor.enchants.success", p, true));
-      RPGCraft.wait(1, new BukkitRunnable() {
-        @Override
-        public void run() {
-          p.openInventory(makeItemEditor(getItem(itemKey)));
-          setPlayerPDC("ItemEditorUsing", p, "GUI");
-        }
-      });
-      try {
-        getFileConfig("itemDB").save("itemDB.yml");
-      } catch (IOException ignored) {
-
-      }
-      return;
-    }*/else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-customModelData")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      int CustomModelData = 0;
-      try {
-        CustomModelData = Integer.parseInt(message);
-        if (CustomModelData <= 0) {
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
-          return;
-        }
-        getFileConfig("itemDB").set(itemKey + ".customModelData", CustomModelData);
-        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.success", p, true));
-        RPGCraft.wait(1, new BukkitRunnable() {
-          @Override
-          public void run() {
-            p.openInventory(makeItemEditor(getItem(itemKey)));
-            setPlayerPDC("ItemEditorUsing", p, "GUI");
-          }
-        });
-      } catch (NumberFormatException er) {
-        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
-      }
-      return;
-    } else if (getPlayerPDC("ItemEditorUsing", p).equals("Chat-craftPerms")) {
-      String itemKey = getPlayerPDC("SelectedItemKey", p);
-      if (itemKey == null) {
-        p.sendMessage(Colorize("&cError: No item selected!"));
-        return;
-      }
-      String permission = message;
-      getFileConfig("itemDB").set(itemKey + ".recipe.permission.", permission);
-    } else if (getPlayerPDC("ItemEditorUsing", p).equals("chat-createItem")) {
-      if(message != null){
-        getFileConfig("itemDB").addDefault(message + ".ItemID", message);
-        getFileConfig("itemDB").addDefault(message + ".itemType", "BEDROCK");
-        p.sendMessage(Colorize("&fItem created! (only the id tho edit it or it will be useless)"));
-        setPlayerPDC("ItemEditorUsing", p, "notUsing");
-      }
+    switch (state) {
+      case "Chat-name" -> withItemKey(p, key -> renameItem(p, key, message));
+      case "Chat-lore" -> withItemKey(p, key -> handleLoreLineInput(p, message));
+      case "Chat-lore2" -> withItemKey(p, key -> updateLoreLine(p, key, message));
+      case "Chat-customModelData" -> withItemKey(p, key -> updateCustomModelData(p, key, message));
+      case "Chat-craftPerms" -> withItemKey(p, key -> setCraftPermission(p, key, message));
+      case "chat-createItem" -> createItem(p, message);
     }
+  }
+
+  private void withItemKey(Player p, Consumer<String> action) {
+    String key = getPlayerPDC("SelectedItemKey", p);
+    if (key == null) {
+      p.sendMessage(Colorize("&cError: No item selected!"));
+    } else {
+      action.accept(key);
+    }
+  }
+
+  private void renameItem(Player p, String key, String name) {
+    getFileConfig("itemDB").set(key + ".name", name);
+    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
+    reopenEditorLater(p, key);
+  }
+
+  private void handleLoreLineInput(Player p, String input) {
+    if (input.contains(" ")) {
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.noSpace", p, true));
+      return;
+    }
+
+    int line = parseInt(input, -1);
+    if (line <= 0) {
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.null", p, true));
+      return;
+    }
+
+    setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
+    setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(line));
+    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
+  }
+
+  private void updateLoreLine(Player p, String key, String lineText) {
+    List<String> lore = getFileConfig("itemDB").getStringList(key + ".lore");
+    int lineNum = parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p), 1);
+
+    if (lineNum > lore.size()) {
+      lore.add(lineText);
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.create", p, true));
+    } else {
+      lore.set(lineNum - 1, lineText);
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
+    }
+
+    getFileConfig("itemDB").set(key + ".lore", lore);
+    reopenEditorLater(p, key);
+  }
+
+  private void updateCustomModelData(Player p, String key, String input) {
+    int data = parseInt(input, 0);
+    if (data <= 0) {
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
+      return;
+    }
+
+    getFileConfig("itemDB").set(key + ".customModelData", data);
+    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.success", p, true));
+    reopenEditorLater(p, key);
+  }
+
+  private void setCraftPermission(Player p, String key, String perm) {
+    getFileConfig("itemDB").set(key + ".recipe.permission", perm);
+    p.sendMessage(Colorize("&aCrafting permission set!"));
+  }
+
+  private void createItem(Player p, String id) {
+    if (id == null || id.isBlank()) return;
+
+    getFileConfig("itemDB").addDefault(id + ".ItemID", id);
+    getFileConfig("itemDB").addDefault(id + ".itemType", "BEDROCK");
+    p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
+    setPlayerPDC("ItemEditorUsing", p, "notUsing");
+  }
+
+  private int parseInt(String s, int fallback) {
+    try {
+      return Integer.parseInt(s);
+    } catch (NumberFormatException e) {
+      return fallback;
+    }
+  }
+
+  private void reopenEditorLater(Player p, String itemKey) {
+    RPGCraft.wait(1, new BukkitRunnable() {
+      @Override
+      public void run() {
+        p.openInventory(makeItemEditor(getItem(itemKey)));
+        setPlayerPDC("ItemEditorUsing", p, "GUI");
+      }
+    });
   }
 }
