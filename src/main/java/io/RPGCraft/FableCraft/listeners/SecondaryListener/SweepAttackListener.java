@@ -14,6 +14,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Random;
 
+import static io.RPGCraft.FableCraft.listeners.SecondaryListener.SweepEffect.SlashEffect.slashVertical;
+
 public class SweepAttackListener implements Listener {
 
   private final Random random = new Random();
@@ -21,27 +23,15 @@ public class SweepAttackListener implements Listener {
   @EventHandler
   public void onPlayerLeftClick(PlayerInteractEvent event) {
     if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK)
-        && event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_SWORD")) {
-      Slash(event.getPlayer());
+        && (event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_SWORD") || event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_AXE"))) {
+      slashVertical(event.getPlayer(), Particle.DUST);
     }
   }
 
   @EventHandler
   public void onEntityHit(EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player player) {
-      Slash(player);
-    }
-  }
-
-  private void Slash( final Player p ) {
-    Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(139, 232, 240), 1);
-    double alpha = 0;
-    for(int i = 0; i < 19; i++) {
-      alpha += Math.PI / 16;
-
-      Location loc = p.getLocation();
-      Location firstLocation = loc.clone().add(Math.cos(alpha), Math.sin(alpha) + 1, Math.sin(alpha));
-      p.getLocation().getWorld().spawnParticle(Particle.ASH, firstLocation.getX(), firstLocation.getY(), firstLocation.getZ(), 1, 0.001, 1, 0, 1, dustOptions);
+      slashVertical(player, Particle.DUST);
     }
   }
 }

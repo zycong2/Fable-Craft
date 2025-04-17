@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static io.RPGCraft.FableCraft.Utils.Utils.ListConnector;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
@@ -34,7 +35,6 @@ public class Chat implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void AsyncChat(AsyncChatEvent e){
-    String message = PlainTextComponentSerializer.plainText().serialize(e.message());
     MiniMessage mm = MiniMessage.miniMessage();
 
     Player p = e.getPlayer();
@@ -43,41 +43,22 @@ public class Chat implements Listener {
     String format = getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
     String str2 = setPlaceholders(str1, false, e);
+    String message = setPlaceholders("%messageChat%", false, e);
+    TextComponent result = null;
     if(str2.contains("[item]") || str2.contains("[i]")){
       ItemStack item = p.getInventory().getItemInMainHand();
+      String itemName = item.getItemMeta().getDisplayName();
+      List<String> itemLore = item.getLore();
 
-      String itemName = ColorizeReString(item.getItemMeta().getDisplayName());
+      TextComponent messageComponent = Component.text(message);
+      TextComponent itemReplacement = Component.text(itemName).hoverEvent(HoverEvent.showText(Colorize(ListConnector(itemLore))));
 
-      List<String> itemLore = ColorizeList(Objects.requireNonNull(item.getItemMeta().getLore()));
-      Component loreComponent = Component.text(String.join("\n", itemLore));
-
-      TextComponent itemComponent = Component.text(itemName)
-        .hoverEvent(HoverEvent.showText(loreComponent));
-
-      String[] parts = str2.split("\\[item\\]|\\[i\\]");
-      TextComponent.Builder messageBuilder = Component.text();
-
-      // Add text before [item]
-      messageBuilder.append(Component.text(parts[0]));
-
-      // Add the item component with hover
-      messageBuilder.append(itemComponent);
-
-      // Add text after [item] if there is any
-      if (parts.length > 1) {
-        messageBuilder.append(Component.text(parts[1]));
-      }
-
-      TextComponent str4 = messageBuilder.build();
-
-      for(Player player : Bukkit.getOnlinePlayers()){
-        player.sendMessage(str4);
-      }
-      return;
+      result = (TextComponent) (messageComponent.contains(Component.text("[item]")) ? messageComponent.replaceText("[item]", itemReplacement) : messageComponent.replaceText("[i]", itemReplacement));
     }
 
     for(Player player : Bukkit.getOnlinePlayers()){
-      player.sendMessage(ColorizeReString(str2));
+      TextComponent item = result != null ? result : Component.text("");
+      player.sendMessage(Colorize(str2 + item));
     }
   }
 }

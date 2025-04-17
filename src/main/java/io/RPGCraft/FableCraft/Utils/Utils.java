@@ -31,4 +31,17 @@ public class Utils {
   }
 
   public static boolean isCitizensNPC(Entity entity){return entity.hasMetadata("NPC");}
+
+  public static String ListConnector(List<String> input){
+    String output = "";
+    for(String str : input){
+      if(str == input.getLast()){
+        output += str;
+        break;
+      }else {
+        output += str + "\n";
+      }
+    }
+    return output;
+  }
 }
