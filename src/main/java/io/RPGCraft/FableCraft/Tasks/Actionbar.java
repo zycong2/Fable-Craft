@@ -1,7 +1,6 @@
 package io.RPGCraft.FableCraft.Tasks;
 
 import io.RPGCraft.FableCraft.core.PDCHelper;
-import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -23,29 +22,29 @@ public class Actionbar implements Runnable{
     for(Player p : Bukkit.getOnlinePlayers()) {
       p.sendActionBar(ColorizeReString(getActionBar(p, true).toString()));
       try {
-        List<Double> health = getStats(p, "Health");
-        List<Double> mana = getStats(p, "Mana");
-        FormatStats(health.get(1), health.get(0), p, "Health");
-        FormatStats(mana.get(1), mana.get(0), p, "Mana");
+        List<Double> health = b(p, "Health");
+        List<Double> mana = b(p, "Mana");
+        a(health.get(1), health.get(0), p, "Health");
+        a(mana.get(1), mana.get(0), p, "Mana");
       } catch (NumberFormatException e) {}
     }
   }
-  public List<Double> getStats(Player p, String stat){
-    double var1 = Double.parseDouble(PDCHelper.getPlayerPDC(stat, p));
-    double var4 = Double.parseDouble(PDCHelper.getPlayerPDC("current" + stat, p));
+  public List<Double> b(Player var56, String var45){
+    double var1 = Double.parseDouble(PDCHelper.getPlayerPDC(var45, var56));
+    double var4 = Double.parseDouble(PDCHelper.getPlayerPDC("current" + var45, var56));
     return List.of(var1, var4);
   }
-  public void FormatStats(double var12, double var24, Player p, String stats){
+  public void a(double var12, double var24, Player var2, String var6){
     String var10 = "";
-    if (stats == "Health"){var10 = "";}
-    else if(stats == "Mana"){var10 = "Mana";}
+    if (var6 == "Health"){var10 = "";}
+    else if(var6 == "Mana"){var10 = "Mana";}
     if (var12 < var24) {
-      double amount = Double.parseDouble(PDCHelper.getPlayerPDC(var10 + "Regeneration", p));
+      double amount = Double.parseDouble(PDCHelper.getPlayerPDC(var10 + "Regeneration", var2));
       var12 += (double) 20.0F / var24 * amount;
-      p.setMetadata("current" + stats, new FixedMetadataValue(getPlugin(), var12));
-      p.setHealth((double) 20.0F / var24 * var12);
+      var2.setMetadata("current" + var6, new FixedMetadataValue(getPlugin(), var12));
+      var2.setHealth((double) 20.0F / var24 * var12);
     } else if (var12 > var24) {
-      p.setMetadata("current" + stats, new FixedMetadataValue(getPlugin(), var24));
+      var2.setMetadata("current" + var6, new FixedMetadataValue(getPlugin(), var24));
     }
   }
 }

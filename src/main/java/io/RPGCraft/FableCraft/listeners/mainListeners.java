@@ -282,7 +282,7 @@ public class mainListeners implements Listener {
             Player p = (Player)event.getEntity();
             double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));
             double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-            double playerDefense = Double.parseDouble(getPlayerPDC("Defence", p));
+            double playerDefense = Double.parseDouble(getPlayerPDC("Defense", p));
             double damage = event.getDamage() - playerDefense * (double)10.0F;
             currentHealth -= damage;
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
