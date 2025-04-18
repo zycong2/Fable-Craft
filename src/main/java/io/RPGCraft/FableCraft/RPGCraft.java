@@ -8,6 +8,8 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
+import io.RPGCraft.FableCraft.core.Database.Database;
+import io.RPGCraft.FableCraft.core.Database.SQLite;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
@@ -36,12 +38,17 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
+import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
 
 public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
+
+  private static Database db;
 
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "Durability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
@@ -62,6 +69,8 @@ public final class RPGCraft extends JavaPlugin {
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
 
+    db = new SQLite(this);
+    db.load();
 
     new PlaceholdersRegistry();
 
@@ -96,6 +105,18 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
+    scheduler.scheduleSyncRepeatingTask(this, new BukkitRunnable() {
+      @Override
+      public void run() {
+        for (UUID playerId : getEmeraldPouch().keySet()) {
+          Player p = Bukkit.getPlayer(playerId);
+          if (p != null && p.isOnline()) {
+            // Update the pouch item in the player's inventory with the current emerald count
+            p.getInventory().setItem(8, getPouch(p)); // Slot 8 is where we store the pouch
+          }
+        }
+      }
+    }, 0L, 40L);
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);
   }
@@ -110,6 +131,10 @@ public final class RPGCraft extends JavaPlugin {
       Bukkit.getLogger().severe("Failed to save data!");
     }
 
+  }
+
+  public static Database getMoneyDataBase() {
+    return db;
   }
 
   public static ItemStack createGuiItem(Material material, String name, String... lore) {

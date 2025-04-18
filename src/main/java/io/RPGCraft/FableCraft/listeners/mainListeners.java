@@ -224,7 +224,7 @@ public class mainListeners implements Listener {
           String[] pdcTags = {"defense", "damage", "mana", "health", "durability", "minlvl"};
           setPlayerPDC("ItemEditorUsing", p, "Chat-" + pdcTags[slot - 18]);
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor." + pdcTags[slot - 18] + ".info", p, false));
         }
         case 34 -> {
           String itemKey = getPlayerPDC("SelectedItemKey", p);
