@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,9 +22,8 @@ import java.util.function.Consumer;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getItem;
 
 public class ItemEditor implements Listener {
   public static Inventory makeItemEditor(ItemStack item) {
@@ -37,10 +35,12 @@ public class ItemEditor implements Listener {
     // inv.setItem(11, createButton("&dEnchantments", Material.ENCHANTING_TABLE, "&fAdd/remove enchantments. Use '&7[ench] 0' to remove."));
     inv.setItem(11, createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."));
     inv.setItem(12, createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."));
-    inv.setItem(18, createButton("&aDefense", Material.SHIELD, "&fDefine Defemse stats."));
+    inv.setItem(18, createButton("&aDefense", Material.SHIELD, "&fDefine Defense stats."));
     inv.setItem(19, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
     inv.setItem(20, createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."));
     inv.setItem(21, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
+    inv.setItem(22, createButton("&bDurability", Material.IRON_CHESTPLATE, "&fDefine Durability stats."));
+    inv.setItem(23, createButton("&eMinimum require levels", Material.IRON_CHESTPLATE, "&fDefine Minimum require levels to use this item."));
     inv.setItem(34, createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."));
     inv.setItem(35, createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."));
 
@@ -100,6 +100,12 @@ public class ItemEditor implements Listener {
       case "Chat-lore2" -> withItemKey(p, key -> updateLoreLine(p, key, message));
       case "Chat-customModelData" -> withItemKey(p, key -> updateCustomModelData(p, key, message));
       case "Chat-craftPerms" -> withItemKey(p, key -> setCraftPermission(p, key, message));
+      case "Chat-defense" -> withItemKey(p, key -> updateStat(p, key, "Defense", message));
+      case "Chat-damage" -> withItemKey(p, key -> updateStat(p, key, "Damage", message));
+      case "Chat-mana" -> withItemKey(p, key -> updateStat(p, key, "Mana", message));
+      case "Chat-health" -> withItemKey(p, key -> updateStat(p, key, "Health", message));
+      case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
+      case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
       case "chat-createItem" -> createItem(p, message);
     }
   }
@@ -112,6 +118,19 @@ public class ItemEditor implements Listener {
       action.accept(key);
     }
   }
+
+  private void updateStat(Player p, String key, String statPath, String input) {
+    int value = parseInt(input, -1);
+    if (value < 0) {
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
+      return;
+    }
+
+    getFileConfig("itemDB").set(key + "." + statPath, value);
+    p.sendMessage(Colorize("&a" + statPath + " set to &f" + value));
+    reopenEditorLater(p, key);
+  }
+
 
   private void renameItem(Player p, String key, String name) {
     getFileConfig("itemDB").set(key + ".name", name);

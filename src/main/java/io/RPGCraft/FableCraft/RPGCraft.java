@@ -1,21 +1,16 @@
 package io.RPGCraft.FableCraft;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Tasks.TabList;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
-import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
-import io.RPGCraft.FableCraft.core.GUI.GUIListener;
+import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
-import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.SweepAttackListener;
@@ -38,13 +33,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense");
+  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "Durability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
@@ -87,7 +86,6 @@ public final class RPGCraft extends JavaPlugin {
       new mobs(),
       new skills(),
       new lootTableHelper(),
-      new GUIListener(),
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),

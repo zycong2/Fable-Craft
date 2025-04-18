@@ -1,10 +1,5 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
-
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import org.bukkit.Bukkit;
@@ -21,6 +16,14 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 
@@ -110,6 +113,19 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
         getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
         getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
+        getFileConfig("messages").addDefault("messages.itemeditor.defense.success", "&aYou successfully set the defense value!");
+        getFileConfig("messages").addDefault("messages.itemeditor.defense.info", "&rEnter the defense value (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.damage.success", "&aYou successfully set the damage value!");
+        getFileConfig("messages").addDefault("messages.itemeditor.damage.info", "&rEnter the damage value (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.mana.success", "&aYou successfully set the mana cost or bonus!");
+        getFileConfig("messages").addDefault("messages.itemeditor.mana.info", "&rEnter the mana value (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.health.success", "&aYou successfully set the health stat!");
+        getFileConfig("messages").addDefault("messages.itemeditor.health.info", "&rEnter the health value (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.durability.success", "&aYou successfully set the durability!");
+        getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.minlvl.success", "&aYou successfully set the minimum required level!");
+        getFileConfig("messages").addDefault("messages.itemeditor.minlvl.info", "&rEnter the minimum level required to use this item (as an integer)");
+
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
@@ -136,6 +152,8 @@ public class yamlManager {
         getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
         getFileConfig("config").addDefault("stats.Damage.default", 1);
         getFileConfig("config").addDefault("stats.Damage.char", "&4⚔");
+        getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
+        getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
         getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
         getFileConfig("config").options().copyDefaults(true);
 
@@ -146,6 +164,7 @@ public class yamlManager {
         getFileConfig("itemDB").addDefault("woodenSword.customModelData", 1);
         getFileConfig("itemDB").addDefault("woodenSword.enchantments", List.of("mending:1", "fire_aspect:10"));
         getFileConfig("itemDB").addDefault("woodenSword.Damage", 10);
+        getFileConfig("itemDB").addDefault("woodenSword.MinLevel", 2);
         getFileConfig("itemDB").addDefault("woodenSword.hide", List.of("ENCHANTS", "ATTRIBUTES", "DYE", "PLACED_ON", "DESTROYS", "ARMOR_TRIM"));
         getFileConfig("itemDB").addDefault("woodenSword.group", "swords");
         getFileConfig("itemDB").addDefault("woodenSword.rarity", "common");
@@ -157,8 +176,9 @@ public class yamlManager {
         getFileConfig("itemDB").addDefault("leatherChestplate.itemType", "LEATHER_CHESTPLATE");
         getFileConfig("itemDB").addDefault("leatherChestplate.ItemID", "cool_chestplate");
         getFileConfig("itemDB").addDefault("leatherChestplate.Health", 10);
-        getFileConfig("itemDB").addDefault("leatherChestplate.Defensre", 10);
+        getFileConfig("itemDB").addDefault("leatherChestplate.Defense", 10);
         getFileConfig("itemDB").addDefault("leatherChestplate.Mana", 10);
+        getFileConfig("itemDB").addDefault("leatherChestplate.Durability", 5);
         getFileConfig("itemDB").addDefault("leatherChestplate.color", "10,10,10");
         getFileConfig("itemDB").addDefault("leatherChestplate.recipe.type", "shapeless");
         getFileConfig("itemDB").addDefault("leatherChestplate.recipe.ingredients", List.of("DIAMOND:5", "LEATHER:2", "BLACK_DYE:1"));
