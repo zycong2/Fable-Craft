@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.listeners.SecondaryListener;
 
-import io.RPGCraft.FableCraft.core.Database.Database;
 import io.RPGCraft.FableCraft.core.PDCHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
 
 public class EmeraldPouch implements Listener {
 
@@ -32,35 +34,41 @@ public class EmeraldPouch implements Listener {
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
-  void EntityDie(EntityDeathEvent e){
+  public void EntityDie(EntityDeathEvent e){
     LivingEntity victim = e.getEntity();
     if(victim instanceof Player){return;}
     if(victim.getKiller() == null){return;}
     if(victim.getKiller() instanceof Player p){
       ItemStack pouchSlot = p.getInventory().getItem(8);
-      if(pouchSlot == null || pouchSlot.getType() == Material.AIR || !PDCHelper.getItemPDC("IsPouch", pouchSlot).equals(true)){
+      if(pouchSlot == null || pouchSlot.getType() == Material.AIR || !PDCHelper.getItemPDC("ispouch", pouchSlot).equals(true)){
+        Double health = victim.getMaxHealth();
+        Double damage = victim.getAttribute(Attribute.ATTACK_DAMAGE).getBaseValue();
+        Double emeralds = (health * 0.75) + (damage * 3)/2;
+        emeraldPouch.put(p.getUniqueId(), (emeraldPouch.getOrDefault(p.getUniqueId(), 0) + emeralds.intValue()));
+        p.sendMessage(Colorize("&aYou have received &f" + emeralds.intValue() + " &aEmeralds from killing &f" + victim.getName()));
         p.getInventory().setItem(8, getPouch(p));
         return;
       }else{
         Double health = victim.getMaxHealth();
         Double damage = victim.getAttribute(Attribute.ATTACK_DAMAGE).getBaseValue();
         Double emeralds = (health * 0.75) + (damage * 3)/2;
-        emeraldPouch.put(p.getUniqueId(), emeraldPouch.getOrDefault(p.getUniqueId(), 0) + emeralds.intValue());
+        emeraldPouch.put(p.getUniqueId(), (emeraldPouch.getOrDefault(p.getUniqueId(), 0) + emeralds.intValue()));
+        p.sendMessage(Colorize("&aYou have received &f" + emeralds.intValue() + " &aEmeralds from killing &f" + victim.getName()));
         p.getInventory().setItem(8, getPouch(p));
+        return;
       }
     }
   }
 
   @EventHandler
-  void onPlayerJoin(PlayerJoinEvent e) {
+  public void onPlayerJoin(PlayerJoinEvent e) {
     Player p = e.getPlayer();
 
     // Check if the emeraldPouch map already has the player's data
     if (!emeraldPouch.containsKey(p.getUniqueId())) {
 
       // Get the player's current money from the database
-      Database moneyDataBase = getMoneyDataBase();
-      Integer currentMoney = moneyDataBase.getMoney(String.valueOf(p.getUniqueId()));
+      Integer currentMoney = getPlayerPDC("money", p) == null ? 0 : Integer.valueOf(getPlayerPDC("money", p));
 
       // If money data exists in the database, load it into emeraldPouch
       if (currentMoney != null) {
@@ -71,7 +79,7 @@ public class EmeraldPouch implements Listener {
     }else{
       // If the player already has data in emeraldPouch, update their pouch item
       ItemStack pouch = p.getInventory().getItem(8);
-      if(pouch == null || pouch.getType() == Material.AIR || !PDCHelper.getItemPDC("IsPouch", pouch).equals(true)){
+      if(pouch == null || pouch.getType() == Material.AIR || !PDCHelper.getItemPDC("ispouch", pouch).equals(true)){
         p.getInventory().setItem(8, getPouch(p));
       }else{
         p.getInventory().setItem(8, getPouch(p));
@@ -81,35 +89,30 @@ public class EmeraldPouch implements Listener {
 
 
   @EventHandler
-  void InventoryClick(InventoryClickEvent e){
-    if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR){return;}
-    if(e.getCurrentItem().getType() != Material.BUNDLE){return;}
-    if(!PDCHelper.getItemPDC("IsPouch", e.getCurrentItem()).equals(true)){return;}
-    if(!(e.getWhoClicked() instanceof Player p)){return;}
+  public void InventoryClick(InventoryClickEvent e){
+    Player p = (Player) e.getWhoClicked();
+    if(!PDCHelper.getItemPDC("ispouch", e.getCurrentItem()).equals(true)){return;}
     e.setCancelled(true);
     ItemStack pouch = getPouch(p);
     p.getInventory().setItem(8, pouch);
   }
 
   @EventHandler
-  void InventoryDrag(InventoryDragEvent e){
-    if(e.getOldCursor() == null || e.getOldCursor().getType() == Material.AIR){return;}
-    if(e.getOldCursor().getType() != Material.BUNDLE){return;}
-    if(!PDCHelper.getItemPDC("IsPouch", e.getOldCursor()).equals(true)){return;}
-    if(!(e.getWhoClicked() instanceof Player p)){return;}
+  public void InventoryDrag(InventoryDragEvent e){
+    Player p = (Player) e.getWhoClicked();
+    if(!PDCHelper.getItemPDC("ispouch", e.getOldCursor()).equals(true)){return;}
     e.setCancelled(true);
     ItemStack pouch = getPouch(p);
     p.getInventory().setItem(8, pouch);
   }
 
   @EventHandler
-  void PlayerLeave(PlayerQuitEvent e){
+  public void PlayerLeave(PlayerQuitEvent e){
     Player p = e.getPlayer();
     if(emeraldPouch.containsKey(p.getUniqueId())){
-      Database moneyDataBase = getMoneyDataBase();
-      Integer currentMoney = moneyDataBase.getMoney(String.valueOf(p.getUniqueId()));
-      int newMoney = currentMoney != null ? currentMoney + emeraldPouch.get(p.getUniqueId()) : emeraldPouch.get(p.getUniqueId());
-      moneyDataBase.setMoney(p, newMoney);
+      int oldMoney = getPlayerPDC("money", p) == null ? 0 : Integer.valueOf(getPlayerPDC("money", p));
+      int newMoney = oldMoney + emeraldPouch.get(p.getUniqueId());
+      setPlayerPDC("money", p, String.valueOf(newMoney));
     }
   }
 
@@ -124,5 +127,17 @@ public class EmeraldPouch implements Listener {
     pouch.setItemMeta(meta);
     PDCHelper.setItemPDC("IsPouch", pouch, true);
     return pouch;
+  }
+
+  public static void updatePouch(){
+    for (UUID playerId : getEmeraldPouch().keySet()) {
+      Player p = Bukkit.getPlayer(playerId);
+      if(p.isOnline()) {
+        if (p != null && p.isOnline()) {
+          // Update the pouch item in the player's inventory with the current emerald count
+          p.getInventory().setItem(8, getPouch(p)); // Slot 8 is where we store the pouch
+        }
+      }
+    }
   }
 }
