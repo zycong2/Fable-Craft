@@ -14,7 +14,6 @@ import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.SweepAttackListener;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -89,7 +88,6 @@ public final class RPGCraft extends JavaPlugin {
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),
-      new SweepAttackListener(),
       new EmeraldPouch(),
       new quests()
     );
