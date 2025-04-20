@@ -45,10 +45,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.mobs")) {
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noPermission", p, true).toString()));
             return true;
         }if (args.length == 0){
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noValidArgument", null, true).toString()));
             return true;
         }
         if (args[0].equals("spawn")) { getEntity(args[1], p.getLocation()); }

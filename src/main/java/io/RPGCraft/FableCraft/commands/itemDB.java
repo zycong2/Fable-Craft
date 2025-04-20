@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.commands;
 
+import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.Command;
@@ -15,8 +16,8 @@ public class itemDB implements CommandExecutor {
         if (!p.hasPermission("FableCraft.itemDB")) {
             p.sendMessage((TextComponent)  yamlGetter.getConfig("messages.error.noPermission", p, true));
         } else {
-            mainListeners.itemDBMenu(p);
-            p.openInventory(mainListeners.itemDB);
+            GUI.itemDBMenu(p);
+            p.openInventory(GUI.itemDB);
         }
         return true;
     }

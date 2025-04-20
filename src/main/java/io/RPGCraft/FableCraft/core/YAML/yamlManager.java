@@ -129,8 +129,11 @@ public class yamlManager {
         getFileConfig("messages").options().copyDefaults(true);
 
         getFileConfig("config").addDefault("food.removeHunger", true);
+        getFileConfig("config").addDefault("autoMod.enabled", true);
+        getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
         getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
         getFileConfig("config").addDefault("items.unbreakable.enabled", true);
+        getFileConfig("config").addDefault("items.defaultItem", "dirt");
         getFileConfig("config").addDefault("items.removeDefaultRecipes", true);
         getFileConfig("config").addDefault("items.display.rarity.common", "&f&lCOMMON");
         getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
