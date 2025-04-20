@@ -7,7 +7,7 @@ public class Helperer {
   public static void handleObjective(Player player, Objective objective) {
     switch (objective.getTypes()) {
       case TALK_TO_NPC -> waitUntilTalkToNPC(player, objective);
-      case KILL_MOBS -> waitUntilKillMob(player, objective); // do these youself chatgpt wont do it
+      case KILL_MOBS -> waitUntilKillMob(player, objective);
       case OBTAIN_ITEMS -> waitUntilObtainItems(player, objective);
       case GOTO_LOCATION -> waitUntilGotoLocation(player, objective);
     }
