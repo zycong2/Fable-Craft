@@ -8,14 +8,11 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
-import io.RPGCraft.FableCraft.core.Database.Database;
-import io.RPGCraft.FableCraft.core.Database.SQLite;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.SweepAttackListener;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -48,8 +45,6 @@ public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
 
-  private static Database db;
-
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "Durability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
@@ -68,9 +63,6 @@ public final class RPGCraft extends JavaPlugin {
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
-
-    db = new SQLite(this);
-    db.load();
 
     new PlaceholdersRegistry();
 
@@ -98,7 +90,6 @@ public final class RPGCraft extends JavaPlugin {
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),
-      new SweepAttackListener(),
       new quests()
     );
 
@@ -131,10 +122,6 @@ public final class RPGCraft extends JavaPlugin {
       Bukkit.getLogger().severe("Failed to save data!");
     }
 
-  }
-
-  public static Database getMoneyDataBase() {
-    return db;
   }
 
   public static ItemStack createGuiItem(Material material, String name, String... lore) {
