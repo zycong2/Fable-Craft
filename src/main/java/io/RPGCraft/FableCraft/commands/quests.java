@@ -72,7 +72,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
     return List.of("startNew", "disband");
   }
 
-  /*@EventHandler
+  @EventHandler
   public void onEntityDeath(EntityDeathEvent event){
     LivingEntity entity = event.getEntity();
     Player killer = entity.getKiller();
@@ -111,7 +111,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
         }
       }
     }
-  }*/
+  }
   @EventHandler
   public void onPlayerPickUp(PlayerPickupItemEvent event){
     Player p = event.getPlayer();
