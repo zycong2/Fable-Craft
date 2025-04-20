@@ -105,7 +105,7 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
-    scheduler.scheduleSyncRepeatingTask(this, new BukkitRunnable() {
+    /*scheduler.scheduleSyncRepeatingTask(this, new BukkitRunnable() {
       @Override
       public void run() {
         for (UUID playerId : getEmeraldPouch().keySet()) {
@@ -116,7 +116,7 @@ public final class RPGCraft extends JavaPlugin {
           }
         }
       }
-    }, 0L, 40L);
+    }, 0L, 40L);*/
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);
   }
