@@ -20,5 +20,10 @@ public class QuestLoader {
   public static Objective getObjective(String questId, int step) {
     return quests.getOrDefault(questId, List.of()).get(step);
   }
+
+  public static List<Objective> getObjectives(String questId) {
+    return quests.getOrDefault(questId, List.of());
+  }
+
 }
 

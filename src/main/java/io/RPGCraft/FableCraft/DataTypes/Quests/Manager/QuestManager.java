@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,8 +33,19 @@ public class QuestManager {
   // Advance step
   public static void nextStep(Player player, String questId) {
     int current = getCurrentStep(player, questId);
-    activeQuests.get(player.getUniqueId()).put(questId, current + 1);
+    List<Objective> objectives = QuestLoader.getObjectives(questId);
+
+    if (current + 1 >= objectives.size()) {
+      // Reached the end — complete the quest
+      finishQuest(player, questId);
+      player.sendMessage(ChatColor.GOLD + "Quest complete: " + questId);
+    } else {
+      // Move to next step
+      activeQuests.get(player.getUniqueId()).put(questId, current + 1);
+      player.sendMessage(ChatColor.AQUA + "Next objective unlocked!");
+    }
   }
+
 
   // Get the current objective (you’d want to fetch this from your quest data)
   public static Objective getCurrentObjective(Player player, String questId) {
