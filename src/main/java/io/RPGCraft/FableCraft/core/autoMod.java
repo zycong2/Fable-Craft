@@ -1,5 +1,7 @@
 package io.RPGCraft.FableCraft.core;
 
+import io.RPGCraft.FableCraft.Utils.BanUtils;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.entity.Player;
 
@@ -11,7 +13,21 @@ public class autoMod {
 
 
   public void giveWarning(Player p){
-
+    int warnings = 0;
+    if (PDCHelper.getPlayerPDC("warnings", p) != null) {
+      warnings = Integer.parseInt(PDCHelper.getPlayerPDC("warnings", p));
+    }
+    List<Object> amountWarnings = yamlGetter.getNodes("config", "autoMod.punishments");
+    for (Object o : amountWarnings){
+      if (warnings == Integer.parseInt(o.toString())){
+        String type = yamlManager.getOption("config", "autoMod.punishments." + o + ".type").toString();
+        if (type.equalsIgnoreCase("tempBan")){
+          BanUtils.tempBanPlayer(null, p.getName(), yamlManager.getOption("config", "autoMod.punishments." + o + ".duration").toString(), "Gotten too much warnings.");
+        } else if (type.equalsIgnoreCase("permBan")){
+          BanUtils.permBan(p, "Gotten too much warnings.", "Warnings");
+        }
+      }
+    }
   }
 
 

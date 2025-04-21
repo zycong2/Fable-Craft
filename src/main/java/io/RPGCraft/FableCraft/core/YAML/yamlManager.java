@@ -131,6 +131,9 @@ public class yamlManager {
         getFileConfig("config").addDefault("food.removeHunger", true);
         getFileConfig("config").addDefault("autoMod.enabled", true);
         getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
+        getFileConfig("config").addDefault("autoMod.punishments.3.type", "tempBan");
+        getFileConfig("config").addDefault("autoMod.punishments.3.duration", "1D");
+        getFileConfig("config").addDefault("autoMod.punishments.5.type", "permBan");
         getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
         getFileConfig("config").addDefault("items.unbreakable.enabled", true);
         getFileConfig("config").addDefault("items.defaultItem", "dirt");
