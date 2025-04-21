@@ -63,4 +63,8 @@ public class stats implements CommandExecutor, TabCompleter {
         }
         return args;
     }
+
+    public void setStat(Player p, String stat, Double amount){
+      PDCHelper.setPlayerPDC(stat, p, amount.toString());
+    }
 }
