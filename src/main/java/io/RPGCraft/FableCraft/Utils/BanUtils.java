@@ -1,7 +1,5 @@
 package io.RPGCraft.FableCraft.Utils;
 
-import net.kyori.adventure.sound.Sound;
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -14,15 +12,6 @@ import java.util.Date;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 
 public class BanUtils {
-
-  /**
-   * Temporarily bans a player with a specified reason and duration
-   * @param sender The command sender (for error messages)
-   * @param targetName The name of the player to ban
-   * @param duration The duration of the ban (e.g., "1d2h30m")
-   * @param reason The reason for the ban
-   * @return true if successful, false if failed
-   */
   public static boolean tempBanPlayer(CommandSender sender, String targetName, String duration, String reason) {
     // Parse the duration string (e.g., "1d2h30m")
     Duration banDuration;

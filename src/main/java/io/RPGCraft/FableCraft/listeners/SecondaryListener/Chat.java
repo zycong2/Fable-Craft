@@ -40,7 +40,10 @@ public class Chat implements Listener {
     String str1 = setPlaceholders(format, false, (Entity) p);
     String str2 = setPlaceholders(str1, false, e);
 
-    if (!p.hasPermission("RPGCraft.noChatFilter")){ str2 = autoMod.autoModMessage(str2, p); }
+    Bukkit.getLogger().info(str2);
+
+    if (!p.hasPermission("RPGCraft.noChatFilter")){ str2 = autoMod.autoModMessage(str2, p); Bukkit.getLogger().info("editing");}
+    Bukkit.getLogger().info(str2);
     for(Player player : Bukkit.getOnlinePlayers()){
       player.sendMessage(ColorizeReString(str2));
     }

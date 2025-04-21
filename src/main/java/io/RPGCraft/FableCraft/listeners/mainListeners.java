@@ -53,12 +53,15 @@ public class mainListeners implements Listener {
   void onJoin(PlayerJoinEvent event) {
     Player p = event.getPlayer();
 
-    // Send either join or first-join message to all players
-    if (p.hasPlayedBefore()) {
-      event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', yamlManager.getOption("messages", "messages.joinMessage").toString()));
-    } else {
-      event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', yamlManager.getOption("messages", "messages.firstJoinMessage").toString()));
+    for (Player pla : Bukkit.getServer().getOnlinePlayers()) {
+      // Send either join or first-join message to all players
+      if (p.hasPlayedBefore()) {
+        pla.sendMessage(yamlGetter.getMessage("messages.joinMessage", p, true));
+      } else {
+        pla.sendMessage(yamlGetter.getMessage("messages.firstJoinMessage", p, true));
+      }
     }
+    event.setJoinMessage("");
 
     // Init basic PDC values
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
@@ -98,6 +101,7 @@ public class mainListeners implements Listener {
     for (Player pla : Bukkit.getServer().getOnlinePlayers()) {
       pla.sendMessage(yamlGetter.getMessage("messages.quitMessage", p, true));
     }
+    event.setQuitMessage("");
 
     // Remove armor-based stats
     List<ItemStack> gear = new ArrayList<>(List.of());
