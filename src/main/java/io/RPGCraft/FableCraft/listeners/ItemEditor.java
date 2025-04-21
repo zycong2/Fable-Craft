@@ -48,7 +48,7 @@ public class ItemEditor implements Listener {
   }
 
 
-  private static ItemStack createButton(String name, Material mat, String... loreLines) {
+  public static ItemStack createButton(String name, Material mat, String... loreLines) {
     ItemStack item = new ItemStack(mat);
     ItemMeta meta = item.getItemMeta();
 

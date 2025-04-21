@@ -45,7 +45,7 @@ public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "Durability", "Minuselevel");
+  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
@@ -96,15 +96,12 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
-    scheduler.scheduleSyncRepeatingTask(this, new BukkitRunnable() {
-      @Override
-      public void run() {
-        for (UUID playerId : getEmeraldPouch().keySet()) {
-          Player p = Bukkit.getPlayer(playerId);
-          if (p != null && p.isOnline()) {
-            // Update the pouch item in the player's inventory with the current emerald count
-            p.getInventory().setItem(8, getPouch(p)); // Slot 8 is where we store the pouch
-          }
+    scheduler.scheduleSyncRepeatingTask(this, () -> {
+      for (UUID playerId : getEmeraldPouch().keySet()) {
+        Player p = Bukkit.getPlayer(playerId);
+        if (p != null && p.isOnline()) {
+          // Update the pouch item in the player's inventory with the current emerald count
+          p.getInventory().setItem(8, getPouch(p)); // Slot 8 is where we store the pouch
         }
       }
     }, 0L, 40L);

@@ -329,6 +329,12 @@ public class yamlManager {
 
             for(String s : RPGCraft.itemStats){
                 if (isItemSet(name + "." + s)) {
+                    if(s == "MaxDurability"){
+                      String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
+                      lore.add(ColorizeReString("&8Max " + s + ": &f+" + var41 + yamlGetter.getConfig("stats." + s + ".char", null, true)));
+                      ++attributes;
+                      PDC.add("Max" + s + ";" + getFileConfig("itemDB").get(name + "." + s));
+                    }
                     String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
                     lore.add(ColorizeReString("&8" + s + ": &f+" + var41 + yamlGetter.getConfig("stats." + s + ".char", null, true)));
                     ++attributes;

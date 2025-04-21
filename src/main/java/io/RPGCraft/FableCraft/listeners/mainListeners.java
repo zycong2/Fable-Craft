@@ -9,6 +9,7 @@ import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -61,6 +62,11 @@ public class mainListeners implements Listener {
 
     // Init basic PDC values
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
+
+    // Set default values for stats points
+    if (getPlayerPDC("statsPoints", p) == null) {
+      setPlayerPDC("statsPoints", p, String.valueOf(0));
+    }
 
     // Set default stat values if missing
     String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
@@ -157,7 +163,24 @@ public class mainListeners implements Listener {
     event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));
   }
 
-  @EventHandler void onItemDamage(PlayerItemDamageEvent event) { if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) { event.setCancelled(true); } }
+  @EventHandler void onItemDamage(PlayerItemDamageEvent event) {
+    if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) {
+      event.setCancelled(true);
+    }else{
+      Player p = event.getPlayer();
+      ItemStack item = event.getItem();
+      if (getItemPDC("MaxDurability", item) != null) {
+        int durability = getItemPDC("Durability", item) == null ? Integer.parseInt(getItemPDC("MaxDurability", item)) : Integer.parseInt(getItemPDC("Durability", item));
+        if (durability > 0) {
+          setItemPDC("Durability", item, String.valueOf(durability - 1));
+        } else {
+          Sound sound = Sound.ITEM_SHIELD_BREAK;
+          p.playSound(p, sound, 1f, 1f);
+          p.getInventory().remove(item);
+        }
+      }
+    }
+  }
   @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
   @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
 
