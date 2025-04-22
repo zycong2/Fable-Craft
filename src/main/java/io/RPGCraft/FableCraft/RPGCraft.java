@@ -8,6 +8,7 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
+import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
@@ -105,6 +106,32 @@ public final class RPGCraft extends JavaPlugin {
         }
       }
     }, 0L, 40L);
+
+    scheduler.scheduleSyncRepeatingTask(this, () -> {
+      for (Player p : Bukkit.getOnlinePlayers()) {
+        try {
+          double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+          double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
+          double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
+          double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
+          if (currentHealth < maxPlayerHealth) {
+            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
+            currentHealth += (double) 20.0F / maxPlayerHealth * amount;
+            PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
+            p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
+          } else if (currentHealth > maxPlayerHealth) {
+            PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));
+          }
+          if (currentMana < maxPlayerMana) {
+            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
+            currentMana += (double) 20.0F / maxPlayerMana * amount;
+            PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(currentMana));
+          } else if (currentMana > maxPlayerMana) {
+            PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(maxPlayerMana));
+          }
+        } catch (NumberFormatException ignored) {}
+        }
+    }, 20L, 20L);
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);
   }

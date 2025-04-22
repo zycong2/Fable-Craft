@@ -149,11 +149,11 @@ public class mainListeners implements Listener {
     if (event.getEntityType().equals(EntityType.PLAYER)) {
       Player p = (Player) event.getEntity();
       double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
-      double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
+      double currentHealth = Double.parseDouble(getPlayerPDC("currentHealth", p));
       double defense = Double.parseDouble(getPlayerPDC("Defense", p));
       double damage = event.getDamage() - defense * 10.0;
       currentHealth -= damage;
-      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
+      setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
       double scaledHealth = 20.0 / maxHealth * damage;
       event.setDamage(Math.abs(scaledHealth));
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
@@ -236,6 +236,4 @@ public class mainListeners implements Listener {
 
     stats.checkCurrentStats(p);
   }
-
-
 }
