@@ -33,10 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
@@ -52,12 +49,17 @@ public final class RPGCraft extends JavaPlugin {
 
   public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests", "format");
   public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
+  public static List<FileConfiguration> DataStorageList = new java.util.ArrayList<>(List.of());
+  public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
   public void onEnable() {
 
     if (!yamlManager.loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
+      Bukkit.getLogger().severe("Failed to load config!");
+    }
+    if (!yamlManager.loadPlayerData()){
       Bukkit.getLogger().severe("Failed to load data!");
     }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}

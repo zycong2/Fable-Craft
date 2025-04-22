@@ -38,6 +38,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.createPlayerStorage;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
@@ -65,6 +66,8 @@ public class mainListeners implements Listener {
 
     // Init basic PDC values
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
+
+    createPlayerStorage(p.getUniqueId());
 
     // Set default values for stats points
     if (getPlayerPDC("statsPoints", p) == null) {

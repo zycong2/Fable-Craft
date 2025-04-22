@@ -19,18 +19,17 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.playerData;
 
 
 public class yamlManager {
     public static FileConfiguration fileConfig;
     public static File cfile;
+    public static List<String> playerDataFileNames = List.of("stats", "pouch", "quests");
     public yamlManager() {
     }
 
@@ -58,7 +57,102 @@ public class yamlManager {
         return true;
     }
 
-    public static boolean loadData() {
+  public static FileConfiguration getPlayerData(UUID uuid, String configName) {
+    if (playerData.containsKey(uuid)) {
+      return playerData.get(uuid).get(configName);
+    }
+    return null;
+  }
+
+
+  public static boolean createPlayerStorage(UUID uuid) {
+    File playerFolder = new File(RPGCraft.getPlugin().getDataFolder(), "Player-Data/" + uuid);
+    if (!playerFolder.exists()) {
+      playerFolder.mkdirs();
+    }
+
+    Map<String, FileConfiguration> configMap = new HashMap<>();
+
+    for (String configName : playerDataFileNames) {
+      File file = new File(playerFolder, configName + ".yml");
+      try {
+        YamlConfiguration config = new YamlConfiguration();
+        if (!file.exists()) {
+          file.createNewFile();
+
+          if (configName.equalsIgnoreCase("stats")) {
+            config.set("Health", 20);
+            config.set("Mana", 100);
+            config.set("Damage", 100);
+            config.set("Defense", 100);
+            config.set("Levels", 1);
+          } else if (configName.equalsIgnoreCase("pouch")) {
+            config.set("moneys", 0);
+          } else if (configName.equalsIgnoreCase("quests")){
+            config.set("activeQuests", new ArrayList<>());
+          }
+          config.save(file);
+        }
+        configMap.put(configName, config);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    playerData.put(uuid, configMap);
+    return true;
+  }
+
+  public static boolean loadPlayerData() {
+    File playerDataFolder = new File(RPGCraft.getPlugin().getDataFolder(), "Player-Data");
+    File[] uuidFolders = playerDataFolder.listFiles(File::isDirectory);
+    if (uuidFolders == null) return false;
+
+    for (File uuidFolder : uuidFolders) {
+      UUID uuid;
+      try {
+        uuid = UUID.fromString(uuidFolder.getName());
+      } catch (IllegalArgumentException e) {
+        continue; // Skip invalid folder names
+      }
+
+      Map<String, FileConfiguration> configMap = new HashMap<>();
+      for (String configName : playerDataFileNames) {
+        File file = new File(uuidFolder, configName + ".yml");
+        if (file.exists()) {
+          configMap.put(configName, YamlConfiguration.loadConfiguration(file));
+        } else {
+          try {
+            file.createNewFile();
+            YamlConfiguration config = new YamlConfiguration();
+
+            // Add your default values here
+            if (configName.equalsIgnoreCase("stats")) {
+              config.set("Health", 20);
+              config.set("Mana", 100);
+              config.set("Damage", 100);
+              config.set("Defense", 100);
+              config.set("Levels", 1);
+            } else if (configName.equalsIgnoreCase("pouch")) {
+              config.set("moneys", 0);
+            } else if (configName.equalsIgnoreCase("quests")){
+              config.set("activeQuests", new ArrayList<>());
+            }
+            // Add more conditions for other config files as needed
+
+            config.save(file);
+            configMap.put(configName, config);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      playerData.put(uuid, configMap);
+    }
+    return true;
+  }
+
+  public static boolean loadData() {
         for (String s : RPGCraft.yamlFiles) {
             RPGCraft.fileConfigurationList.add(new YamlConfiguration());
         }
@@ -281,10 +375,10 @@ public class yamlManager {
         return true;
     }
 
-    public static FileConfiguration getFileConfig(String options) {
+    public static FileConfiguration getFileConfig(String ymlFile) {
         int index = 0;
         for (String s : RPGCraft.yamlFiles) {
-            if (Objects.equals(s, options)) {break;}
+            if (Objects.equals(s, ymlFile)) {break;}
             index++;
         }
         return RPGCraft.fileConfigurationList.get(index);
