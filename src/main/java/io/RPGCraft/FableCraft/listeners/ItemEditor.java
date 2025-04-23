@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getItem;
+import io.RPGCraft.FableCraft.core.GUI;
 
 public class ItemEditor implements Listener {
   public static Inventory makeItemEditor(ItemStack item) {
@@ -107,6 +109,7 @@ public class ItemEditor implements Listener {
       case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
       case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
       case "chat-createItem" -> createItem(p, message);
+      case "Chat-id" -> GUI.gottenItemID(p, message);
     }
   }
 
@@ -188,11 +191,11 @@ public class ItemEditor implements Listener {
     p.sendMessage(Colorize("&aCrafting permission set!"));
   }
 
-  private void createItem(Player p, String id) {
+  public static void createItem(Player p, String id) {
     if (id == null || id.isBlank()) return;
 
     getFileConfig("itemDB").addDefault(id + ".ItemID", id);
-    getFileConfig("itemDB").addDefault(id + ".itemType", "BEDROCK");
+    getFileConfig("itemDB").addDefault(id + ".itemType", yamlManager.getOption("config", "items.defaultItem").toString());
     p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }

@@ -232,6 +232,7 @@ public class yamlManager {
         getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
         getFileConfig("messages").addDefault("messages.itemeditor.minlvl.success", "&aYou successfully set the minimum required level!");
         getFileConfig("messages").addDefault("messages.itemeditor.minlvl.info", "&rEnter the minimum level required to use this item (as an integer)");
+        getFileConfig("messages").addDefault("messages.itemeditor.createItem", "&rPlease send the id of the item");
 
         getFileConfig("messages").options().copyDefaults(true);
 
