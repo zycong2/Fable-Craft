@@ -38,6 +38,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getPlayerData;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
 
@@ -116,8 +117,8 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
-          double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
+          double maxPlayerHealth = Double.parseDouble((String) getPlayerData(p.getUniqueId(), "stats", "Health"));
+          double maxPlayerMana = Double.parseDouble((String) getPlayerData(p.getUniqueId(), "stats", "Mana"));
           double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
           double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
           if (currentHealth < maxPlayerHealth) {

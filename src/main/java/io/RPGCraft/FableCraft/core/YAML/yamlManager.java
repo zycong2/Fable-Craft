@@ -95,7 +95,9 @@ public class yamlManager {
 
           if (configName.equalsIgnoreCase("stats")) {
             config.set("Health", 20);
+            config.set("Regeneration", 1);
             config.set("Mana", 100);
+            config.set("ManaRegeneration", 1);
             config.set("Damage", 100);
             config.set("Defense", 100);
             config.set("Levels", 1);
