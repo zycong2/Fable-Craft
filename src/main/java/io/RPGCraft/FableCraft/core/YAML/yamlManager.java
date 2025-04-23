@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
+import com.comphenix.protocol.PacketType;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import org.bukkit.Bukkit;
@@ -69,6 +70,7 @@ public class yamlManager {
     if (playerData.containsKey(uuid)) {
       FileConfiguration configFiles = playerData.get(uuid).get(configName);
       configFiles.set(path, Data);
+      loadPlayerData(Bukkit.getPlayer(uuid));
     }else{
       Player p = Bukkit.getPlayer(uuid);
       p.sendMessage(ColorizeReString("I think there're a error with your data, please rejoin"));
@@ -144,15 +146,18 @@ public class yamlManager {
 
             // Add your default values here
             if (configName.equalsIgnoreCase("stats")) {
-              config.set("Health", 20);
-              config.set("Mana", 100);
-              config.set("Damage", 100);
-              config.set("Defense", 100);
+              config.set("Health", getOption("config", "stats.Health.default"));
+              config.set("Regeneration", getOption("config", "stats.Regeneration.default"));
+              config.set("Mana", getOption("config", "stats.Mana.default"));
+              config.set("ManaRegeneration", getOption("config", "stats.ManaRegeneration.default"));
+              config.set("Damage", getOption("config", "stats.Damage.default"));
+              config.set("Defense", getOption("config", "stats.Defense.default"));
               config.set("Levels", 1);
             } else if (configName.equalsIgnoreCase("pouch")) {
               config.set("moneys", 0);
             } else if (configName.equalsIgnoreCase("quests")){
-              config.set("activeQuests", new ArrayList<>());
+              config.set("activeQuests", List.of("Tutorial-Quest"));
+              config.set("activeQuests.Tutorial-Quest", 0);
             }
             // Add more conditions for other config files as needed
 
@@ -162,6 +167,48 @@ public class yamlManager {
             e.printStackTrace();
           }
         }
+      }
+      playerData.put(uuid, configMap);
+    }
+    return true;
+  }
+
+  public static boolean loadPlayerData(Player p) {
+    File playerDataFolder = new File(RPGCraft.getPlugin().getDataFolder(), "Player-Data");
+      UUID uuid = p.getUniqueId();
+
+      Map<String, FileConfiguration> configMap = new HashMap<>();
+      for (String configName : playerDataFileNames) {
+        File file = new File(playerDataFolder.getAbsolutePath() + "/" + uuid, configName + ".yml");
+        if (file.exists()) {
+          configMap.put(configName, YamlConfiguration.loadConfiguration(file));
+        } else {
+          try {
+            file.createNewFile();
+            YamlConfiguration config = new YamlConfiguration();
+
+            // Add your default values here
+            if (configName.equalsIgnoreCase("stats")) {
+              config.set("Health", getOption("config", "stats.Health.default"));
+              config.set("Regeneration", getOption("config", "stats.Regeneration.default"));
+              config.set("Mana", getOption("config", "stats.Mana.default"));
+              config.set("ManaRegeneration", getOption("config", "stats.ManaRegeneration.default"));
+              config.set("Damage", getOption("config", "stats.Damage.default"));
+              config.set("Defense", getOption("config", "stats.Defense.default"));
+              config.set("Levels", 1);
+            } else if (configName.equalsIgnoreCase("pouch")) {
+              config.set("moneys", 0);
+            } else if (configName.equalsIgnoreCase("quests")){
+              config.set("activeQuests", List.of("Tutorial-Quest"));
+              config.set("activeQuests.Tutorial-Quest", 0);
+            }
+            // Add more conditions for other config files as needed
+
+            config.save(file);
+            configMap.put(configName, config);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
       }
       playerData.put(uuid, configMap);
     }
