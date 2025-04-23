@@ -19,6 +19,12 @@ commands:
     permission: FableCraft.createNPC
     aliases:
       - makenpc
+  stats:
+    description: Open the stats menu.
+    permission: FableCraft.stats
+    aliases:
+      - s
+      - stat
   resetStats:
     description: Reset the stats of the specified player.
     permission: FableCraft.resetStats

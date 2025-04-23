@@ -58,9 +58,9 @@ public class yamlManager {
         return true;
     }
 
-  public static FileConfiguration getPlayerData(UUID uuid, String configName) {
+  public static Object getPlayerData(UUID uuid, String configName, String path) {
     if (playerData.containsKey(uuid)) {
-      return playerData.get(uuid).get(configName);
+      return playerData.get(uuid).get(configName).get(path);
     }
     return null;
   }

@@ -39,9 +39,9 @@ public class StatsUpgrade implements CommandExecutor, Listener {
         ColorizeReString("&fUpgrade your health!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(15, ItemEditor.createButton(
-        ColorizeReString("<#98C7FE>Speed</#2FBBED>"),
+        ColorizeReString("<#98C7FE>Mana</#2FBBED>"),
         Material.IRON_BOOTS,
-        ColorizeReString("&fUpgrade your movement speed!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
+        ColorizeReString("&fUpgrade your max mana!!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
       ));
     }
 

@@ -10,6 +10,7 @@ import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.StatsUpgrade;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
@@ -72,6 +73,7 @@ public final class RPGCraft extends JavaPlugin {
 
     this.getCommand("itemDB").setExecutor(new itemDB());
     this.getCommand("createNPC").setExecutor(new CreateNPC());
+    this.getCommand("stats").setExecutor(new StatsUpgrade());
     this.getCommand("resetStats").setExecutor(new stats());
     this.getCommand("resetStats").setTabCompleter(new stats());
     this.getCommand("buildHelper").setExecutor(new buildHelper());
