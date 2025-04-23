@@ -143,14 +143,14 @@ public class GUI implements Listener {
           return;
         }
 
+        p.openInventory(editor);
         setPlayerPDC("SelectedItemKey", p, itemKey);
         setPlayerPDC("ItemEditorUsing", p, "GUI");
-        p.openInventory(editor);
       }
     }
 
     // In-item editor GUI options
-    else if (Objects.equals(getPlayerPDC("ItemEditorUsing", p), "GUI")) {
+    else if (getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {
       event.setCancelled(true);
       int slot = event.getRawSlot();
 
@@ -175,6 +175,11 @@ public class GUI implements Listener {
           setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
           p.closeInventory();
           p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
+        }
+        case 13 -> {
+          setPlayerPDC("ItemEditorUsing", p, "Chat-type");
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.info", p, false));
         }
         case 18, 19, 20, 21, 22, 23 -> {
           String[] pdcTags = {"defense", "damage", "mana", "health", "durability", "minlvl"};
