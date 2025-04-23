@@ -9,6 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -30,8 +31,8 @@ public class yamlManager {
     public static FileConfiguration fileConfig;
     public static File cfile;
     public static List<String> playerDataFileNames = List.of("stats", "pouch", "quests");
-    public yamlManager() {
-    }
+    public static Map<UUID, Map<String, Integer>> playerDataMap = new HashMap<>();
+    public yamlManager() {}
 
     public static boolean defaultConfig() {
         for (String config : RPGCraft.yamlFiles) {
@@ -62,6 +63,18 @@ public class yamlManager {
       return playerData.get(uuid).get(configName);
     }
     return null;
+  }
+
+  public static void setPlayerData(UUID uuid, String configName, String path, String Data) {
+    if (playerData.containsKey(uuid)) {
+      FileConfiguration configFiles = playerData.get(uuid).get(configName);
+      configFiles.set(path, Data);
+    }else{
+      Player p = Bukkit.getPlayer(uuid);
+      p.sendMessage(ColorizeReString("I think there're a error with your data, please rejoin"));
+      p.sendMessage(ColorizeReString("If the problem persist, please contact the owner (zycong) or co-owner (Tonnam_101)"));
+      p.sendMessage(ColorizeReString("Or it's just because you're playing on bedrock edition"));
+    }
   }
 
 
