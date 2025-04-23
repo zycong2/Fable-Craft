@@ -117,12 +117,12 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          double maxPlayerHealth = Double.parseDouble((String) getPlayerData(p.getUniqueId(), "stats", "Health"));
-          double maxPlayerMana = Double.parseDouble((String) getPlayerData(p.getUniqueId(), "stats", "Mana"));
+          double maxPlayerHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Health").toString());
+          double maxPlayerMana = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Mana").toString());
           double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
           double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
           if (currentHealth < maxPlayerHealth) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
+            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Regeneration"));
             currentHealth += (double) 20.0F / maxPlayerHealth * amount;
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
             p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
@@ -130,7 +130,7 @@ public final class RPGCraft extends JavaPlugin {
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));
           }
           if (currentMana < maxPlayerMana) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
+            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "ManaRegeneration"));
             currentMana += (double) 20.0F / maxPlayerMana * amount;
             PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(currentMana));
           } else if (currentMana > maxPlayerMana) {

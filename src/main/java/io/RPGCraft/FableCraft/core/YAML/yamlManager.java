@@ -94,12 +94,12 @@ public class yamlManager {
           file.createNewFile();
 
           if (configName.equalsIgnoreCase("stats")) {
-            config.set("Health", 20);
-            config.set("Regeneration", 1);
-            config.set("Mana", 100);
-            config.set("ManaRegeneration", 1);
-            config.set("Damage", 100);
-            config.set("Defense", 100);
+            config.set("Health", getOption("config", "stats.Health.default"));
+            config.set("Regeneration", getOption("config", "stats.Regeneration.default"));
+            config.set("Mana", getOption("config", "stats.Mana.default"));
+            config.set("ManaRegeneration", getOption("config", "stats.ManaRegeneration.default"));
+            config.set("Damage", getOption("config", "stats.Damage.default"));
+            config.set("Defense", getOption("config", "stats.Defense.default"));
             config.set("Levels", 1);
           } else if (configName.equalsIgnoreCase("pouch")) {
             config.set("moneys", 0);

@@ -35,8 +35,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.createPlayerStorage;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
 
@@ -148,16 +147,16 @@ public class mainListeners implements Listener {
 
     if (event.getEntityType().equals(EntityType.PLAYER)) {
       Player p = (Player) event.getEntity();
-      double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
+      double maxHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Health").toString());
       double currentHealth = Double.parseDouble(getPlayerPDC("currentHealth", p));
-      double defense = Double.parseDouble(getPlayerPDC("Defense", p));
+      double defense = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Defense").toString());
       double damage = event.getDamage() - defense * 10.0;
       currentHealth -= damage;
       setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
       double scaledHealth = 20.0 / maxHealth * damage;
       event.setDamage(Math.abs(scaledHealth));
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
-      event.setDamage(event.getDamage() + Double.parseDouble(getPlayerPDC("Damage", p)));
+      event.setDamage(event.getDamage() + Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Damage").toString()));
     }
   }
 
