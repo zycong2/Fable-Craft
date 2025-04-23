@@ -37,6 +37,7 @@ public class ItemEditor implements Listener {
     // inv.setItem(11, createButton("&dEnchantments", Material.ENCHANTING_TABLE, "&fAdd/remove enchantments. Use '&7[ench] 0' to remove."));
     inv.setItem(11, createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."));
     inv.setItem(12, createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."));
+    inv.setItem(13, createButton("&aItem Type", Material.COW_SPAWN_EGG, "&fDefine the type of the item."));
     inv.setItem(18, createButton("&aDefense", Material.SHIELD, "&fDefine Defense stats."));
     inv.setItem(19, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
     inv.setItem(20, createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."));
@@ -110,6 +111,7 @@ public class ItemEditor implements Listener {
       case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
       case "chat-createItem" -> createItem(p, message);
       case "Chat-id" -> GUI.gottenItemID(p, message);
+      case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message));
     }
   }
 
@@ -120,6 +122,15 @@ public class ItemEditor implements Listener {
     } else {
       action.accept(key);
     }
+  }
+
+  private void setItemType(Player p, String key, String material){
+    Material mat = Material.getMaterial(material);
+    if (mat == null){
+      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.fail", p, true));
+      return;
+    }
+    getFileConfig("itemDB").set(key + ".itemType", mat.toString());
   }
 
   private void updateStat(Player p, String key, String statPath, String input) {
