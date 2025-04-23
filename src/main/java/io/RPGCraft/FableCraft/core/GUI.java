@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+import io.RPGCraft.FableCraft.listeners.ItemEditor;
+
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
@@ -127,18 +129,9 @@ public class GUI implements Listener {
       }
 
       else if (event.getRawSlot() == 44) {
-        Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString())));
-
-        String itemKey = getItemKey(event.getCurrentItem());
-
-        if (itemKey == null) {
-          //p.sendMessage(Colorize("&cCouldn't find the item in the database"));
-          return;
-        }
-
-        setPlayerPDC("SelectedItemKey", p, itemKey);
-        setPlayerPDC("ItemEditorUsing", p, "GUI");
-        p.openInventory(editor);
+        setPlayerPDC("ItemEditorUsing", p, "Chat-id");
+        p.closeInventory();
+        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.createItem", p, true));
       }
 
       // Open item editor GUI
@@ -206,6 +199,21 @@ public class GUI implements Listener {
         }
       }
     }
+  }
+
+  public static void gottenItemID(Player p, String id){
+    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString())));
+    ItemEditor.createItem(p, id);
+    String itemKey = getItemKey(ItemStack.of(Material.valueOf(yamlManager.getOption("itemDB", id + "itemType").toString())));
+
+    if (itemKey == null) {
+      //p.sendMessage(Colorize("&cCouldn't find the item in the database"));
+      return;
+    }
+
+    setPlayerPDC("SelectedItemKey", p, itemKey);
+    setPlayerPDC("ItemEditorUsing", p, "GUI");
+    p.openInventory(editor);
   }
 
   // Cleanup itemDB metadata

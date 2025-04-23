@@ -8,6 +8,7 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
+import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -93,7 +94,8 @@ public final class RPGCraft extends JavaPlugin {
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),
-      new quests()
+      new quests(),
+      new GUI()
     );
 
     BukkitScheduler scheduler = this.getServer().getScheduler();

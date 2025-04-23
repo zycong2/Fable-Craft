@@ -21,7 +21,7 @@ public class PlayerPlaceholders {
   public static String currentHealth(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerPDC("currentHealth", p);
+      return String.valueOf(Math.round(Float.valueOf(getPlayerPDC("currentHealth", p))*10)/10);
     }else{
       return ColorizeReString("The mob is not a living entity");
     }
