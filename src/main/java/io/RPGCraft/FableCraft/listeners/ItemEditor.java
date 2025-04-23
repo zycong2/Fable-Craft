@@ -194,8 +194,8 @@ public class ItemEditor implements Listener {
   public static void createItem(Player p, String id) {
     if (id == null || id.isBlank()) return;
 
-    getFileConfig("itemDB").addDefault(id + ".ItemID", id);
-    getFileConfig("itemDB").addDefault(id + ".itemType", yamlManager.getOption("config", "items.defaultItem").toString());
+    getFileConfig("itemDB").set(id + ".ItemID", id);
+    getFileConfig("itemDB").set(id + ".itemType", yamlManager.getOption("config", "items.defaultItem").toString());
     p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }

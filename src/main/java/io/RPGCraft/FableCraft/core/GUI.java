@@ -202,7 +202,7 @@ public class GUI implements Listener {
   }
 
   public static void gottenItemID(Player p, String id){
-    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString())));
+    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString().toUpperCase())));
     ItemEditor.createItem(p, id);
     String itemKey = getItemKey(ItemStack.of(Material.valueOf(yamlManager.getOption("itemDB", id + "itemType").toString())));
 

@@ -72,7 +72,7 @@ public class yamlManager {
     }else{
       Player p = Bukkit.getPlayer(uuid);
       p.sendMessage(ColorizeReString("I think there're a error with your data, please rejoin"));
-      p.sendMessage(ColorizeReString("If the problem persist, please contact the owner (zycong) or co-owner (Tonnam_101)"));
+      p.sendMessage(ColorizeReString("If the problem persist, please contact a dev"));
       p.sendMessage(ColorizeReString("Or it's just because you're playing on bedrock edition"));
     }
   }
@@ -400,7 +400,6 @@ public class yamlManager {
     public static Object getOption(String file, String path){
         if (getFileConfig(file).get(path) == null){ return null; }
         return getFileConfig(file).get(path);
-
     }
     public static void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
 
