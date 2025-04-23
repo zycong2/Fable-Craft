@@ -204,14 +204,8 @@ public class GUI implements Listener {
   public static void gottenItemID(Player p, String id){
     Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString().toUpperCase())));
     ItemEditor.createItem(p, id);
-    String itemKey = getItemKey(ItemStack.of(Material.valueOf(yamlManager.getOption("itemDB", id + "itemType").toString())));
 
-    if (itemKey == null) {
-      //p.sendMessage(Colorize("&cCouldn't find the item in the database"));
-      return;
-    }
-
-    setPlayerPDC("SelectedItemKey", p, itemKey);
+    setPlayerPDC("SelectedItemKey", p, id);
     setPlayerPDC("ItemEditorUsing", p, "GUI");
     p.openInventory(editor);
   }
