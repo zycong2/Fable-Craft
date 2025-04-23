@@ -102,7 +102,8 @@ public class yamlManager {
           } else if (configName.equalsIgnoreCase("pouch")) {
             config.set("moneys", 0);
           } else if (configName.equalsIgnoreCase("quests")){
-            config.set("activeQuests", new ArrayList<>());
+            config.set("activeQuests", List.of("Tutorial-Quest"));
+            config.set("activeQuests.Tutorial-Quest", 0);
           }
           config.save(file);
         }
