@@ -29,8 +29,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
+import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
 public class GUI implements Listener {
   Inventory menu; // Player profile GUI
@@ -207,7 +206,7 @@ public class GUI implements Listener {
 
     setPlayerPDC("SelectedItemKey", p, id);
     setPlayerPDC("ItemEditorUsing", p, "GUI");
-    p.openInventory(editor);
+    reopenEditorLater(p, id);
   }
 
   // Cleanup itemDB metadata

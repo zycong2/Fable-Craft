@@ -208,7 +208,7 @@ public class ItemEditor implements Listener {
     }
   }
 
-  private void reopenEditorLater(Player p, String itemKey) {
+  public static void reopenEditorLater(Player p, String itemKey) {
     RPGCraft.wait(1, new BukkitRunnable() {
       @Override
       public void run() {
