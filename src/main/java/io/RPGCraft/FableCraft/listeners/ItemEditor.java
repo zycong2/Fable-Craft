@@ -111,7 +111,7 @@ public class ItemEditor implements Listener {
       case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
       case "chat-createItem" -> createItem(p, message);
       case "Chat-id" -> GUI.gottenItemID(p, message);
-      case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message));
+      case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message.toUpperCase()));
     }
   }
 
@@ -131,6 +131,8 @@ public class ItemEditor implements Listener {
       return;
     }
     getFileConfig("itemDB").set(key + ".itemType", mat.toString());
+    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.success", p, true));
+    reopenEditorLater(p, key);
   }
 
   private void updateStat(Player p, String key, String statPath, String input) {
