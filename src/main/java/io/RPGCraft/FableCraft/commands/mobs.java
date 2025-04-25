@@ -149,11 +149,8 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     }
     @EventHandler
     void onSpawn(CreatureSpawnEvent event){
-        Bukkit.getLogger().info("something spawned");
         if(event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL)) {
-            Bukkit.getLogger().info("is natural spawn");
             if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
-                Bukkit.getLogger().info("remove all vanila spawns so cancel this shit");
                 event.setCancelled(true);
             }
             randomSpawn(event);
@@ -164,6 +161,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         int randomInt = new Random().nextInt(RPGCraft.spawns.size()) + 1;
         try {
             boolean spawned = true;
+            Bukkit.getLogger().info(RPGCraft.spawns.get(randomInt));
             if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn") != null) {
                 Bukkit.getLogger().info("spawning on a block type");
                 for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn"))) {
@@ -188,11 +186,13 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             if (spawned){
                 getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
                 Bukkit.getLogger().info("spawning the entity");
-            } else{
+                event.setCancelled(true);
+            } else if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
+                Bukkit.getLogger().info("trying again");
                 randomSpawn(event);
+            } else {
+              Bukkit.getLogger().info("not trying again");
             }
-
-            event.setCancelled(true);
         } catch (IndexOutOfBoundsException ignored) { }
     }
 }
