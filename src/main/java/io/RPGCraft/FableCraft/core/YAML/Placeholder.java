@@ -1,12 +1,11 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
-import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.*;
+import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.parseDynamic;
+import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.round;
 
 public class Placeholder {
   public static @NotNull <T> String setPlaceholders(String s, boolean round, T context){

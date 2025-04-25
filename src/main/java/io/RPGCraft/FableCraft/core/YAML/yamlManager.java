@@ -61,9 +61,20 @@ public class yamlManager {
 
   public static Object getPlayerData(UUID uuid, String configName, String path) {
     if (playerData.containsKey(uuid)) {
+      Map<String, FileConfiguration> stringFileConfigurationMap = playerData.get(uuid);
+      if(stringFileConfigurationMap == null) return "no uuid found";
+      FileConfiguration fileConfiguration = stringFileConfigurationMap.get(configName);
+      if(fileConfiguration == null) return  "file not found";
+      Object o = fileConfiguration.get(path);
+      if(o == null) return "path not found";
       return playerData.get(uuid).get(configName).get(path);
+    }else{
+      Player p = Bukkit.getPlayer(uuid);
+      p.sendMessage(ColorizeReString("I think there're a error with your data, please rejoin"));
+      p.sendMessage(ColorizeReString("If the problem persist, please contact a dev"));
+      p.sendMessage(ColorizeReString("Or it's just because you're playing on bedrock edition"));
     }
-    return null;
+    return "<none>";
   }
 
   public static void setPlayerData(UUID uuid, String configName, String path, String Data) {
@@ -96,13 +107,13 @@ public class yamlManager {
           file.createNewFile();
 
           if (configName.equalsIgnoreCase("stats")) {
-            config.set("Health", getOption("config", "stats.Health.default"));
-            config.set("Regeneration", getOption("config", "stats.Regeneration.default"));
-            config.set("Mana", getOption("config", "stats.Mana.default"));
-            config.set("ManaRegeneration", getOption("config", "stats.ManaRegeneration.default"));
-            config.set("Damage", getOption("config", "stats.Damage.default"));
-            config.set("Defense", getOption("config", "stats.Defense.default"));
-            config.set("Levels", 1);
+            config.set("stat.Health", getOption("config", "stats.Health.default"));
+            config.set("stat.Regeneration", getOption("config", "stats.Regeneration.default"));
+            config.set("stat.Mana", getOption("config", "stats.Mana.default"));
+            config.set("stat.ManaRegeneration", getOption("config", "stats.ManaRegeneration.default"));
+            config.set("stat.Damage", getOption("config", "stats.Damage.default"));
+            config.set("stat.Defense", getOption("config", "stats.Defense.default"));
+            config.set("stat.Levels", 1);
           } else if (configName.equalsIgnoreCase("pouch")) {
             config.set("moneys", 0);
           } else if (configName.equalsIgnoreCase("quests")){

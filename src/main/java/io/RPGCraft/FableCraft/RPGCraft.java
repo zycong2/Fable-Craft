@@ -118,12 +118,12 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          double maxPlayerHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Health").toString());
-          double maxPlayerMana = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Mana").toString());
+          double maxPlayerHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Health").toString());
+          double maxPlayerMana = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Mana").toString());
           double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
           double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
           if (currentHealth < maxPlayerHealth) {
-            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Regeneration").toString());
+            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Regeneration").toString());
             currentHealth += (double) 20.0F / maxPlayerHealth * amount;
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
             p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
@@ -131,7 +131,7 @@ public final class RPGCraft extends JavaPlugin {
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));
           }
           if (currentMana < maxPlayerMana) {
-            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "ManaRegeneration").toString());
+            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.ManaRegeneration").toString());
             currentMana += (double) 20.0F / maxPlayerMana * amount;
             PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(currentMana));
           } else if (currentMana > maxPlayerMana) {
