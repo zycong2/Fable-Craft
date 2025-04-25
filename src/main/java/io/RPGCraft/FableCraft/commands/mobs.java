@@ -5,11 +5,9 @@ import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
+import net.minecraft.world.level.ClipContext;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
@@ -33,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
@@ -136,7 +133,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     void damage(EntityDamageEvent event){
         if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-            event.getEntity().setCustomName(Placeholder.setPlaceholders((String) Objects.requireNonNull(getFileConfig("mobDb").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity()));
+            event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
         }
     }
     @EventHandler
@@ -157,26 +154,21 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         }
     }
     public void randomSpawn(CreatureSpawnEvent event){
-      Bukkit.getLogger().info("random spawn");
-        int randomInt = new Random().nextInt(RPGCraft.spawns.size()) + 1;
-        try {
+        int randomInt = (int) (Math.random() * RPGCraft.spawns.size());
+        //try {
             boolean spawned = true;
-            Bukkit.getLogger().info(RPGCraft.spawns.get(randomInt));
-            if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn") != null) {
-                Bukkit.getLogger().info("spawning on a block type");
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn"))) {
-                    if (event.getLocation().subtract(0, 1, 0).getBlock().getType().equals(Material.valueOf(s))) {
-                      Bukkit.getLogger().info("yay is the right block!");
+            String type = RPGCraft.spawns.get(randomInt);
+            if (getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn") != null) {
+                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn"))) {
+                    if (event.getLocation().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(s)) {
                       spawned = true;
                       break;
-                    } else { spawned = false;}
+                    } else { spawned = false; }
                 }
             }
-            if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes") != null) {
-                Bukkit.getLogger().info("ooo needs a biome");
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes"))){
+            if (getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes") != null && spawned) {
+                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes"))){
                     if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
-                        Bukkit.getLogger().info("is the right biome!!");
                         spawned = true;
                         break;
                     } else { spawned = false; }
@@ -185,14 +177,8 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
 
             if (spawned){
                 getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
-                Bukkit.getLogger().info("spawning the entity");
                 event.setCancelled(true);
-            } else if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
-                Bukkit.getLogger().info("trying again");
-                randomSpawn(event);
-            } else {
-              Bukkit.getLogger().info("not trying again");
             }
-        } catch (IndexOutOfBoundsException ignored) { }
+        //} catch (IndexOutOfBoundsException ignored) { Bukkit.getLogger().info(ignored.toString()); }
     }
 }

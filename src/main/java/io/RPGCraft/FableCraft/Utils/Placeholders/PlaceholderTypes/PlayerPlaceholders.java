@@ -48,7 +48,7 @@ public class PlayerPlaceholders {
     }
   }
 
-  @Placeholder(name = "entityMaxHealth")
+  @Placeholder(name = "entitymaxHealth")
   public static String entityMaxHealth(Entity e) {
     if (e instanceof LivingEntity) {
       LivingEntity le = (LivingEntity) e;
