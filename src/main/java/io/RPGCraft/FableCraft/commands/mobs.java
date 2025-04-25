@@ -107,7 +107,9 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
                 BarColor.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.color"))),
                 BarStyle.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.barStyle")))
                 );
-              entity.showBossBar((net.kyori.adventure.bossbar.BossBar) bar);
+              for (Player pla : Bukkit.getOnlinePlayers()){
+                bar.addPlayer(pla);
+              }
             }
 
 
@@ -129,6 +131,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
                 for (int i = 0; i < (int)getFileConfig("mobDB").get(s + ".randomSpawns.frequency") * 100; i++) { RPGCraft.spawns.add(s); }
             }
         }
+        Bukkit.getLogger().info("spawns to look for: " + RPGCraft.spawns);
     }
     @EventHandler
     void damage(EntityDamageEvent event){
@@ -146,42 +149,46 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     }
     @EventHandler
     void onSpawn(CreatureSpawnEvent event){
+        Bukkit.getLogger().info("something spawned");
         if(event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL)) {
+            Bukkit.getLogger().info("is natural spawn");
             if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
+                Bukkit.getLogger().info("remove all vanila spawns so cancel this shit");
                 event.setCancelled(true);
             }
             randomSpawn(event);
         }
     }
     public void randomSpawn(CreatureSpawnEvent event){
-        int randomInt = new Random().nextInt(100) + 1;
+      Bukkit.getLogger().info("random spawn");
+        int randomInt = new Random().nextInt(RPGCraft.spawns.size()) + 1;
         try {
-            boolean spawned = false;
-            boolean conditions = false;
+            boolean spawned = true;
             if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn") != null) {
+                Bukkit.getLogger().info("spawning on a block type");
                 for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.spawnOn"))) {
                     if (event.getLocation().subtract(0, 1, 0).getBlock().getType().equals(Material.valueOf(s))) {
-                        getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
-                        spawned = true;
-                        conditions = true;
-                        break;
-                    }
+                      Bukkit.getLogger().info("yay is the right block!");
+                      spawned = true;
+                      break;
+                    } else { spawned = false;}
                 }
             }
             if (getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes") != null) {
+                Bukkit.getLogger().info("ooo needs a biome");
                 for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDb").get(RPGCraft.spawns.get(randomInt) + ".randomSpawns.options.biomes"))){
                     if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
-                        getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
+                        Bukkit.getLogger().info("is the right biome!!");
                         spawned = true;
-                        conditions = true;
                         break;
-                    }
+                    } else { spawned = false; }
                 }
             }
 
-            if (!conditions){
+            if (spawned){
                 getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
-            } else if (!spawned){
+                Bukkit.getLogger().info("spawning the entity");
+            } else{
                 randomSpawn(event);
             }
 

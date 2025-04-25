@@ -87,6 +87,7 @@ public final class RPGCraft extends JavaPlugin {
     this.getCommand("setNPCType").setTabCompleter(new setPDC());
     this.getCommand("quests").setExecutor(new quests());
     this.getCommand("quests").setTabCompleter(new quests());
+    this.getCommand("reloadRPG").setExecutor(new reload());
 
     registerListeners(
       new mainListeners(),
@@ -152,7 +153,6 @@ public final class RPGCraft extends JavaPlugin {
     if (!yamlManager.saveData()) {
       Bukkit.getLogger().severe("Failed to save data!");
     }
-
   }
 
   public static ItemStack createGuiItem(Material material, String name, String... lore) {
