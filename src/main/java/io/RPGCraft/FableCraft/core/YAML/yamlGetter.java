@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.core.YAML;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -40,13 +41,13 @@ public class yamlGetter {
       }
   }
 
-  public static @Nullable Component getMessage(String path, Player target, boolean round) {
+  public static @NotNull Component getMessage(String path, Player target, boolean round) {
       Object a = yamlManager.getFileConfig("messages").get(path);
       if (a == null) {
           return Colorize("&cOption not found");
       } else if (a instanceof String s) {
           return Colorize(Placeholder.setPlaceholders(s, round, (Entity) target));
-      } return null;
+      } return Colorize("&cOption not found");
   }
 
 }

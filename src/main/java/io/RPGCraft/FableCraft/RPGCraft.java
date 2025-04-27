@@ -8,6 +8,8 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
+import io.RPGCraft.FableCraft.commands.quest.quests;
+import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.StatsUpgrade;
@@ -98,7 +100,7 @@ public final class RPGCraft extends JavaPlugin {
       new ItemEditor(),
       new Chat(),
       new TypeHandler(),
-      new quests(),
+      new questEvents(),
       new GUI()
     );
 
