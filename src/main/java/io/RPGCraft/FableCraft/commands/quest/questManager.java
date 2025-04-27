@@ -28,7 +28,7 @@ public class questManager {
     }
   }
   public static void finishedQuest(Player p, String quest){
-    p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true).toString());
+    p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true));
 
     if (yamlManager.getOption("quests", quest + ".rewards") == null){ return; }
 
@@ -51,13 +51,19 @@ public class questManager {
   public static void talkedNPC(Player p, String NPC){
     String quests = getPlayerPDC("quests", p);
     List<String> activeQuests = new java.util.ArrayList<>(List.of());
-    if (quests == null && quests.isEmpty()) { // if the player has a quest
+    if (quests != null) {
       for (String quest : quests.split(";")) {
         activeQuests.add(quest);
 
-        if (quest.isEmpty()) { return; }
-        if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) { return; }
-        if (!NPC.equals(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".NPCName"))) { return; }
+        if (quest.isEmpty()) {
+          return;
+        }
+        if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) {
+          return;
+        }
+        if (!NPC.equals(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".NPCName"))) {
+          return;
+        }
 
         for (Object s : yamlGetter.getNodes("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
           switch (s.toString()) {

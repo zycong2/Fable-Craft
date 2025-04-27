@@ -32,10 +32,10 @@ public class questEvents implements Listener {
       for (String quest : questsList) {
 
         Bukkit.getLogger().info("testing for quest " + quest);
-        if (quest.isEmpty()) { return; }
-        if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) { return; }
+        if (quest.isEmpty()) { continue; }
+        if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) { continue; }
         Bukkit.getLogger().info("quest is a kill quest entity is " + entity.getType() + " and type to get is " + yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity"));
-        if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) { return; }
+        if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) { continue; }
 
 
         Bukkit.getLogger().info("killed the right entity " + yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value") + "/" + getPlayerPDC(quest + ".progress", killer));
