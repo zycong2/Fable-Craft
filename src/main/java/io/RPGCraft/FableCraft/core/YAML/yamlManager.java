@@ -31,7 +31,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.playerData;
 public class yamlManager {
     public static FileConfiguration fileConfig;
     public static File cfile;
-    public static List<String> playerDataFileNames = List.of("stats", "pouch", "quests");
+    public static List<String> playerDataFileNames = List.of("stats", "pouch");
     public static Map<UUID, Map<String, Integer>> playerDataMap = new HashMap<>();
     public yamlManager() {}
 
@@ -116,9 +116,6 @@ public class yamlManager {
             config.set("stat.Levels", 1);
           } else if (configName.equalsIgnoreCase("pouch")) {
             config.set("moneys", 0);
-          } else if (configName.equalsIgnoreCase("quests")){
-            config.set("activeQuests", List.of("Tutorial-Quest"));
-            config.set("activeQuests.Tutorial-Quest", 0);
           }
           config.save(file);
         }
@@ -166,16 +163,15 @@ public class yamlManager {
               config.set("Levels", 1);
             } else if (configName.equalsIgnoreCase("pouch")) {
               config.set("moneys", 0);
-            } else if (configName.equalsIgnoreCase("quests")){
-              config.set("activeQuests", List.of("Tutorial-Quest"));
-              config.set("activeQuests.Tutorial-Quest", 0);
+            }else {
+              return  false;
             }
             // Add more conditions for other config files as needed
 
             config.save(file);
             configMap.put(configName, config);
           } catch (IOException e) {
-            e.printStackTrace();
+            return false;
           }
         }
       }

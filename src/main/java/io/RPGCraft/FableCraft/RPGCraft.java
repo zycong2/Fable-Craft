@@ -39,8 +39,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getPlayerData;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
 
@@ -67,6 +66,7 @@ public final class RPGCraft extends JavaPlugin {
     if (!yamlManager.loadPlayerData()){
       Bukkit.getLogger().severe("Failed to load data!");
     }
+    loadPlayerData();
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
