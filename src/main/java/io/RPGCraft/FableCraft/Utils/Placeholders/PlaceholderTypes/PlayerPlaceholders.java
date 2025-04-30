@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getPlayerData;
 import static org.bukkit.Bukkit.getServer;
 
 public class PlayerPlaceholders {
@@ -42,7 +41,7 @@ public class PlayerPlaceholders {
   public static String maxHealth(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerData(p.getUniqueId(), "stats", "stat.Health").toString();
+      return getPlayerPDC("Health", p).toString();
     }else{
       return ColorizeReString("The mob is not a living entity");
     }
@@ -62,7 +61,7 @@ public class PlayerPlaceholders {
   public static String currentMana(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerData(p.getUniqueId(), "stats", "stat.Mana").toString();
+      return getPlayerPDC("currentMana", p);
     }else{
       return ColorizeReString("The mob is not a living entity");
     }

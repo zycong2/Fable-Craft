@@ -8,8 +8,8 @@ import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
-import io.RPGCraft.FableCraft.commands.quest.quests;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
+import io.RPGCraft.FableCraft.commands.quest.quests;
 import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.StatsUpgrade;
@@ -39,7 +39,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
 
@@ -53,7 +53,6 @@ public final class RPGCraft extends JavaPlugin {
 
   public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests", "format");
   public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
-  public static List<FileConfiguration> DataStorageList = new java.util.ArrayList<>(List.of());
   public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
@@ -63,10 +62,6 @@ public final class RPGCraft extends JavaPlugin {
     if (!yamlManager.loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
     }
-    if (!yamlManager.loadPlayerData()){
-      Bukkit.getLogger().severe("Failed to load data!");
-    }
-    loadPlayerData();
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getCustomItems();
     mobs.reloadSpawns();
@@ -120,12 +115,12 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          double maxPlayerHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Health").toString());
-          double maxPlayerMana = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Mana").toString());
+          double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+          double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
           double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
           double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
           if (currentHealth < maxPlayerHealth) {
-            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.Regeneration").toString());
+            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
             currentHealth += (double) 20.0F / maxPlayerHealth * amount;
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
             p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
@@ -133,7 +128,7 @@ public final class RPGCraft extends JavaPlugin {
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));
           }
           if (currentMana < maxPlayerMana) {
-            double amount = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "stat.ManaRegeneration").toString());
+            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
             currentMana += (double) 20.0F / maxPlayerMana * amount;
             PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(currentMana));
           } else if (currentMana > maxPlayerMana) {

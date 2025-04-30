@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,13 +13,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getPlayerData;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.setPlayerData;
 
 public class StatsUpgrade implements CommandExecutor, Listener {
 
@@ -65,20 +60,20 @@ public class StatsUpgrade implements CommandExecutor, Listener {
       if (e.getCurrentItem().getType() == Material.IRON_SWORD) {
         if (hasStatsPoints(p)) {
           removeOneStatsPoint(p);
-          Integer oldDamage = Integer.parseInt(getPlayerData(p.getUniqueId(), "stats", "Damage").toString());
-          setPlayerData(p.getUniqueId(), "stats", "Damage", String.valueOf((oldDamage + 1)));
+          Integer oldDamage = Integer.parseInt(PDCHelper.getPlayerPDC("Damage", p));
+          PDCHelper.setPlayerPDC("Damage", p, String.valueOf((oldDamage + 1)));
         }
       } else if (e.getCurrentItem().getType() == Material.IRON_CHESTPLATE) {
         if (hasStatsPoints(p)) {
           removeOneStatsPoint(p);
-          Integer oldHealth = Integer.parseInt(getPlayerData(p.getUniqueId(), "stats", "Health").toString());
-          setPlayerData(p.getUniqueId(), "stats", "Health", String.valueOf((oldHealth + 5)));
+          Integer oldHealth = Integer.parseInt(PDCHelper.getPlayerPDC("Health", p));
+          PDCHelper.setPlayerPDC("Health", p, String.valueOf((oldHealth + 1)));
         }
       } else if (e.getCurrentItem().getType() == Material.EXPERIENCE_BOTTLE) {
         if (hasStatsPoints(p)) {
           removeOneStatsPoint(p);
-          Integer oldMana = Integer.parseInt(getPlayerData(p.getUniqueId(), "stats", "Mana").toString());
-          setPlayerData(p.getUniqueId(), "stats", "Mana", String.valueOf((oldMana + 5)));
+          Integer oldMana = Integer.parseInt(PDCHelper.getPlayerPDC("Mana", p));
+          PDCHelper.setPlayerPDC("Mana", p, String.valueOf((oldMana + 1)));
         }
       } else if (e.getCurrentItem().getType() == Material.BARRIER) {
         p.closeInventory();
