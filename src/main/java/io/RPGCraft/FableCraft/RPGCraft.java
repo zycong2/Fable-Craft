@@ -26,6 +26,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -39,7 +40,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
 import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
 
@@ -52,18 +52,19 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests", "format");
-  public static List<FileConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
+  public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
   public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
+
   public void onEnable() {
 
-    if (!yamlManager.loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
+    if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
     }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
-    yamlManager.getCustomItems();
+    yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
 
@@ -146,8 +147,8 @@ public final class RPGCraft extends JavaPlugin {
   }
 
   public void onDisable() {
-    getFileConfig("data").set("customMobs", customMobs);
-    if (!yamlManager.saveData()) {
+    yamlManager.getInstance().getFileConfig("data").set("customMobs", customMobs);
+    if (!yamlManager.getInstance().saveData()) {
       Bukkit.getLogger().severe("Failed to save data!");
     }
   }

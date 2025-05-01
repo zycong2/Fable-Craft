@@ -28,7 +28,6 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
 public class GUI implements Listener {
@@ -59,7 +58,7 @@ public class GUI implements Listener {
   // Build the itemDB menu UI (used in GUI navigation)
   public static void itemDBMenu(Player p) {
     Inventory menu = Bukkit.createInventory(p, 45, "ItemDB");
-    List<ItemStack> items = yamlManager.getCustomItems();
+    List<ItemStack> items = yamlManager.getInstance().getCustomItems();
 
     if (items.size() <= 36) {
       for (int i = 0; i < items.size(); ++i) {
@@ -121,7 +120,7 @@ public class GUI implements Listener {
       // Pagination forward
       else if (event.getRawSlot() == 41) {
         int page = p.getMetadata("itemDBPage").isEmpty() ? 0 : p.getMetadata("itemDBPage").getFirst().asInt();
-        List<ItemStack> items = yamlManager.getCustomItems();
+        List<ItemStack> items = yamlManager.getInstance().getCustomItems();
         if (items.size() >= page * 36) page++;
         p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
         p.openInventory(itemDB);
@@ -193,8 +192,8 @@ public class GUI implements Listener {
             p.sendMessage(Colorize("&cError: No item selected!"));
             return;
           }
-          getFileConfig("itemDB").set(itemKey, null);
-          try { getFileConfig("itemDB").save("itemDB.yml"); } catch (IOException ignored) {}
+          yamlManager.getInstance().getFileConfig("itemDB").set(itemKey, null);
+          try { yamlManager.getInstance().getFileConfig("itemDB").save("itemDB.yml"); } catch (IOException ignored) {}
           p.sendMessage(yamlGetter.getMessage("messages.itemeditor.delete.success", p, true));
         }
         case 35 -> {
@@ -206,7 +205,7 @@ public class GUI implements Listener {
   }
 
   public static void gottenItemID(Player p, String id){
-    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getOption("config", "items.defaultItem").toString().toUpperCase())));
+    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase())));
     ItemEditor.createItem(p, id);
 
     setPlayerPDC("SelectedItemKey", p, id);

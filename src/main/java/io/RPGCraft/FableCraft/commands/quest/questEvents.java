@@ -20,31 +20,27 @@ public class questEvents implements Listener {
   public void onEntityDeath(EntityDeathEvent event){
     LivingEntity entity = event.getEntity();
     Player killer = entity.getKiller();
-    Bukkit.getLogger().info("killed entity");
     if (killer != null){
-      Bukkit.getLogger().info("we have a killer with PDC");
-      Bukkit.getLogger().info(getPlayerPDC("quests", killer));
-
-
       String quests = getPlayerPDC("quests", killer); //;quest1
+      if (getPlayerPDC("quests", killer) == null) { return; }
       if (quests.isEmpty()) { return; }
       List<String> questsList = List.of(quests.split(";")); // "", "quest1"
       for (String quest : questsList) {
 
         Bukkit.getLogger().info("testing for quest " + quest);
         if (quest.isEmpty()) { continue; }
-        if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) { continue; }
-        Bukkit.getLogger().info("quest is a kill quest entity is " + entity.getType() + " and type to get is " + yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity"));
-        if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) { continue; }
+        if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) { continue; }
+        Bukkit.getLogger().info("quest is a kill quest entity is " + entity.getType() + " and type to get is " + yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity"));
+        if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) { continue; }
 
 
-        Bukkit.getLogger().info("killed the right entity " + yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value") + "/" + getPlayerPDC(quest + ".progress", killer));
+        Bukkit.getLogger().info("killed the right entity " + yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value") + "/" + getPlayerPDC(quest + ".progress", killer));
         PDCHelper.setPlayerPDC(quest + ".progress", killer, String.valueOf(Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) + 1));
-        if (Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) >= Integer.parseInt(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value").toString())) {
+        if (Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) >= Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value").toString())) {
           Bukkit.getLogger().info("was last one to kill");
           PDCHelper.setPlayerPDC(quest + ".step", killer, getPlayerPDC(quest + ".step", killer) + 1);
 
-          if (Integer.parseInt(getPlayerPDC(quest + ".step", killer)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())) {
+          if (Integer.parseInt(getPlayerPDC(quest + ".step", killer)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
             finishedQuest(killer, quest);
             Bukkit.getLogger().info("Finished the quest!");
           } else {
@@ -65,13 +61,13 @@ public class questEvents implements Listener {
     for (String quest : questsList) {
 
       if (quest == null || quest.isEmpty()) { return; }
-      if (!yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")) { return; }
+      if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")) { return; }
 
-      if (event.getItem().getType().toString().equals(yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))) {
+      if (event.getItem().getType().toString().equals(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))) {
         PDCHelper.setPlayerPDC(quest + ".progress", p, getPlayerPDC(quest + ".progress", p) + 1);
-        if (getPlayerPDC(quest + ".progress", p) == yamlManager.getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")) {
+        if (getPlayerPDC(quest + ".progress", p) == yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")) {
           PDCHelper.setPlayerPDC(quest + ".step", p, getPlayerPDC(quest + ".step", p) + 1);
-          if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getOption("quests", quest + ".steps.amount").toString())) {
+          if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
             finishedQuest(p, quest);
           }
           else { PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0)); }

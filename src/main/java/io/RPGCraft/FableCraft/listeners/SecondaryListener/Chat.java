@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class Chat implements Listener {
 
@@ -36,7 +35,7 @@ public class Chat implements Listener {
     Player p = e.getPlayer();
     if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return;}
     e.setCancelled(true);
-    String format = getFileConfig("format").getString("format.chat");
+    String format = yamlManager.getInstance().getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
     String str2 = setPlaceholders(str1, false, e);
 

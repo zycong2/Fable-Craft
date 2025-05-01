@@ -33,7 +33,7 @@ public class setPDC implements CommandExecutor, TabCompleter {
           if(isCitizensNPC(e)){
             LivingEntity npc = (LivingEntity) e;
             PDCHelper.setPlayerPDC("NPCType", (Player) npc, null);
-            yamlManager.setOption("data", "NPCType." + npc.getUniqueId(), null);
+            yamlManager.getInstance().setOption("data", "NPCType." + npc.getUniqueId(), null);
             return true;
           }
         }
@@ -43,7 +43,7 @@ public class setPDC implements CommandExecutor, TabCompleter {
             if (isCitizensNPC(e)) {
               LivingEntity npc = (LivingEntity) e;
               PDCHelper.setPlayerPDC("NPCType", (Player) npc, args[1]);
-              yamlManager.setOption("data", "NPCType." + npc.getUniqueId(), args[1]);
+              yamlManager.getInstance().setOption("data", "NPCType." + npc.getUniqueId(), args[1]);
               return true;
             }
           }
@@ -68,7 +68,7 @@ public class setPDC implements CommandExecutor, TabCompleter {
   }
 
   public static void initializeNPCs(){
-    if (yamlManager.getFileConfig("data").isSet("NPCType")) {
+    if (yamlManager.getInstance().getFileConfig("data").isSet("NPCType")) {
       List<Object> NPCsObject = yamlGetter.getNodes("data", "NPCType");
       List<String> NPCs = new java.util.ArrayList<>(List.of());
       for (Object o : NPCsObject) {
@@ -79,7 +79,7 @@ public class setPDC implements CommandExecutor, TabCompleter {
         Entity target = Bukkit.getEntity(UUID.fromString(s));
         if (target != null) {
           if (isCitizensNPC(target)) {
-            PDCHelper.setPlayerPDC("NPCType", (Player) target, yamlManager.getOption("data", "NPCType." + s).toString());
+            PDCHelper.setPlayerPDC("NPCType", (Player) target, yamlManager.getInstance().getOption("data", "NPCType." + s).toString());
           }
         }
       }

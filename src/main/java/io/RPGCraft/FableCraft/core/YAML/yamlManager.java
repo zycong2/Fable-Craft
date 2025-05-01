@@ -29,11 +29,21 @@ import static io.RPGCraft.FableCraft.RPGCraft.playerData;
 
 
 public class yamlManager {
-    public static FileConfiguration fileConfig;
-    public static File cfile;
-    public yamlManager() {}
+    private static FileConfiguration fileConfig;
+    private static File cfile;
 
-    public static boolean defaultConfig() {
+    private static yamlManager myInstance;
+
+    private yamlManager() {}
+
+    public static yamlManager getInstance() {
+      if (myInstance == null){
+        myInstance = new yamlManager();
+      }
+      return myInstance;
+    }
+
+    public boolean defaultConfig() {
         for (String config : RPGCraft.yamlFiles) {
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             fileConfig = new YamlConfiguration();
@@ -47,24 +57,25 @@ public class yamlManager {
         return setDefaults();
     }
 
-    public static boolean saveData() {
+    public synchronized boolean saveData() {
+        boolean ok = true;
         for (String config : RPGCraft.yamlFiles) {
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             try {
                 getFileConfig(config).save(cfile);
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) { ok = false;}
         }
-        return true;
+        return ok;
     }
 
-  public static boolean loadData() {
+    public boolean loadData() {
         for (String s : RPGCraft.yamlFiles) {
             RPGCraft.fileConfigurationList.add(new YamlConfiguration());
         }
         for (String config : RPGCraft.yamlFiles) {
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             if (cfile.exists()) {
-                getFileConfig("config") ;
+                getFileConfig(config) ;
                 int index = 0;
                 for (String s : RPGCraft.yamlFiles) {
                     if (Objects.equals(s, config)) {break;}
@@ -78,7 +89,7 @@ public class yamlManager {
         return true;
     }
 
-    public static boolean setDefaults() {
+    public boolean setDefaults() {
         getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
         getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
         getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
@@ -284,7 +295,7 @@ public class yamlManager {
         return true;
     }
 
-    public static FileConfiguration getFileConfig(String ymlFile) {
+    public YamlConfiguration getFileConfig(String ymlFile) {
         int index = 0;
         for (String s : RPGCraft.yamlFiles) {
             if (Objects.equals(s, ymlFile)) {break;}
@@ -292,15 +303,15 @@ public class yamlManager {
         }
         return RPGCraft.fileConfigurationList.get(index);
     }
-    public static Object getOption(String file, String path){
+    public Object getOption(String file, String path){
         if (getFileConfig(file).get(path) == null){ return null; }
         return getFileConfig(file).get(path);
     }
-    public static void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
+    public void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
 
-  public static void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
+    public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 
-    public static List<ItemStack> getCustomItems() {
+    public List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList(getFileConfig("itemDB").getKeys(false).size());
         List<Object> nodes = yamlGetter.getNodes("itemDB", "");
         for (Object node : nodes) {String key = node.toString();
@@ -310,7 +321,7 @@ public class yamlManager {
         return items;
     }
 
-    public static ItemStack getItem(String name) {
+    public ItemStack getItem(String name) {
         if(getFileConfig("itemDB").getString(name + ".ItemID") == null){
             Bukkit.getLogger().info("Item does not have a ID");
             return null;
@@ -455,11 +466,11 @@ public class yamlManager {
         }
     }
 
-    public static boolean isItemSet(String path) {
+    public boolean isItemSet(String path) {
         return getFileConfig("itemDB").get(path) != null;
     }
 
-    public static boolean isConfigSet(String path) {
+    public boolean isConfigSet(String path) {
         return getFileConfig("config").get(path) != null;
     }
 

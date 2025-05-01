@@ -15,12 +15,12 @@ import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 
 public class yamlGetter {
   public static List<Object> getNodes(String file, String path) {
-      Set<String> nodes = yamlManager.getFileConfig(file).getConfigurationSection(path).getKeys(false);
+      Set<String> nodes = yamlManager.getInstance().getFileConfig(file).getConfigurationSection(path).getKeys(false);
       return new ArrayList<>(nodes);
   }
 
   public static Object getConfig(String path, Player target, boolean round) {
-      Object a = yamlManager.getFileConfig("config").get(path);
+      Object a = yamlManager.getInstance().getFileConfig("config").get(path);
       if (a == null) {
           return ColorizeReString("&cOption not found");
       } else if (a instanceof String s) {
@@ -31,7 +31,7 @@ public class yamlGetter {
   }
 
   public static String getActionBar(Player target, boolean round) {
-      Object a = yamlManager.getFileConfig("config").get("actionbar.message");
+      Object a = yamlManager.getInstance().getFileConfig("config").get("actionbar.message");
       if (a == null) {
           return ColorizeReString("&cOption not found");
       } else if (a instanceof String s) {
@@ -42,7 +42,7 @@ public class yamlGetter {
   }
 
   public static @NotNull Component getMessage(String path, Player target, boolean round) {
-      Object a = yamlManager.getFileConfig("messages").get(path);
+      Object a = yamlManager.getInstance().getFileConfig("messages").get(path);
       if (a == null) {
           return Colorize("&cOption not found");
       } else if (a instanceof String s) {

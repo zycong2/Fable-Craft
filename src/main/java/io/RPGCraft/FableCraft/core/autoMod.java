@@ -20,9 +20,9 @@ public class autoMod {
     List<Object> amountWarnings = yamlGetter.getNodes("config", "autoMod.punishments");
     for (Object o : amountWarnings){
       if (warnings == Integer.parseInt(o.toString())){
-        String type = yamlManager.getOption("config", "autoMod.punishments." + o + ".type").toString();
+        String type = yamlManager.getInstance().getOption("config", "autoMod.punishments." + o + ".type").toString();
         if (type.equalsIgnoreCase("tempBan")){
-          BanUtils.tempBanPlayer(null, p.getName(), yamlManager.getOption("config", "autoMod.punishments." + o + ".duration").toString(), "Gotten too much warnings.");
+          BanUtils.tempBanPlayer(null, p.getName(), yamlManager.getInstance().getOption("config", "autoMod.punishments." + o + ".duration").toString(), "Gotten too much warnings.");
         } else if (type.equalsIgnoreCase("permBan")){
           BanUtils.permBan(p, "Gotten too much warnings.", "Warnings");
         }
@@ -32,9 +32,9 @@ public class autoMod {
 
 
   public static String autoModMessage(String msg, Player p){
-    if (Boolean.valueOf(yamlManager.getOption("config", "autoMod.enabled").toString())) {
+    if (Boolean.valueOf(yamlManager.getInstance().getOption("config", "autoMod.enabled").toString())) {
       String newMsg = msg;
-      List<String> bannedWords = (List) yamlManager.getOption("config", "autoMod.bannedWords");
+      List<String> bannedWords = (List) yamlManager.getInstance().getOption("config", "autoMod.bannedWords");
       for (String msgWord : msg.split(" ")) {
         for (String word : bannedWords) {
           if (isSimilarMessage(msgWord, word)){

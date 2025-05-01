@@ -23,8 +23,6 @@ import java.util.function.Consumer;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getItem;
 import io.RPGCraft.FableCraft.core.GUI;
 
 public class ItemEditor implements Listener {
@@ -71,7 +69,7 @@ public class ItemEditor implements Listener {
   public static String getItemKey(ItemStack item) {
     return yamlGetter.getNodes("itemDB", "").stream()
       .map(Object::toString)
-      .filter(key -> getFileConfig("itemDB").getString(key + ".ItemID")
+      .filter(key -> yamlManager.getInstance().getFileConfig("itemDB").getString(key + ".ItemID")
         .equals(getItemPDC("ItemID", item)))
       .findFirst()
       .orElse(null);
@@ -130,7 +128,7 @@ public class ItemEditor implements Listener {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.fail", p, true));
       return;
     }
-    getFileConfig("itemDB").set(key + ".itemType", mat.toString());
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".itemType", mat.toString());
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.success", p, true));
     reopenEditorLater(p, key);
   }
@@ -142,14 +140,14 @@ public class ItemEditor implements Listener {
       return;
     }
 
-    getFileConfig("itemDB").set(key + "." + statPath, value);
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + "." + statPath, value);
     p.sendMessage(Colorize("&a" + statPath + " set to &f" + value));
     reopenEditorLater(p, key);
   }
 
 
   private void renameItem(Player p, String key, String name) {
-    getFileConfig("itemDB").set(key + ".name", name);
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".name", name);
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
     reopenEditorLater(p, key);
   }
@@ -172,7 +170,7 @@ public class ItemEditor implements Listener {
   }
 
   private void updateLoreLine(Player p, String key, String lineText) {
-    List<String> lore = getFileConfig("itemDB").getStringList(key + ".lore");
+    List<String> lore = yamlManager.getInstance().getFileConfig("itemDB").getStringList(key + ".lore");
     int lineNum = parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p), 1);
 
     if (lineNum > lore.size()) {
@@ -183,7 +181,7 @@ public class ItemEditor implements Listener {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
     }
 
-    getFileConfig("itemDB").set(key + ".lore", lore);
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".lore", lore);
     reopenEditorLater(p, key);
   }
 
@@ -194,21 +192,21 @@ public class ItemEditor implements Listener {
       return;
     }
 
-    getFileConfig("itemDB").set(key + ".customModelData", data);
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".customModelData", data);
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.success", p, true));
     reopenEditorLater(p, key);
   }
 
   private void setCraftPermission(Player p, String key, String perm) {
-    getFileConfig("itemDB").set(key + ".recipe.permission", perm);
+    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".recipe.permission", perm);
     p.sendMessage(Colorize("&aCrafting permission set!"));
   }
 
   public static void createItem(Player p, String id) {
     if (id == null || id.isBlank()) return;
 
-    getFileConfig("itemDB").set(id + ".ItemID", id);
-    getFileConfig("itemDB").set(id + ".itemType", yamlManager.getOption("config", "items.defaultItem").toString().toUpperCase());
+    yamlManager.getInstance().getFileConfig("itemDB").set(id + ".ItemID", id);
+    yamlManager.getInstance().getFileConfig("itemDB").set(id + ".itemType", yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase());
     p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }
@@ -225,7 +223,7 @@ public class ItemEditor implements Listener {
     RPGCraft.wait(1, new BukkitRunnable() {
       @Override
       public void run() {
-        p.openInventory(makeItemEditor(getItem(itemKey)));
+        p.openInventory(makeItemEditor(yamlManager.getInstance().getItem(itemKey)));
         setPlayerPDC("ItemEditorUsing", p, "GUI");
       }
     });

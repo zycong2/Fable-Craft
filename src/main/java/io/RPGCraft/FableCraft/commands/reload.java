@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class reload implements CommandExecutor {
   @Override
@@ -22,20 +21,19 @@ public class reload implements CommandExecutor {
       p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noPermission", p, true).toString()));
       return true;
     }
-    getFileConfig("data").set("customMobs", RPGCraft.customMobs);
-    if (!yamlManager.saveData()) {
+    yamlManager.getInstance().getFileConfig("data").set("customMobs", RPGCraft.customMobs);
+    if (!yamlManager.getInstance().saveData()) {
       Bukkit.getLogger().severe("Failed to save data!");
     }
 
+    RPGCraft.fileConfigurationList.clear();
 
-    if (!yamlManager.loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
+
+    if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
     }
-    if (!yamlManager.loadPlayerData()){
-      Bukkit.getLogger().severe("Failed to load data!");
-    }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
-    yamlManager.getCustomItems();
+    yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
 

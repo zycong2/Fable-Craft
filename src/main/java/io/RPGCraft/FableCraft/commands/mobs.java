@@ -4,6 +4,7 @@ import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
 import net.minecraft.world.level.ClipContext;
 import org.bukkit.Bukkit;
@@ -74,35 +75,35 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     }
 
     public static LivingEntity getEntity(String name, Location p){
-        EntityType entityType = EntityType.valueOf((String) getFileConfig("mobDB").get(name + ".type"));
+        EntityType entityType = EntityType.valueOf((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".type"));
         if (!entityType.isSpawnable()) {
-            String var42 = String.valueOf(getFileConfig("mobDB").get(name + ".itemType"));
+            String var42 = String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".itemType"));
             Bukkit.getLogger().severe("Could not find entity type " + var42 + " " + name);
             return null;
         } else {
             Entity entity=p.getWorld().spawnEntity(p, entityType);
 
-            if (getFileConfig("mobDB").get(name + ".glowing") != null) { entity.setGlowing((Boolean) getFileConfig("mobDB").get(name + ".glowing")); }
-            if (getFileConfig("mobDB").get(name + ".invulnerable") != null) { entity.setInvulnerable((boolean) getFileConfig("mobDB").get(name + ".invulnerable")); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".glowing") != null) { entity.setGlowing((Boolean) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".glowing")); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".invulnerable") != null) { entity.setInvulnerable((boolean) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".invulnerable")); }
             LivingEntity LE = (LivingEntity) entity;
 
-            if (getFileConfig("mobDB").get(name + ".health") != null) {
-                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf((int) getFileConfig("mobDB").get(name + ".health")));
-                LE.setHealth(Double.valueOf((int) getFileConfig("mobDB").get(name + ".health")));
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health") != null) {
+                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health")));
+                LE.setHealth(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health")));
             }
-            if (getFileConfig("mobDB").get(name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) getFileConfig("mobDB").get(name + ".damage")));}
-            if (getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getFileConfig("mobDB").get(name + ".speed")));}
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".damage")));}
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed")));}
 
 
-            if (getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Colorize(Placeholder.setPlaceholders((String) getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
-            if (getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(Colorize(Placeholder.setPlaceholders((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
 
-            if (getFileConfig("mobDB").get(name + ".bossBar.color") != null) {
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.color") != null) {
               BossBar bar = Bukkit.createBossBar(
                 entity.getCustomName(),
-                BarColor.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.color"))),
-                BarStyle.valueOf(String.valueOf(getFileConfig("mobDB").get(name + ".bossBar.barStyle")))
+                BarColor.valueOf(String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.color"))),
+                BarStyle.valueOf(String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.barStyle")))
                 );
               for (Player pla : Bukkit.getOnlinePlayers()){
                 bar.addPlayer(pla);
@@ -110,7 +111,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             }
 
 
-            if (getFileConfig("mobDB").get(name + ".lootTable") != null) { PDCHelper.setEntityPDC("lootTable", LE, (String) getFileConfig("mobDB").get(name + ".lootTable")); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".lootTable") != null) { PDCHelper.setEntityPDC("lootTable", LE, (String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".lootTable")); }
 
 
 
@@ -124,8 +125,8 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         List<String> mobs = new java.util.ArrayList<>(List.of());
         for (Object o : mobsObject) {mobs.add(o.toString());}
         for (String s : mobs){
-            if(getFileConfig("mobDB").get(s + ".randomSpawns.frequency") != null){
-                for (int i = 0; i < (int)getFileConfig("mobDB").get(s + ".randomSpawns.frequency") * 100; i++) { RPGCraft.spawns.add(s); }
+            if(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency") != null){
+                for (int i = 0; i < Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100; i++) { RPGCraft.spawns.add(s); }
             }
         }
         Bukkit.getLogger().info("spawns to look for: " + RPGCraft.spawns);
@@ -133,7 +134,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     void damage(EntityDamageEvent event){
         if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-            event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
+            event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
         }
     }
     @EventHandler
@@ -147,7 +148,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     void onSpawn(CreatureSpawnEvent event){
         if(event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL)) {
-            if (getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
+            if (yamlManager.getInstance().getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
                 event.setCancelled(true);
             }
             randomSpawn(event);
@@ -158,16 +159,16 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         //try {
             boolean spawned = true;
             String type = RPGCraft.spawns.get(randomInt);
-            if (getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn") != null) {
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn"))) {
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn") != null) {
+                for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn"))) {
                     if (event.getLocation().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(s)) {
                       spawned = true;
                       break;
                     } else { spawned = false; }
                 }
             }
-            if (getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes") != null && spawned) {
-                for (String s : (List<String>) Objects.requireNonNull(getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes"))){
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes") != null && spawned) {
+                for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes"))){
                     if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
                         spawned = true;
                         break;

@@ -63,7 +63,6 @@ public class mainListeners implements Listener {
     // Init basic PDC values
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
 
-    createPlayerStorage(p.getUniqueId());
 
     // Set default values for stats points
     if (getPlayerPDC("statsPoints", p) == null) {
@@ -143,20 +142,19 @@ public class mainListeners implements Listener {
   // Modify damage taken/dealt based on stats
   @EventHandler
   void onDamage(EntityDamageEvent event) {
-    if (isCitizensNPC(event.getEntity())) return;
-
+    if(isCitizensNPC(event.getEntity())){return;}
     if (event.getEntityType().equals(EntityType.PLAYER)) {
-      Player p = (Player) event.getEntity();
-      double maxHealth = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Health").toString());
-      double currentHealth = Double.parseDouble(getPlayerPDC("currentHealth", p));
-      double defense = Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Defense").toString());
-      double damage = event.getDamage() - defense * 10.0;
+      Player p = (Player)event.getEntity();
+      double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));
+      double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
+      double playerDefense = Double.parseDouble(getPlayerPDC("Defence", p));
+      double damage = event.getDamage() - playerDefense * (double)10.0F;
       currentHealth -= damage;
-      setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
-      double scaledHealth = 20.0 / maxHealth * damage;
+      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
+      double scaledHealth = (double)20.0F / maxPlayerHealth * damage;
       event.setDamage(Math.abs(scaledHealth));
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
-      event.setDamage(event.getDamage() + Double.parseDouble(getPlayerData(p.getUniqueId(), "stats", "Damage").toString()));
+      event.setDamage(event.getDamage() + Double.valueOf(getPlayerPDC("Damage", p)));
     }
   }
 
@@ -185,7 +183,7 @@ public class mainListeners implements Listener {
     }
   }
   @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
-  @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
+  @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && yamlManager.getInstance().getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
 
   // Adjust stats on armor change
   @EventHandler

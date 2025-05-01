@@ -102,18 +102,18 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
 
     public static List<ItemStack> getLootTable(String lootTable){
         List<ItemStack> items = new java.util.ArrayList<>(List.of());
-        int maxItems = (int)yamlManager.getOption("lootTable", lootTable + ".maxItems");
-        int minItems = (int) yamlManager.getOption("lootTable", lootTable + ".minItems");
+        int maxItems = (int)yamlManager.getInstance().getOption("lootTable", lootTable + ".maxItems");
+        int minItems = (int) yamlManager.getInstance().getOption("lootTable", lootTable + ".minItems");
         int itemCount = new Random().nextInt(maxItems - minItems + 1) + minItems;
 
-        List<String> itemList = (List<String>) yamlManager.getOption("lootTable", lootTable + ".items");
+        List<String> itemList = (List<String>) yamlManager.getInstance().getOption("lootTable", lootTable + ".items");
         for (String s : itemList){
             String[] values = s.split(":");
             if (Material.getMaterial(values[0]) != null){
                 for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(ItemStack.of(Material.getMaterial(values[0]))); }
             } else {
                 if (yamlGetter.getNodes("itemDB", "").contains(values[0])){
-                    for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(yamlManager.getItem(values[0])); }
+                    for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(yamlManager.getInstance().getItem(values[0])); }
                 } else{
                     Bukkit.getLogger().severe("Material " + values[0] + " could not be found!");
                 }
