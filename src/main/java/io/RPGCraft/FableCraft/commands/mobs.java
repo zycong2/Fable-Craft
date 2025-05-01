@@ -127,15 +127,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         for (String s : mobs){
             if(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency") != null){
                 for (int i = 0; i < Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100; i++) { RPGCraft.spawns.add(s); }
+                for (int i = 0; i < 100 - (Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100); i++) { RPGCraft.spawns.add("null"); }
             }
         }
         Bukkit.getLogger().info("spawns to look for: " + RPGCraft.spawns);
-    }
-    @EventHandler
-    void damage(EntityDamageEvent event){
-        if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-            event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
-        }
     }
     @EventHandler
     void onDeath(EntityDeathEvent event){
@@ -159,6 +154,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         //try {
             boolean spawned = true;
             String type = RPGCraft.spawns.get(randomInt);
+            if (type.equalsIgnoreCase("null")) {
+                event.setCancelled(true);
+                return;
+            }
             if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn") != null) {
                 for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn"))) {
                     if (event.getLocation().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(s)) {

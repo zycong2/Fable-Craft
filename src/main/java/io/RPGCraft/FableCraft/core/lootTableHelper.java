@@ -5,7 +5,6 @@ import java.util.Random;
 
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,10 +28,10 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.lootTable")){
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         } if (args.length == 0){
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
 
@@ -42,7 +41,7 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
                 PDCHelper.setBlockPDC("lootTable", block, args[1]);
                 return true;
             } else {
-                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+                p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             }
         } else if (args[0].equals("removeLootTable")) {
             if (args.length == 1){
@@ -50,14 +49,14 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
                 PDCHelper.setBlockPDC("lootTable", block, null);
                 return true;
             } else {
-                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+                p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             }
         } else if (args[0].equals("getLootTable")){
             Block block = p.getTargetBlock(null, 10);
             if (PDCHelper.getBlockPDC("lootTable", block) != null){
                 p.sendMessage("This block has loot table " + PDCHelper.getBlockPDC("lootTable", block));
             } else {
-                p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noLootTable", null, true));
+                p.sendMessage(yamlGetter.getMessage("messages.error.noLootTable", null, true));
             }
         }
         
@@ -102,11 +101,11 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
 
     public static List<ItemStack> getLootTable(String lootTable){
         List<ItemStack> items = new java.util.ArrayList<>(List.of());
-        int maxItems = (int)yamlManager.getInstance().getOption("lootTable", lootTable + ".maxItems");
-        int minItems = (int) yamlManager.getInstance().getOption("lootTable", lootTable + ".minItems");
+        int maxItems = (int)yamlManager.getInstance().getOption("lootTables", lootTable + ".maxItems");
+        int minItems = (int) yamlManager.getInstance().getOption("lootTables", lootTable + ".minItems");
         int itemCount = new Random().nextInt(maxItems - minItems + 1) + minItems;
 
-        List<String> itemList = (List<String>) yamlManager.getInstance().getOption("lootTable", lootTable + ".items");
+        List<String> itemList = (List<String>) yamlManager.getInstance().getOption("lootTables", lootTable + ".items");
         for (String s : itemList){
             String[] values = s.split(":");
             if (Material.getMaterial(values[0]) != null){

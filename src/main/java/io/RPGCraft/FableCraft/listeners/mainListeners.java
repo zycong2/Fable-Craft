@@ -3,6 +3,8 @@ package io.RPGCraft.FableCraft.listeners;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.text.TextComponent;
@@ -155,6 +157,9 @@ public class mainListeners implements Listener {
       event.setDamage(Math.abs(scaledHealth));
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
       event.setDamage(event.getDamage() + Double.valueOf(getPlayerPDC("Damage", p)));
+      if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
+        event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
+      }
     }
   }
 

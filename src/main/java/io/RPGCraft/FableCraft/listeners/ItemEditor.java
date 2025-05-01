@@ -82,7 +82,10 @@ public class ItemEditor implements Listener {
   @EventHandler
   void Closeinv(InventoryCloseEvent e){
     Player p = (Player) e.getPlayer();
-    if(getPlayerPDC("ItemEditorUsing", p).equals("GUI")){ setPlayerPDC("ItemEditorUsing", p, "notUsing"); }
+    if(getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {
+      setPlayerPDC("ItemEditorUsing", p, "notUsing");
+      yamlManager.getInstance().saveData();
+    }
   }
 
   @EventHandler
@@ -94,7 +97,6 @@ public class ItemEditor implements Listener {
     if (state.equals("notUsing") || state.equals("GUI")) return;
 
     e.setCancelled(true);
-
     switch (state) {
       case "Chat-name" -> withItemKey(p, key -> renameItem(p, key, message));
       case "Chat-lore" -> withItemKey(p, key -> handleLoreLineInput(p, message));

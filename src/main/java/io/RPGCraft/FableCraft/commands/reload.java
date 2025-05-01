@@ -22,9 +22,6 @@ public class reload implements CommandExecutor {
       return true;
     }
     yamlManager.getInstance().getFileConfig("data").set("customMobs", RPGCraft.customMobs);
-    if (!yamlManager.getInstance().saveData()) {
-      Bukkit.getLogger().severe("Failed to save data!");
-    }
 
     RPGCraft.fileConfigurationList.clear();
 
