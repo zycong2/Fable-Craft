@@ -45,9 +45,9 @@ public class yamlGetter {
       Object a = yamlManager.getInstance().getFileConfig("messages").get(path);
       if (a == null) {
           return Colorize("&cOption not found");
-      } else if (a instanceof String s) {
-          return Colorize(Placeholder.setPlaceholders(s, round, (Entity) target));
-      } return Colorize("&cOption not found");
+      } else  {
+          return Colorize(Placeholder.setPlaceholders(a.toString(), round, (Entity) target));
+      }
   }
 
 }

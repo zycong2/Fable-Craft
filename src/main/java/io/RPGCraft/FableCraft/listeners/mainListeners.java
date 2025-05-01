@@ -7,6 +7,7 @@ import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import javax.swing.plaf.ButtonUI;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,6 +218,7 @@ public class mainListeners implements Listener {
   // Adjust stats on hotbar item switch
   @EventHandler
   void onHoldChange(PlayerItemHeldEvent event) {
+    Bukkit.getLogger().info("PlayerItemHeldEvent");
     Player p = event.getPlayer();
     ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
     ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
@@ -235,7 +238,31 @@ public class mainListeners implements Listener {
         }
       }
     }
+    stats.checkCurrentStats(p);
+  }
+  @EventHandler
+  void onInventoryMove(PlayerInventorySlotChangeEvent event){
+    Bukkit.getLogger().info("PlayerInventorySlotChangeEvent");
+    Player p = event.getPlayer();
+    ItemStack oldItem = event.getOldItemStack();
+    ItemStack newItem = event.getNewItemStack();
+    if (event.getSlot() != event.getPlayer().getInventory().getHeldItemSlot()) { return; }
 
+    if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
+      for (String s : RPGCraft.itemStats) {
+        if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, oldItem))));
+        }
+      }
+    }
+
+    if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
+      for (String s : RPGCraft.itemStats) {
+        if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, newItem))));
+        }
+      }
+    }
     stats.checkCurrentStats(p);
   }
 }
