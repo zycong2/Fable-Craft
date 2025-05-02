@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
+import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;

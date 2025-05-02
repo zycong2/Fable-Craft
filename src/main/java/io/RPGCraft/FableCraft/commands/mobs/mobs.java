@@ -1,4 +1,4 @@
-package io.RPGCraft.FableCraft.commands;
+package io.RPGCraft.FableCraft.commands.mobs;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
@@ -6,7 +6,6 @@ import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
-import net.minecraft.world.level.ClipContext;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
@@ -25,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +33,6 @@ import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
 
 
 public class mobs implements CommandExecutor, TabCompleter, Listener {
@@ -57,13 +54,14 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             customMobs.clear();
         }
         if (args[0].equals("reload")) { reloadSpawns(); }
+        if (args[0].equals("editor")) { reloadSpawns(); }
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 1){
-            return List.of("spawn", "killAll", "reload");
+            return List.of("spawn", "killAll", "reload", "editor");
         } if (args.length == 2 && args[0].equals("spawn")){
             List<Object> o =  yamlGetter.getNodes("mobDB", "");
             List<String> completion = new java.util.ArrayList<>(List.of());
@@ -154,7 +152,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         //try {
             boolean spawned = true;
             String type = RPGCraft.spawns.get(randomInt);
-            if (type.equalsIgnoreCase("null")) {
+            if (type.equalsIgnoreCase("null") || type.isEmpty()) {
                 event.setCancelled(true);
                 return;
             }
