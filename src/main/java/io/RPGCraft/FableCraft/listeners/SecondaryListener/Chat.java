@@ -30,6 +30,7 @@ public class Chat implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void AsyncChat(AsyncChatEvent e){
+    if (e.isCancelled()) return;
     MiniMessage mm = MiniMessage.miniMessage();
 
     Player p = e.getPlayer();

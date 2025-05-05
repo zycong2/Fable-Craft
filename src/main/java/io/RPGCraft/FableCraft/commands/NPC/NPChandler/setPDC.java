@@ -24,7 +24,7 @@ public class setPDC implements CommandExecutor, TabCompleter {
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
     Player p = (Player) sender;
     if (!p.hasPermission("FableCraft.npc")) {
-      p.sendMessage((TextComponent)  yamlGetter.getConfig("messages.error.noPermission", p, true));
+      p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
     }
     if (args.length != 0){

@@ -49,7 +49,7 @@ public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defense", "MaxDurability", "Minuselevel");
+  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 

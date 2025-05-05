@@ -19,7 +19,7 @@ public class reload implements CommandExecutor {
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (!p.hasPermission("FableCraft.reload")) {
-      p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noPermission", p, true).toString()));
+      p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
     }
     yamlManager.getInstance().getFileConfig("data").set("customMobs", RPGCraft.customMobs);

@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands.mobs;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.GUI;
+import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
@@ -30,6 +31,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
@@ -38,24 +40,37 @@ public class mobsEditor implements Listener {
   public static Inventory makeMobEditor(ItemStack item) {
     Inventory inv = Bukkit.createInventory(null, 36, "Mob Editor");
 
+    setItemPDC("MobID", item, getItemPDC("MobID", item));
+    Bukkit.getLogger().info(getMobKey(item));
+    ItemMeta meta = item.getItemMeta();
+    meta.setLore(List.of(
+      ColorizeReString("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
+      ColorizeReString("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
+      ColorizeReString("&fHealth: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".health")),
+      ColorizeReString("&fLoot Table: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".lootTable"))
+    ));
+
+    item.setItemMeta(meta);
+
+
     inv.setItem(4, item);
     inv.setItem(9, createButton("&aDisplay Name", Material.NAME_TAG, "&fRename the Mob. Color codes allowed!"));
-    inv.setItem(10, createButton("&aAlways visible", Material.LIME_CONCRETE, "&fEnables/Disables if you can always see a mobs name."));
 
     // inv.setItem(11, createButton("&dEnchantments", Material.ENCHANTING_TABLE, "&fAdd/remove enchantments. Use '&7[ench] 0' to remove."));
-    inv.setItem(13, createButton("&aMob Type", Material.COW_SPAWN_EGG, "&fDefine the type of the mob."));
-    inv.setItem(14, createButton("&aSpeed", Material.RABBIT_FOOT, "&fDefine speed stats."));
-    inv.setItem(15, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
-    inv.setItem(26, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
-    inv.setItem(27, createButton("&bLoot table", Material.IRON_CHESTPLATE, "&fDefine loot table."));
+    inv.setItem(10, createButton("&aMob Type", Material.COW_SPAWN_EGG, "&fDefine the type of the mob."));
+    inv.setItem(11, createButton("&aSpeed", Material.RABBIT_FOOT, "&fDefine speed stats."));
+    inv.setItem(12, createButton("&cDamage", Material.IRON_SWORD, "&fDefine DMG stats."));
+    inv.setItem(13, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
+    inv.setItem(14, createButton("&bLoot table", Material.IRON_CHESTPLATE, "&fDefine loot table."));
     inv.setItem(34, createButton("&cDelete Mob", Material.LAVA_BUCKET, "&cDanger zone. Deletes the mob permanently."));
     inv.setItem(35, createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."));
 
     return inv;
   }
   @EventHandler
-  void Closeinv(InventoryCloseEvent e){
+  void closeInv(InventoryCloseEvent e){
     Player p = (Player) e.getPlayer();
+    if (getPlayerPDC("MobsEditorUsing", p) == null) return;
     if(getPlayerPDC("MobsEditorUsing", p).equals("GUI")) {
       setPlayerPDC("MobsEditorUsing", p, "notUsing");
       yamlManager.getInstance().saveData();
@@ -66,6 +81,7 @@ public class mobsEditor implements Listener {
   void ChatEvent(AsyncChatEvent e) {
     Player p = e.getPlayer();
     String message = PlainTextComponentSerializer.plainText().serialize(e.message());
+    if (getPlayerPDC("MobsEditorUsing", p) == null) return;
     String state = getPlayerPDC("MobsEditorUsing", p);
 
     if (state.equals("notUsing") || state.equals("GUI")) return;
@@ -77,8 +93,15 @@ public class mobsEditor implements Listener {
       case "Chat-Speed" -> withMobKey(p, key -> setMobSpeed(p, key, message));
       case "Chat-Damage" -> withMobKey(p, key -> setMobDamage(p, key, message));
       case "Chat-Health" -> withMobKey(p, key -> setMobHealth(p, key, message));
-      case "chat-createItem" -> createMob(p, message);
+      case "Chat-LootTable" -> withMobKey(p, key -> setMobLootTable(p, key, message));
+      case "Chat-id" -> createMob(p, message);
     }
+  }
+
+  private void setMobLootTable(Player p, String key, String message) {
+    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".lootTable", message);
+    p.sendMessage(yamlGetter.getMessage("messages.mobEditor.lootTable.success", p, true));
+    reopenMobEditorLater(p, key);
   }
 
   private void createMob(Player p, String message) {
@@ -93,7 +116,7 @@ public class mobsEditor implements Listener {
     } catch(final NumberFormatException e) {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.health.fail", p, true));
     }
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".health", message);
+    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".health", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.health.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -104,7 +127,7 @@ public class mobsEditor implements Listener {
     } catch(final NumberFormatException e) {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.damage.fail", p, true));
     }
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".damage", message);
+    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".damage", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.damage.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -116,7 +139,7 @@ public class mobsEditor implements Listener {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.speed.fail", p, true));
     }
 
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".speed", message);
+    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".speed", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.speed.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -135,12 +158,12 @@ public class mobsEditor implements Listener {
 
   private void renameMob(Player p, String key, String message) {
     yamlManager.getInstance().getFileConfig("mobDB").set(key + ".customName.name", message);
-    p.sendMessage(yamlGetter.getMessage("messages.mobEditor.customName.name.success", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.mobEditor.customName.rename.success", p, true));
     reopenMobEditorLater(p, key);
   }
 
   private void withMobKey(Player p, Consumer<String> action) {
-    String key = getPlayerPDC("SelectedItemKey", p);
+    String key = getPlayerPDC("SelectedMobKey", p);
     if (key == null) {
       p.sendMessage(Colorize("&cError: No item selected!"));
     } else {
@@ -162,9 +185,11 @@ public class mobsEditor implements Listener {
   public static void mobDBMenu(Player p) {
     Inventory menu = Bukkit.createInventory(p, 45, "mobDB");
     List<Object> mobs = yamlGetter.getNodes("mobDB", "");
-    List<ItemStack> items = List.of();
+    List<ItemStack> items = new java.util.ArrayList<>(List.of());
     for (Object o : mobs) {
-      items.add(ItemStack.of(Material.valueOf(yamlManager.getInstance().getOption("mobDB", o + ".type").toString().toUpperCase() + "_SPAWN_EGG")));
+      ItemStack item = ItemStack.of(Material.valueOf(yamlManager.getInstance().getOption("mobDB", o + ".type").toString().toUpperCase() + "_SPAWN_EGG"));
+      PDCHelper.setItemPDC("MobID", item, o);
+      items.add(item);
     }
 
     if (items.size() <= 36) {
@@ -201,10 +226,10 @@ public class mobsEditor implements Listener {
 
     mobDB = menu;
   }
-  private String getMobKey(ItemStack item){
+  private static String getMobKey(ItemStack item){
     return yamlGetter.getNodes("mobDB", "").stream()
       .map(Object::toString)
-      .filter(key -> yamlManager.getInstance().getFileConfig("mobDB").getString(key + ".MobID")
+      .filter(key -> key
         .equals(getItemPDC("MobID", item)))
       .findFirst()
       .orElse(null);
@@ -239,7 +264,7 @@ public class mobsEditor implements Listener {
       else if (event.getRawSlot() == 44) {
         setPlayerPDC("MobsEditorUsing", p, "Chat-id");
         p.closeInventory();
-        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.createItem", p, true));
+        p.sendMessage(yamlGetter.getMessage("messages.mobEditor.createItem.info", p, true));
       }
 
       // Open item editor GUI
@@ -264,37 +289,36 @@ public class mobsEditor implements Listener {
       int slot = event.getRawSlot();
 
       switch (slot) {
-        case 4 -> p.getInventory().addItem(event.getCurrentItem());
+        case 4 -> mobs.getEntity(getPlayerPDC("SelectedMobKey", p), p.getLocation());
         case 9 -> {
-          setPlayerPDC("MobsEditorUsing", p, "Chat-name");
+          setPlayerPDC("MobsEditorUsing", p, "Chat-Name");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor.rename.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.rename.info", p, false));
         }
         case 10 -> {
-          setPlayerPDC("MobsEditorUsing", p, "Chat-lore");
+          setPlayerPDC("MobsEditorUsing", p, "Chat-Type");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor.lore.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.type.info", p, false));
         }
         case 11 -> {
-          setPlayerPDC("MobsEditorUsing", p, "Chat-customModelData");
+          setPlayerPDC("MobsEditorUsing", p, "Chat-Speed");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor.customModelData.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.speed.info", p, false));
         }
         case 12 -> {
-          setPlayerPDC("MobsEditorUsing", p, "Chat-craftPerms");
+          setPlayerPDC("MobsEditorUsing", p, "Chat-Damage");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor.craftPerms.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.damage.info", p, false));
         }
         case 13 -> {
-          setPlayerPDC("MobsEditorUsing", p, "Chat-type");
+          setPlayerPDC("MobsEditorUsing", p, "Chat-Health");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor.type.info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.health.info", p, false));
         }
-        case 18, 19, 20, 21, 22, 23 -> {
-          String[] pdcTags = {"defense", "damage", "mana", "health", "durability", "minlvl"};
-          setPlayerPDC("MobsEditorUsing", p, "Chat-" + pdcTags[slot - 18]);
+        case 14 -> {
+          setPlayerPDC("MobsEditorUsing", p, "Chat-LootTable");
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.mobeditor." + pdcTags[slot - 18] + ".info", p, false));
+          p.sendMessage(yamlGetter.getMessage("messages.mobEditor.lootTable.info", p, false));
         }
         case 34 -> {
           String mobKey = getPlayerPDC("SelectedMobKey", p);
@@ -314,14 +338,6 @@ public class mobsEditor implements Listener {
     }
   }
 
-  public static void gottenItemID(Player p, String id){
-    Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase())));
-    ItemEditor.createItem(p, id);
-
-    setPlayerPDC("SelectedMobKey", p, id);
-    setPlayerPDC("MobsEditorUsing", p, "GUI");
-    reopenEditorLater(p, id);
-  }
 
   // Cleanup mobDB metadata
   @EventHandler

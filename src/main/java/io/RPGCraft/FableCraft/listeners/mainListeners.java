@@ -242,7 +242,6 @@ public class mainListeners implements Listener {
   }
   @EventHandler
   void onInventoryMove(PlayerInventorySlotChangeEvent event){
-    Bukkit.getLogger().info("PlayerInventorySlotChangeEvent");
     Player p = event.getPlayer();
     ItemStack oldItem = event.getOldItemStack();
     ItemStack newItem = event.getNewItemStack();

@@ -21,10 +21,10 @@ public class stats implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0 || Bukkit.getPlayer(args[0]) == null){
-            p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
 

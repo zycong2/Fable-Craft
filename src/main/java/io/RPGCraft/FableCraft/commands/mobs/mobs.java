@@ -40,10 +40,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.mobs")) {
-            p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noPermission", p, true).toString()));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         }if (args.length == 0){
-            p.sendMessage(Colorize(yamlGetter.getConfig("messages.error.noValidArgument", null, true).toString()));
+            p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
         if (args[0].equals("spawn")) { getEntity(args[1], p.getLocation()); }
@@ -54,7 +54,10 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
             customMobs.clear();
         }
         if (args[0].equals("reload")) { reloadSpawns(); }
-        if (args[0].equals("editor")) { reloadSpawns(); }
+        if (args[0].equals("editor")) {
+          mobsEditor.mobDBMenu(p);
+          p.openInventory(mobsEditor.mobDB);
+        }
         return true;
     }
 
@@ -148,6 +151,7 @@ public class mobs implements CommandExecutor, TabCompleter, Listener {
         }
     }
     public void randomSpawn(CreatureSpawnEvent event){
+      if (RPGCraft.spawns.isEmpty()) {return; }
         int randomInt = (int) (Math.random() * RPGCraft.spawns.size());
         //try {
             boolean spawned = true;

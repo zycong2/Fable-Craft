@@ -141,6 +141,25 @@ public class yamlManager {
           getFileConfig("messages").addDefault("messages.itemeditor.type.success", "&aYou successfully set the new item type!");
           getFileConfig("messages").addDefault("messages.itemeditor.type.info", "&rEnter the new item type of the item in the chat.");
           getFileConfig("messages").addDefault("messages.itemeditor.type.fail", "&rUnknown item type, using the previous item type.");
+
+          getFileConfig("messages").addDefault("messages.mobEditor.create.info", "&rPlease send the id/name of the mob you want to create.");
+          getFileConfig("messages").addDefault("messages.mobEditor.create.success", "&aSuccessfully made the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.lootTable.success", "&aSuccessfully set the loot table of the entity.");
+          getFileConfig("messages").addDefault("messages.mobEditor.lootTable.info", "&rEnter the name of the loot table you want to use for this mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.health.success", "&aSuccessfully set the health of the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.health.fail", "&cFailed to set the health for the mob, nothing has changed.");
+          getFileConfig("messages").addDefault("messages.mobEditor.health.info", "&rEnter the health for the mob in numbers.");
+          getFileConfig("messages").addDefault("messages.mobEditor.damage.success", "&aSuccessfully set the damage of the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.damage.fail", "&cFailed to set the damage for the mob, nothing has changed.");
+          getFileConfig("messages").addDefault("messages.mobEditor.damage.info", "&rEnter the damage for the mob in numbers.");
+          getFileConfig("messages").addDefault("messages.mobEditor.speed.success", "&aSuccessfully set the speed of the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.speed.fail", "&cFailed to set the speed for the mob, nothing has changed.");
+          getFileConfig("messages").addDefault("messages.mobEditor.speed.info", "&rEnter the speed for the mob in numbers.");
+          getFileConfig("messages").addDefault("messages.mobEditor.type.success", "&aSuccessfully set the type of the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.type.fail", "&cFailed to set the type for the mob, nothing has changed.");
+          getFileConfig("messages").addDefault("messages.mobEditor.type.info", "&rEnter the type for the mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.rename.success", "&aSuccessfully renamed mob.");
+          getFileConfig("messages").addDefault("messages.mobEditor.rename.info", "&rEnter the new name for the mob.");
           getFileConfig("messages").options().copyDefaults(true);
         }
 
@@ -167,8 +186,8 @@ public class yamlManager {
           getFileConfig("config").addDefault("stats.Health.char", "&c❤");
           getFileConfig("config").addDefault("stats.Regeneration.default", 1);
           getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
-          getFileConfig("config").addDefault("stats.Defense.default", 0);
-          getFileConfig("config").addDefault("stats.Defense.char", "&7\ud83d\udee1");
+          getFileConfig("config").addDefault("stats.Defence.default", 0);
+          getFileConfig("config").addDefault("stats.Defence.char", "&7\ud83d\udee1");
           getFileConfig("config").addDefault("stats.Mana.default", 20);
           getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
           getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);

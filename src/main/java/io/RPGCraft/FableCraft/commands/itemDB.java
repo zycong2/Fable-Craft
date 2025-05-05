@@ -14,7 +14,7 @@ public class itemDB implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         Player p = (Player)commandSender;
         if (!p.hasPermission("FableCraft.itemDB")) {
-            p.sendMessage((TextComponent)  yamlGetter.getConfig("messages.error.noPermission", p, true));
+            p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
             GUI.itemDBMenu(p);
             p.openInventory(GUI.itemDB);

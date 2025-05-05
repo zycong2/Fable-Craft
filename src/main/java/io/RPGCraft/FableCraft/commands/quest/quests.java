@@ -32,7 +32,7 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (args.length == 0){
-      p.sendMessage((TextComponent) yamlGetter.getConfig("messages.error.noValidArgument", null, true));
+      p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
       return true;
     }
 
@@ -45,9 +45,9 @@ public class quests implements CommandExecutor, TabCompleter, Listener {
           PDCHelper.setPlayerPDC("quests", p, quests.replace(";" + args[1], ""));
           PDCHelper.setPlayerPDC(args[1] + ".step", p, null);
           PDCHelper.setPlayerPDC(args[1] + ".progress", p, null);
-          p.sendMessage(Colorize((String) yamlGetter.getConfig("messages.info.quests.disband", p, true)));
+          p.sendMessage(yamlGetter.getMessage("messages.info.quests.disband", p, true));
         } else {
-          p.sendMessage(Colorize((String) yamlGetter.getConfig("messages.error.questNotStarted", null, true)));
+          p.sendMessage(yamlGetter.getMessage("messages.error.questNotStarted", null, true));
         }
     }
 

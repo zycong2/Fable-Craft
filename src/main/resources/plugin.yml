@@ -40,6 +40,7 @@ commands:
     permission: FableCraft.mobs
     aliases:
       - m
+      - mob
   lootTables:
     description: Manage the loot tables for chests.
     permission: FableCraft.lootTables
