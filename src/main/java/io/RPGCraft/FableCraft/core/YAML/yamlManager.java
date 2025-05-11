@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
-import com.comphenix.protocol.PacketType;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import org.bukkit.Bukkit;
@@ -10,7 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -24,8 +22,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
-import static io.RPGCraft.FableCraft.RPGCraft.playerData;
+import static io.RPGCraft.FableCraft.RPGCraft.*;
 
 
 public class yamlManager {
@@ -69,23 +66,22 @@ public class yamlManager {
     }
 
     public boolean loadData() {
-        for (String s : RPGCraft.yamlFiles) {
-            RPGCraft.fileConfigurationList.add(new YamlConfiguration());
-        }
-
         for (String config : RPGCraft.yamlFiles) {
+            RPGCraft.fileConfigurationList.add(new YamlConfiguration());
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             if (cfile.exists()) {
                 getFileConfig(config) ;
                 int index = 0;
                 for (String s : RPGCraft.yamlFiles) {
-                    if (Objects.equals(s, config)) {break;}
-                    index++;
-                }
-                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));
-            } else {
-                return defaultConfig();
-            }
+                    if (Objects.equals(s, config)) {break;}index++;}
+                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));}
+            else {return defaultConfig();}}
+        for(String s : DBFolders){
+          File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
+          if (!file.exists()){file.mkdirs();}
+          List<YamlConfiguration> list = new ArrayList<>();
+          getAllFilesConfig(file, list);
+          DBFileConfiguration.put(s, list);
         }
         return true;
     }
@@ -337,6 +333,34 @@ public class yamlManager {
         }
         return null;
     }
+
+    public void getAllFilesConfig(File f, List<YamlConfiguration> list){
+        if (f.isDirectory()) {
+            for (File file : f.listFiles()) {
+                if (file.isDirectory()) {
+                    getAllFilesConfig(file, list);
+                } else {
+                    YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+                    list.add(yaml);
+                }
+            }
+        }
+    }
+
+    public List<Object> getAllNodesInDB(String DBFolder){
+      if(DBFileConfiguration.get(DBFolder) == null){ return null; }
+      List<Object> nodes = new ArrayList<>();
+      for (YamlConfiguration yaml : DBFileConfiguration.get(DBFolder)) {
+        List<Object> node = List.of(yaml.getKeys(false));
+        for (Object s : node) {
+          if (!nodes.contains(s)) {
+            nodes.add(s);
+          }
+        }
+      }
+      return nodes;
+    }
+
     public Object getOption(String file, String path){
         if (getFileConfig(file).get(path) == null){ return null; }
         return getFileConfig(file).get(path);
@@ -346,9 +370,10 @@ public class yamlManager {
     public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 
     public List<ItemStack> getCustomItems() {
-        List<ItemStack> items = new ArrayList(getFileConfig("itemDB").getKeys(false).size());
-        List<Object> nodes = yamlGetter.getNodes("itemDB", "");
-        for (Object node : nodes) {String key = node.toString();
+        List<ItemStack> items = new ArrayList();
+        List<Object> nodes = getAllNodesInDB("itemDB");
+        for (Object node : nodes) {
+            String key = node.toString();
             items.add(getItem(key));
         }
 
@@ -356,14 +381,26 @@ public class yamlManager {
     }
 
     public ItemStack getItem(String name) {
-        if(getFileConfig("itemDB").getString(name + ".ItemID") == null){
+      List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
+      YamlConfiguration itemFile = null;
+      for (YamlConfiguration yaml : itemDB) {
+        if (yaml.get(name + "ItemID") != null) {
+          itemFile = yaml;
+          break;
+        }
+      }
+      if(itemFile == null) {
+        Bukkit.getLogger().info("Item not found in itemDB");
+        return null;
+      }
+      if(itemFile.getString(name + ".ItemID") == null){
             Bukkit.getLogger().info("Item does not have a ID");
             return null;
         }
-        Material itemType = Material.getMaterial((String) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".itemType")));
+        Material itemType = Material.getMaterial((String) Objects.requireNonNull(itemFile.get(name + ".itemType")));
         if (itemType == null) {
             Logger var10000 = Bukkit.getLogger();
-            String var42 = String.valueOf(getFileConfig("itemDB").get(name + ".itemType"));
+            String var42 = String.valueOf(itemFile.get(name + ".itemType"));
             var10000.severe("Could not find material " + var42 + " " + name);
             return null;
         } else {
@@ -371,21 +408,21 @@ public class yamlManager {
             ItemMeta meta = item.getItemMeta();
             List<String> lore = new ArrayList(List.of());
             List<String> PDC = new ArrayList(List.of());
-            PDC.add("ItemID;" + getFileConfig("itemDB").getString(name + ".ItemID"));
+            PDC.add("ItemID;" + itemFile.getString(name + ".ItemID"));
             int attributes = 0;
 
             for(String s : RPGCraft.itemStats){
-                if (isItemSet(name + "." + s)) {
-                    if(s == "MaxDurability"){
-                      String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
+                if (isItemSet(name + "." + s, itemFile)) {
+                    if(Objects.equals(s, "MaxDurability")){
+                      String var41 =  itemFile.get(name + "." + s).toString();
                       lore.add(ColorizeReString("&8Max " + s + ": &f+" + var41 + yamlGetter.getConfig("stats." + s + ".char", null, true)));
                       ++attributes;
-                      PDC.add("Max" + s + ";" + getFileConfig("itemDB").get(name + "." + s));
+                      PDC.add(s + ";" + itemFile.get(name + "." + s));
                     }
-                    String var41 =  getFileConfig("itemDB").get(name + "." + s).toString();
+                    String var41 =  itemFile.get(name + "." + s).toString();
                     lore.add(ColorizeReString("&8" + s + ": &f+" + var41 + yamlGetter.getConfig("stats." + s + ".char", null, true)));
                     ++attributes;
-                    PDC.add(s + ";" + getFileConfig("itemDB").get(name + "." + s));
+                    PDC.add(s + ";" + itemFile.get(name + "." + s));
                 }
             }
 
@@ -394,34 +431,34 @@ public class yamlManager {
                 lore.addFirst("");
             }
 
-            if (isItemSet(name + ".name")) {
-                meta.setItemName((String)getFileConfig("itemDB").get(name + ".name"));
+            if (isItemSet(name + ".name", itemFile)) {
+                meta.setItemName(ColorizeReString(itemFile.getString(name + ".name")));
             }
 
-            if (isItemSet(name + ".customModelData")) {
-                meta.setCustomModelData((Integer)getFileConfig("itemDB").get(name + ".customModelData"));
+            if (isItemSet(name + ".customModelData", itemFile)) {
+                meta.setCustomModelData((Integer)itemFile.get(name + ".customModelData"));
             }
 
-            if (isItemSet(name + ".enchantments")) {
-                for(Object enchantmentString : Objects.requireNonNull(getFileConfig("itemDB").getStringList(name + ".enchantments"))) {
+            if (isItemSet(name + ".enchantments", itemFile)) {
+                for(Object enchantmentString : Objects.requireNonNull(itemFile.getStringList(name + ".enchantments"))) {
                     String[] enchantString = enchantmentString.toString().split(":");
                     Enchantment enchantment = Enchantment.getByName(enchantString[0]);
                     meta.addEnchant(enchantment, Integer.valueOf(enchantString[1]), true);
                 }
             }
-            if (isItemSet(name + ".hide")) {
-                for(Object hide : (List)getFileConfig("itemDB").get(name + ".hide")) {
+            if (isItemSet(name + ".hide", itemFile)) {
+                for(Object hide : (List)itemFile.get(name + ".hide")) {
                     meta.addItemFlags(ItemFlag.valueOf("HIDE_" + hide));
                 }
             }
 
-            if (isItemSet(name + ".lore")) {
+            if (isItemSet(name + ".lore", itemFile)) {
                 if (isConfigSet("items.lore.prefix")) {
                     String config = ColorizeReString((String) yamlGetter.getConfig("items.lore.prefix", null, true));
                     lore.add(config);
                 }
 
-                for (String str : getFileConfig("itemDB").getStringList(name + ".lore")){
+                for (String str : itemFile.getStringList(name + ".lore")){
                     lore.add(ColorizeReString(str));
                 }
                 if (isConfigSet("items.lore.suffix")) {
@@ -430,49 +467,49 @@ public class yamlManager {
                 }
             }
 
-            if (isItemSet(name + ".rarity")) {
+            if (isItemSet(name + ".rarity", itemFile)) {
                 lore.add("");
-                lore.add(ColorizeReString(getFileConfig("config").getString("items.display.rarity." + getFileConfig("itemDB").get(name + ".rarity"))));
+                lore.add(ColorizeReString(getFileConfig("config").getString("items.display.rarity." + itemFile.get(name + ".rarity"))));
                 lore.add("");
             }
 
             meta.setLore(lore);
             item.setItemMeta(meta);
             if (meta instanceof LeatherArmorMeta leatherMeta) {
-                if (isItemSet(name + ".color")) {
-                    String[] colors = String.valueOf(getFileConfig("itemDB").get(name + ".color")).split(",");
+                if (isItemSet(name + ".color", itemFile)) {
+                    String[] colors = String.valueOf(itemFile.get(name + ".color")).split(",");
                     Color color = Color.fromARGB(1, Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
                     leatherMeta.setColor(color);
                 }
 
                 item.setItemMeta(leatherMeta);
             } else if (meta instanceof BookMeta bookMeta) {
-                if (isItemSet(name + ".title")) {
-                    bookMeta.setTitle((String)getFileConfig("itemDB").get(name + ".title"));
+                if (isItemSet(name + ".title", itemFile)) {
+                    bookMeta.setTitle((String)itemFile.get(name + ".title"));
                 }
 
-                if (isItemSet(name + ".author")) {
-                    bookMeta.setAuthor((String)getFileConfig("itemDB").get(name + ".author"));
+                if (isItemSet(name + ".author", itemFile)) {
+                    bookMeta.setAuthor((String)itemFile.get(name + ".author"));
                 }
 
-                if (isItemSet(name + ".pages")) {
-                    bookMeta.setPages((List)getFileConfig("itemDB").get(name + ".pages"));
+                if (isItemSet(name + ".pages", itemFile)) {
+                    bookMeta.setPages((List)itemFile.get(name + ".pages"));
                 }
             }
 
-            if (getFileConfig("itemDB").get(name + ".recipe.permission") != null){
-                String permission = (String) getFileConfig("itemDB").get(name + ".recipe.permission");
+            if (itemFile.get(name + ".recipe.permission") != null){
+                String permission = (String) itemFile.get(name + ".recipe.permission");
                 PDC.add("craftPerms;" + permission);
             }
-            if (Bukkit.getRecipesFor(item).isEmpty() && isItemSet(name + ".recipe.type")) {
-                if (getFileConfig("itemDB").get(name + ".recipe.type").toString().toLowerCase(Locale.ROOT).equals("shaped")) {
+            if (Bukkit.getRecipesFor(item).isEmpty() && isItemSet(name + ".recipe.type", itemFile)) {
+                if (itemFile.get(name + ".recipe.type").toString().toLowerCase(Locale.ROOT).equals("shaped")) {
                     NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), name);
                     ShapedRecipe recipe = new ShapedRecipe(key, item);
-                    List<String> shapeString = (List)getFileConfig("itemDB").get(name + ".recipe.shape");
+                    List<String> shapeString = (List)itemFile.get(name + ".recipe.shape");
                     String[] shapes = shapeString.toArray(new String[shapeString.size()]);
                     recipe.shape(shapes);
 
-                    for(Object s : (List) Objects.requireNonNull(getFileConfig("itemDB").get(name + ".recipe.ingredients"))) {
+                    for(Object s : (List) Objects.requireNonNull(itemFile.get(name + ".recipe.ingredients"))) {
                         String[] splitIngredients = s.toString().split(":", 2);
                         recipe.setIngredient(splitIngredients[0].charAt(0), Material.getMaterial(splitIngredients[1]));
                     }
@@ -482,7 +519,7 @@ public class yamlManager {
                     NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), name);
                     ShapelessRecipe recipe = new ShapelessRecipe(key, item);
 
-                    for(Object s : (List)getFileConfig("itemDB").get(name + ".recipe.ingredients")) {
+                    for(Object s : (List)itemFile.get(name + ".recipe.ingredients")) {
                         String[] splitIngredients = s.toString().split(":");
                         recipe.addIngredient(Integer.parseInt(splitIngredients[1]), Material.getMaterial(splitIngredients[0]));
                     }
@@ -500,8 +537,28 @@ public class yamlManager {
         }
     }
 
-    public boolean isItemSet(String path) {
-        return getFileConfig("itemDB").get(path) != null;
+    public boolean isItemSetInAnyITEMDBFile(String path) {
+      List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
+      YamlConfiguration itemFile = null;
+      for (YamlConfiguration yaml : itemDB) {
+        if (yaml.get(path) != null) {
+          itemFile = yaml;
+          break;
+        }
+      }
+      if(itemFile.get(path) == null) {
+        return false;
+      }else{
+        return true;
+      }
+    }
+
+    public boolean isItemSet(String path, FileConfiguration itemFile) {
+      if(itemFile.get(path) == null) {
+        return false;
+      }else{
+        return true;
+      }
     }
 
     public boolean isConfigSet(String path) {

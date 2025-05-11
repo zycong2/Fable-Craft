@@ -53,7 +53,9 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("data", "messages", "config", "itemDB", "mobDB", "lootTables", "skills", "quests", "format");
+  public static List<String> yamlFiles = List.of("data", "messages", "config", "lootTables", "skills", "quests", "format");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB");
+  public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
   public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 

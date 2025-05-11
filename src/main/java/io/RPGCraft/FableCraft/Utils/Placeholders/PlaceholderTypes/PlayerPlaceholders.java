@@ -77,6 +77,15 @@ public class PlayerPlaceholders {
     }
   }
 
+  @Placeholder(name = "Defense")
+  public static String Defense(Entity e) {
+    if (e instanceof Player p) {
+      return getPlayerPDC("Defense", p);
+    }else{
+      return ColorizeReString("The mob is not a living entity");
+    }
+  }
+
   @Placeholder(name = "rankPrefix")
   public static String rankPrefix(Entity e) {
     LuckPerms luckPerms = getServer().getServicesManager().load(LuckPerms.class);;
