@@ -16,11 +16,13 @@ repositories {
   mavenCentral()
   maven("https://maven.citizensnpcs.co/repo")
   maven("https://repo.dmulloy2.net/repository/public/")
+  maven("https://repo.skriptlang.org/releases")
 }
 
 dependencies {
   paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   implementation("net.kyori:adventure-text-minimessage:4.19.0")
+  implementation("com.github.SkriptLang:Skript:2.11.1")
   compileOnly("org.projectlombok:lombok:1.18.30")
   compileOnly("net.luckperms:api:5.4")
   compileOnly("net.citizensnpcs:citizens-main:2.0.38-SNAPSHOT") {

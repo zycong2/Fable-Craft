@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.core.YAML;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -78,7 +79,14 @@ public class yamlManager {
             else {return defaultConfig();}}
         for(String s : DBFolders){
           File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
-          if (!file.exists()){file.mkdirs();}
+          File defaultFile = new File(file.getAbsolutePath(), "Default.yml");
+          if (!file.exists()){
+            try {
+              file.mkdirs();
+              defaultFile.createNewFile();
+            } catch (IOException e) {e.printStackTrace();
+            }
+          }
           List<YamlConfiguration> list = new ArrayList<>();
           getAllFilesConfig(file, list);
           DBFileConfiguration.put(s, list);
@@ -168,7 +176,8 @@ public class yamlManager {
           getFileConfig("config").addDefault("autoMod.punishments.5.type", "permBan");
           getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
           getFileConfig("config").addDefault("items.unbreakable.enabled", true);
-          getFileConfig("config").addDefault("items.defaultItem", "dirt");
+          getFileConfig("config").addDefault("items.default.Item", "dirt");
+          getFileConfig("config").addDefault("items.default.File", "ItemDB/Default.yml");
           getFileConfig("config").addDefault("items.removeDefaultRecipes", true);
           getFileConfig("config").addDefault("items.display.rarity.common", "&f&lCOMMON");
           getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
@@ -196,7 +205,7 @@ public class yamlManager {
           getFileConfig("config").options().copyDefaults(true);
         }
 
-        if (getFileConfig("itemDB").getDefaults() == null) {
+        /*if (getFileConfig("itemDB").getDefaults() == null) {
           getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
           getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
           getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
@@ -255,7 +264,7 @@ public class yamlManager {
           getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
           getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
           getFileConfig("mobDB").options().copyDefaults(true);
-        }
+        }*/
 
         if (getFileConfig("lootTables").getDefaults() == null) {
           getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
@@ -334,6 +343,14 @@ public class yamlManager {
         return null;
     }
 
+    public static YamlConfiguration getDefaultDB(String DBFile) {
+        File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), DBFile);
+        if (!file.exists()){
+          file.mkdir();
+        }
+        return YamlConfiguration.loadConfiguration(file);
+    }
+
     public void getAllFilesConfig(File f, List<YamlConfiguration> list){
         if (f.isDirectory()) {
             for (File file : f.listFiles()) {
@@ -384,7 +401,7 @@ public class yamlManager {
       List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
       YamlConfiguration itemFile = null;
       for (YamlConfiguration yaml : itemDB) {
-        if (yaml.get(name + "ItemID") != null) {
+        if (yaml.get(name + ".ItemID") != null) {
           itemFile = yaml;
           break;
         }
@@ -409,6 +426,9 @@ public class yamlManager {
             List<String> lore = new ArrayList(List.of());
             List<String> PDC = new ArrayList(List.of());
             PDC.add("ItemID;" + itemFile.getString(name + ".ItemID"));
+            if(!(ItemDB.containsKey(itemFile.getString(name + ".ItemID")))){
+              ItemDB.put(itemFile.getString(name + ".ItemID"), itemFile);
+            }
             int attributes = 0;
 
             for(String s : RPGCraft.itemStats){

@@ -7,6 +7,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,12 +17,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
 import io.RPGCraft.FableCraft.core.GUI;
 
@@ -40,8 +42,8 @@ public class ItemEditor implements Listener {
     inv.setItem(19, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
     inv.setItem(20, createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."));
     inv.setItem(21, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
-    inv.setItem(22, createButton("&bDurability", Material.IRON_CHESTPLATE, "&fDefine Durability stats."));
-    inv.setItem(23, createButton("&eMinimum require levels", Material.IRON_CHESTPLATE, "&fDefine Minimum require levels to use this item."));
+    inv.setItem(22, createButton("&bDurability", Material.ANVIL, "&fDefine Durability stats."));
+    inv.setItem(23, createButton("&eMinimum require levels", Material.EXPERIENCE_BOTTLE, "&fDefine Minimum require levels to use this item."));
     inv.setItem(34, createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."));
     inv.setItem(35, createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."));
 
@@ -67,17 +69,34 @@ public class ItemEditor implements Listener {
 
 
   public static String getItemKey(ItemStack item) {
-    return yamlGetter.getNodes("itemDB", "").stream()
-      .map(Object::toString)
-      .filter(key -> yamlManager.getInstance().getFileConfig("itemDB").getString(key + ".ItemID")
-        .equals(getItemPDC("ItemID", item)))
-      .findFirst()
-      .orElse(null);
+    List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
+    String name = getItemPDC("ItemID", item);
+    // Define variables
+    YamlConfiguration itemFile = null;
+    String key = "Not Found";
+    String id = "Not Found";
+    // Loop through all itemDB files a bit laggy but it works
+    for (YamlConfiguration yaml : itemDB) {
+      for (String s : yaml.getConfigurationSection("").getKeys(false)) {
+        // Check if the itemID matches the name
+        if (yaml.getString(s + ".ItemID").equals(name)) {
+          itemFile = yaml;
+          key = s;
+          id = yaml.getString(s + ".ItemID");
+          break;
+        }
+      }
+    }
+    // Null check
+    if (itemFile == null) {
+      return "Not Found";
+    }
+    if (key.equals("Not Found")) {
+      return "Not Found";
+    }
+    // Return key
+    return key + "/" + id;
   }
-
-
-  // wait(2, () -> {}
-
 
   @EventHandler
   void Closeinv(InventoryCloseEvent e){
@@ -93,6 +112,7 @@ public class ItemEditor implements Listener {
     Player p = e.getPlayer();
     String message = PlainTextComponentSerializer.plainText().serialize(e.message());
     String state = getPlayerPDC("ItemEditorUsing", p);
+    File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/ItemDB", "Default.yml");
 
     if (state.equals("notUsing") || state.equals("GUI")) return;
 
@@ -109,7 +129,7 @@ public class ItemEditor implements Listener {
       case "Chat-health" -> withItemKey(p, key -> updateStat(p, key, "Health", message));
       case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
       case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
-      case "chat-createItem" -> createItem(p, message);
+      case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
       case "Chat-id" -> GUI.gottenItemID(p, message);
       case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message.toUpperCase()));
     }
@@ -117,7 +137,7 @@ public class ItemEditor implements Listener {
 
   private void withItemKey(Player p, Consumer<String> action) {
     String key = getPlayerPDC("SelectedItemKey", p);
-    if (key == null) {
+    if (Objects.equals(key, "Not Found")) {
       p.sendMessage(Colorize("&cError: No item selected!"));
     } else {
       action.accept(key);
@@ -125,31 +145,37 @@ public class ItemEditor implements Listener {
   }
 
   private void setItemType(Player p, String key, String material){
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
     Material mat = Material.getMaterial(material);
     if (mat == null){
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.fail", p, true));
       return;
     }
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".itemType", mat.toString());
+    file.set(keys[0] + ".itemType", mat.toString());
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.success", p, true));
     reopenEditorLater(p, key);
   }
 
   private void updateStat(Player p, String key, String statPath, String input) {
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
     int value = parseInt(input, -1);
     if (value < 0) {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
       return;
     }
 
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + "." + statPath, value);
+     file.set( keys[0] + "." + statPath, value);
     p.sendMessage(Colorize("&a" + statPath + " set to &f" + value));
     reopenEditorLater(p, key);
   }
 
 
   private void renameItem(Player p, String key, String name) {
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".name", name);
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
+     file.set( keys[0] + ".name", name);
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
     reopenEditorLater(p, key);
   }
@@ -172,7 +198,9 @@ public class ItemEditor implements Listener {
   }
 
   private void updateLoreLine(Player p, String key, String lineText) {
-    List<String> lore = yamlManager.getInstance().getFileConfig("itemDB").getStringList(key + ".lore");
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
+    List<String> lore =  file.getStringList( keys[0] + ".lore");
     int lineNum = parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p), 1);
 
     if (lineNum > lore.size()) {
@@ -183,32 +211,36 @@ public class ItemEditor implements Listener {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
     }
 
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".lore", lore);
+     file.set( keys[0] + ".lore", lore);
     reopenEditorLater(p, key);
   }
 
   private void updateCustomModelData(Player p, String key, String input) {
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
     int data = parseInt(input, 0);
     if (data <= 0) {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
       return;
     }
 
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".customModelData", data);
+     file.set( keys[0] + ".customModelData", data);
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.success", p, true));
     reopenEditorLater(p, key);
   }
 
   private void setCraftPermission(Player p, String key, String perm) {
-    yamlManager.getInstance().getFileConfig("itemDB").set(key + ".recipe.permission", perm);
+    String[] keys = key.split("/");
+    YamlConfiguration file = ItemDB.get(keys[1]);
+     file.set( keys[0] + ".recipe.permission", perm);
     p.sendMessage(Colorize("&aCrafting permission set!"));
   }
 
-  public static void createItem(Player p, String id) {
+  public static void createItem(Player p, String id, YamlConfiguration file) {
     if (id == null || id.isBlank()) return;
 
-    yamlManager.getInstance().getFileConfig("itemDB").set(id + ".ItemID", id);
-    yamlManager.getInstance().getFileConfig("itemDB").set(id + ".itemType", yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase());
+    file.set(id + ".ItemID", id);
+    file.set(id + ".itemType", yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase());
     p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }
@@ -222,6 +254,7 @@ public class ItemEditor implements Listener {
   }
 
   public static void reopenEditorLater(Player p, String itemKey) {
+    String[] keys = itemKey.split("/");
     RPGCraft.wait(1, new BukkitRunnable() {
       @Override
       public void run() {

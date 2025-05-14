@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft;
 
+import ch.njol.skript.Skript;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Tasks.TabList;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -49,6 +50,10 @@ public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
 
+  public static boolean IsLuckperms = false;
+  public static boolean IsCitizen = false;
+  public static boolean IsSkript = false;
+
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
@@ -56,6 +61,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> yamlFiles = List.of("data", "messages", "config", "lootTables", "skills", "quests", "format");
   public static List<String> DBFolders = List.of("itemDB", "mobDB");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
+  public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
   public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
   public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 
@@ -63,6 +69,15 @@ public final class RPGCraft extends JavaPlugin {
 
 
   public void onEnable() {
+    if(doesPluginExist("LuckPerms")){
+      IsLuckperms = true;
+    }
+    if(doesPluginExist("Citizens")){
+      IsCitizen = true;
+    }
+    if(doesPluginExist("Skript")){
+      IsSkript = true;
+    }
 
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
@@ -178,6 +193,22 @@ public final class RPGCraft extends JavaPlugin {
     item.setItemMeta(skullMeta);
     return item;
   }
+
+  public boolean doesPluginExist(String pluginName) {
+    Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin(pluginName);
+    return plugin != null && plugin.isEnabled();
+  }
+
+  public Plugin getPluginInstance(String pluginName) {
+    Plugin instance = Bukkit.getServer().getPluginManager().getPlugin(pluginName);
+    if(instance != null && instance.isEnabled()) {
+      return instance;
+    } else {
+      Bukkit.getLogger().warning(pluginName + " is not enabled or does not exist!");
+      return null;
+    }
+  }
+
   public static String FormatForMiniMessage(String input){
     String output = input.replace("&0", "<black>").replace("&1", "<dark_blue>")
       .replace("&2", "<dark_green>").replace("&3", "<dark_aqua>")

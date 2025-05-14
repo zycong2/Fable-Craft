@@ -66,6 +66,7 @@ public class mainListeners implements Listener {
 
     // Init basic PDC values
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
+    setPlayerPDC("MobsEditorUsing", p, "notUsing");
 
 
     // Set default values for stats points
@@ -100,6 +101,7 @@ public class mainListeners implements Listener {
     Player p = event.getPlayer();
 
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
+    setPlayerPDC("MobsEditorUsing", p, "notUsing");
     for (Player pla : Bukkit.getServer().getOnlinePlayers()) {
       pla.sendMessage(yamlGetter.getMessage("messages.quitMessage", p, true));
     }

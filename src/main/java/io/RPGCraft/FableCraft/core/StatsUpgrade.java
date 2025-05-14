@@ -46,6 +46,7 @@ public class StatsUpgrade implements CommandExecutor, Listener {
         Material.BARRIER,
         ColorizeReString("&cClose the menu!")
       ));
+      p.openInventory(statsMenu);
     }
 
     return false;
