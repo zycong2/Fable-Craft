@@ -17,6 +17,7 @@ repositories {
   maven("https://maven.citizensnpcs.co/repo")
   maven("https://repo.dmulloy2.net/repository/public/")
   maven("https://repo.skriptlang.org/releases")
+  maven("https://repo.extendedclip.com/releases/")
 }
 
 dependencies {
@@ -24,6 +25,7 @@ dependencies {
   implementation("net.kyori:adventure-text-minimessage:4.19.0")
   implementation("com.github.SkriptLang:Skript:2.11.1")
   compileOnly("org.projectlombok:lombok:1.18.30")
+  compileOnly("me.clip:placeholderapi:2.11.6")
   compileOnly("net.luckperms:api:5.4")
   compileOnly("net.citizensnpcs:citizens-main:2.0.38-SNAPSHOT") {
     exclude(group = "*", module = "*")

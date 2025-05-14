@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.commands.NPC;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.IsCitizen;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setNPCPDC;
 
 public class CreateNPC implements CommandExecutor {
@@ -34,6 +36,8 @@ public class CreateNPC implements CommandExecutor {
         }
 
         if (!ValidNPCType.contains(args[2].toLowerCase())){return false;}
+
+        if (!IsCitizen){Bukkit.getLogger().warning("Citizens is not installed, please install it to use this command");commandSender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));}
 
         Player player = (Player) commandSender;
 

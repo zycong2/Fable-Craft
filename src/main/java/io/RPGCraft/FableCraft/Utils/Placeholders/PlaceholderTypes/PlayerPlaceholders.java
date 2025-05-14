@@ -2,11 +2,13 @@ package io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes;
 
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderUtils.Placeholder;
 import net.luckperms.api.LuckPerms;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.IsLuckperms;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static org.bukkit.Bukkit.getServer;
 
@@ -88,6 +90,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "rankPrefix")
   public static String rankPrefix(Entity e) {
+    if(!IsLuckperms){Bukkit.getLogger().warning("LuckPerms is not installed, rankPrefix placeholder will not work.");}
     LuckPerms luckPerms = getServer().getServicesManager().load(LuckPerms.class);;
     if (e instanceof Player p) {
       String prefix = luckPerms.getPlayerAdapter(Player.class).getMetaData(p).getPrefix();

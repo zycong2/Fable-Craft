@@ -4,6 +4,8 @@ import ch.njol.skript.Skript;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Tasks.TabList;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
+import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
+import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
@@ -53,6 +55,7 @@ public final class RPGCraft extends JavaPlugin {
   public static boolean IsLuckperms = false;
   public static boolean IsCitizen = false;
   public static boolean IsSkript = false;
+  public static boolean IsPlaceholderAPI = false;
 
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
@@ -77,6 +80,11 @@ public final class RPGCraft extends JavaPlugin {
     }
     if(doesPluginExist("Skript")){
       IsSkript = true;
+    }
+    if(doesPluginExist("PlaceholderAPI")){
+      IsPlaceholderAPI = true;
+      new DefensePlaceholder().register();
+      new ManaPlaceholder().register();
     }
 
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
