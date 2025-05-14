@@ -6,6 +6,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,16 +19,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 import io.RPGCraft.FableCraft.listeners.ItemEditor;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getDefaultDB;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
 public class GUI implements Listener {
@@ -206,7 +208,8 @@ public class GUI implements Listener {
 
   public static void gottenItemID(Player p, String id){
     Inventory editor = makeItemEditor(ItemStack.of(Material.getMaterial(yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase())));
-    ItemEditor.createItem(p, id);
+    File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/ItemDB", "Default.yml");
+    ItemEditor.createItem(p, id, YamlConfiguration.loadConfiguration(file));
 
     setPlayerPDC("SelectedItemKey", p, id);
     setPlayerPDC("ItemEditorUsing", p, "GUI");
