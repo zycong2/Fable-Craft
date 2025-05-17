@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,6 +22,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static io.RPGCraft.FableCraft.RPGCraft.DBFileConfiguration;
+import static io.RPGCraft.FableCraft.RPGCraft.ItemDB;
 
 
 public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
@@ -111,11 +115,16 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
             if (Material.getMaterial(values[0]) != null){
                 for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(ItemStack.of(Material.getMaterial(values[0]))); }
             } else {
-                if (yamlGetter.getNodes("itemDB", "").contains(values[0])){
-                    for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(yamlManager.getInstance().getItem(values[0])); }
-                } else{
-                    Bukkit.getLogger().severe("Material " + values[0] + " could not be found!");
+              // I'm sorry, but I don't know how to fix this except from nested code ewww I know, I know.
+              for(YamlConfiguration file : DBFileConfiguration.get(ItemDB)) {
+                if (file.getConfigurationSection("").getKeys(false).contains(values[0])) {
+                  for (int i = 0; i < Integer.valueOf(values[3]); i++) {
+                    items.add(yamlManager.getInstance().getItem(values[0]));
+                  }
+                } else {
+                  Bukkit.getLogger().severe("Material " + values[0] + " could not be found!");
                 }
+              }
             }
         }
         List<ItemStack> finalItems = new java.util.ArrayList<>(List.of());

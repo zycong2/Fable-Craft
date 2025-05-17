@@ -80,13 +80,8 @@ public class yamlManager {
         for(String s : DBFolders){
           File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
           File defaultFile = new File(file.getAbsolutePath(), "Default.yml");
-          if (!file.exists()){
-            try {
-              file.mkdirs();
-              defaultFile.createNewFile();
-            } catch (IOException e) {e.printStackTrace();
-            }
-          }
+          if (!file.exists()){file.mkdirs();}
+          if(!defaultFile.exists()){try{defaultFile.createNewFile();}catch (Exception e){}}
           List<YamlConfiguration> list = new ArrayList<>();
           getAllFilesConfig(file, list);
           DBFileConfiguration.put(s, list);

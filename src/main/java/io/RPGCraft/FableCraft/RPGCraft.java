@@ -61,8 +61,8 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("data", "messages", "config", "lootTables", "skills", "quests", "format");
-  public static List<String> DBFolders = List.of("itemDB", "mobDB");
+  public static List<String> yamlFiles = List.of("data", "messages", "mobDB", "config", "lootTables", "skills", "quests", "format");
+  public static List<String> DBFolders = List.of("itemDB");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
   public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
@@ -72,17 +72,10 @@ public final class RPGCraft extends JavaPlugin {
 
 
   public void onEnable() {
-    if(doesPluginExist("LuckPerms")){
-      IsLuckperms = true;
-    }
-    if(doesPluginExist("Citizens")){
-      IsCitizen = true;
-    }
-    if(doesPluginExist("Skript")){
-      IsSkript = true;
-    }
-    if(doesPluginExist("PlaceholderAPI")){
-      IsPlaceholderAPI = true;
+    if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
+    if(doesPluginExist("Citizens")){IsCitizen = true;}
+    if(doesPluginExist("Skript")){IsSkript = true;}
+    if(doesPluginExist("PlaceholderAPI")){IsPlaceholderAPI = true;
       new DefensePlaceholder().register();
       new ManaPlaceholder().register();
     }
