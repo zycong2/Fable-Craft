@@ -329,7 +329,7 @@ public class yamlManager {
         return true;
     }
 
-    public YamlConfiguration getFileConfig(String ymlFile) {
+    public static YamlConfiguration getFileConfig(String ymlFile) {
         int index = 0;
         for (String s : RPGCraft.yamlFiles) {
             if (Objects.equals(s, ymlFile)) { return RPGCraft.fileConfigurationList.get(index); }

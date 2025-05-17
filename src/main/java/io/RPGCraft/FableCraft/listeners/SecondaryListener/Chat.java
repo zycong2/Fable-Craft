@@ -7,7 +7,12 @@ import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -17,10 +22,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import io.RPGCraft.FableCraft.core.autoMod;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
 
@@ -38,14 +45,19 @@ public class Chat implements Listener {
     e.setCancelled(true);
     String format = yamlManager.getInstance().getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
-    String str2 = setPlaceholders(str1, false, e);
+    TextComponent str2 = (TextComponent) mm.deserialize(setPlaceholders(str1, false, e));
 
-    Bukkit.getLogger().info(str2);
+    if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 
-    if (!p.hasPermission("RPGCraft.noChatFilter")){ str2 = autoMod.autoModMessage(str2, p); Bukkit.getLogger().info("editing");}
-    Bukkit.getLogger().info(str2);
+    ItemStack itemInHand = p.getItemInHand();
+    if (itemInHand != null && itemInHand.getType() != Material.AIR && str2.contains(Component.text("[item]"))) {
+      ItemMeta meta = itemInHand.getItemMeta();
+      String itemLore = meta != null && meta.hasLore() ? meta.getLore().stream().collect(Collectors.joining("\n")) : "";
+      MiniMessage.miniMessage().deserialize("<ItemLore>[" + meta.getDisplayName() + "]</ItemLore>", Placeholder.styling("ItemLore", HoverEvent.showText(Component.text(itemLore))));
+    }
+
     for(Player player : Bukkit.getOnlinePlayers()){
-      player.sendMessage(ColorizeReString(str2));
+      player.sendMessage(str2);
     }
   }
 }

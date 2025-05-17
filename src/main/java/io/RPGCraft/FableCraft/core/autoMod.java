@@ -3,7 +3,11 @@ package io.RPGCraft.FableCraft.core;
 import io.RPGCraft.FableCraft.Utils.BanUtils;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +35,10 @@ public class autoMod {
   }
 
 
-  public static String autoModMessage(String msg, Player p){
-    if (Boolean.valueOf(yamlManager.getInstance().getOption("config", "autoMod.enabled").toString())) {
+  public static TextComponent autoModMessage(TextComponent msg2, Player p){
+    String msg = PlainTextComponentSerializer.plainText().serialize(msg2);
+    MiniMessage mm = MiniMessage.miniMessage();
+    if (Boolean.valueOf(yamlManager.getFileConfig("Config").getString("autoMod.enabled"))) {
       String newMsg = msg;
       List<String> bannedWords = (List) yamlManager.getInstance().getOption("config", "autoMod.bannedWords");
       for (String msgWord : msg.split(" ")) {
@@ -42,9 +48,8 @@ public class autoMod {
           }
         }
       }
-      return newMsg;
-    }
-    return msg;
+      return (TextComponent) mm.deserialize(newMsg);}
+    return (TextComponent) mm.deserialize(msg);
   }
 
   // Map of common character substitutions (leetspeak)
