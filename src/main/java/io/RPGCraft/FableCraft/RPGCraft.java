@@ -45,9 +45,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getEmeraldPouch;
-import static io.RPGCraft.FableCraft.listeners.SecondaryListener.EmeraldPouch.getPouch;
-
 public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
@@ -124,16 +121,6 @@ public final class RPGCraft extends JavaPlugin {
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
-    scheduler.scheduleSyncRepeatingTask(this, () -> {
-      for (UUID playerId : getEmeraldPouch().keySet()) {
-        Player p = Bukkit.getPlayer(playerId);
-        if (p != null && p.isOnline()) {
-          // Update the pouch item in the player's inventory with the current emerald count
-          p.getInventory().setItem(8, getPouch(p)); // Slot 8 is where we store the pouch
-        }
-      }
-    }, 0L, 40L);
-
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
