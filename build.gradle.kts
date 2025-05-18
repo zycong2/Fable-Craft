@@ -18,6 +18,7 @@ repositories {
   maven("https://repo.dmulloy2.net/repository/public/")
   maven("https://repo.skriptlang.org/releases")
   maven("https://repo.extendedclip.com/releases/")
+  maven("https://jitpack.io")
 }
 
 dependencies {
@@ -26,6 +27,7 @@ dependencies {
   implementation("com.github.SkriptLang:Skript:2.11.1")
   compileOnly("org.projectlombok:lombok:1.18.30")
   compileOnly("me.clip:placeholderapi:2.11.6")
+  compileOnly("com.github.MilkBowl:VaultAPI:1.7")
   compileOnly("net.luckperms:api:5.4")
   compileOnly("net.citizensnpcs:citizens-main:2.0.38-SNAPSHOT") {
     exclude(group = "*", module = "*")
