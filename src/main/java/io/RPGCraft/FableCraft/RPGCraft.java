@@ -144,7 +144,7 @@ public final class RPGCraft extends JavaPlugin {
             PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(maxPlayerMana));
           }
         } catch (NumberFormatException ignored) {}
-        }
+      }
     }, 20L, 20L);
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);

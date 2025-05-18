@@ -197,6 +197,7 @@ public class yamlManager {
           getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
           getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
           getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
+          getFileConfig("config").addDefault("actionbar.enabled", true);
           getFileConfig("config").options().copyDefaults(true);
         }
 
