@@ -1,14 +1,11 @@
 package io.RPGCraft.FableCraft.Tasks;
 
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
 
-import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
-import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getActionBar;
 
 public class Actionbar implements Runnable{
@@ -19,6 +16,7 @@ public class Actionbar implements Runnable{
 
   @Override
   public void run() {
+    if (!Boolean.valueOf(yamlManager.getInstance().getOption("config", "actionbar.enabled").toString())) { return; }
     for(Player p : Bukkit.getOnlinePlayers()) {
       p.sendActionBar(ColorizeReString(getActionBar(p, true).toString()));
     }

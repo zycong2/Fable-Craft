@@ -220,7 +220,6 @@ public class mainListeners implements Listener {
   // Adjust stats on hotbar item switch
   @EventHandler
   void onHoldChange(PlayerItemHeldEvent event) {
-    Bukkit.getLogger().info("PlayerItemHeldEvent");
     Player p = event.getPlayer();
     ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
     ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
