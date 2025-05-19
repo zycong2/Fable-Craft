@@ -52,6 +52,7 @@ public final class RPGCraft extends JavaPlugin {
   public static boolean IsLuckperms = false;
   public static boolean IsCitizen = false;
   public static boolean IsSkript = false;
+  public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
 
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
@@ -72,6 +73,7 @@ public final class RPGCraft extends JavaPlugin {
     if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
     if(doesPluginExist("Citizens")){IsCitizen = true;}
     if(doesPluginExist("Skript")){IsSkript = true;}
+    if(doesPluginExist("Vault")){IsVault = true;}
     if(doesPluginExist("PlaceholderAPI")){IsPlaceholderAPI = true;
       new DefensePlaceholder().register();
       new ManaPlaceholder().register();
@@ -177,7 +179,8 @@ public final class RPGCraft extends JavaPlugin {
     meta.setLore(Arrays.asList(lore));
     item.setItemMeta(meta);
     SkullMeta skullMeta = (SkullMeta)item.getItemMeta();
-    skullMeta.setPlayerProfile(p.getPlayerProfile());
+    skullMeta.setOwningPlayer(p);
+    // skullMeta.setPlayerProfile(p.getPlayerProfile());
     item.setItemMeta(skullMeta);
     return item;
   }
