@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.core;
 import io.RPGCraft.FableCraft.Utils.BanUtils;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -35,7 +36,7 @@ public class autoMod {
   }
 
 
-  public static TextComponent autoModMessage(TextComponent msg2, Player p){
+  public static TextComponent autoModMessage(Component msg2, Player p){
     String msg = PlainTextComponentSerializer.plainText().serialize(msg2);
     MiniMessage mm = MiniMessage.miniMessage();
     if (Boolean.valueOf(yamlManager.getFileConfig("Config").getString("autoMod.enabled"))) {

@@ -7,6 +7,7 @@ import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
+import io.RPGCraft.FableCraft.Utils.VaultUtils;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
@@ -45,6 +46,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
+import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
+
 public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
@@ -78,6 +81,8 @@ public final class RPGCraft extends JavaPlugin {
       new DefensePlaceholder().register();
       new ManaPlaceholder().register();
     }
+    setupEconomy();
+    setupChat();
 
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");

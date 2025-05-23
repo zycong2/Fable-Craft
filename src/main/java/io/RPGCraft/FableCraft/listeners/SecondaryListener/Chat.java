@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.listeners.SecondaryListener;
 // The mainlisteners class is messy enough alright?
 // finding 1 line of code is like finding a needle in the sea
 
+import io.RPGCraft.FableCraft.Utils.VaultUtils;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -37,6 +38,7 @@ public class Chat implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void AsyncChat(AsyncChatEvent e){
+    if (VaultUtils.getChat() != null) return;
     if (e.isCancelled()) return;
     MiniMessage mm = MiniMessage.miniMessage();
 
@@ -45,7 +47,7 @@ public class Chat implements Listener {
     e.setCancelled(true);
     String format = yamlManager.getInstance().getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
-    TextComponent str2 = (TextComponent) mm.deserialize(setPlaceholders(str1, false, e));
+    Component str2 = mm.deserialize(setPlaceholders(str1, false, e));
 
     if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 
@@ -53,7 +55,7 @@ public class Chat implements Listener {
     if (itemInHand != null && itemInHand.getType() != Material.AIR && str2.contains(Component.text("[item]"))) {
       ItemMeta meta = itemInHand.getItemMeta();
       String itemLore = meta != null && meta.hasLore() ? meta.getLore().stream().collect(Collectors.joining("\n")) : "";
-      MiniMessage.miniMessage().deserialize("<ItemLore>[" + meta.getDisplayName() + "]</ItemLore>", Placeholder.styling("ItemLore", HoverEvent.showText(Component.text(itemLore))));
+      str2 = MiniMessage.miniMessage().deserialize("<ItemLore>[" + meta.getDisplayName() + "]</ItemLore>", Placeholder.styling("ItemLore", HoverEvent.showText(Component.text(itemLore))));
     }
 
     for(Player player : Bukkit.getOnlinePlayers()){
