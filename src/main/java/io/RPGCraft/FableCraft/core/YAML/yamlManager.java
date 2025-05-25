@@ -163,6 +163,7 @@ public class yamlManager {
         }
 
         if (getFileConfig("config").getDefaults() == null) {
+          getFileConfig("config").addDefault("prefix", "&bAfter&aDusk &6»");
           getFileConfig("config").addDefault("food.removeHunger", true);
           getFileConfig("config").addDefault("autoMod.enabled", true);
           getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
@@ -393,7 +394,175 @@ public class yamlManager {
         return items;
     }
 
-    public ItemStack getItem(String name) {
+  public static ItemStack getItem(String name) {
+    Logger logger = Bukkit.getLogger();
+    List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
+
+    YamlConfiguration itemFile = itemDB.stream()
+      .filter(yaml -> yaml.contains(name + ".ItemID"))
+      .findFirst()
+      .orElse(null);
+
+    if (itemFile == null) {
+      logger.warning("Item not found in itemDB: " + name);
+      return null;
+    }
+
+    String itemTypeName = itemFile.getString(name + ".itemType");
+    Material material = Material.getMaterial(itemTypeName);
+    if (material == null) {
+      logger.severe("Could not find material: " + itemTypeName + " for item " + name);
+      return null;
+    }
+
+    ItemStack item = ItemStack.of(material);
+    ItemMeta meta = item.getItemMeta();
+    if (meta == null) return null;
+
+    List<String> lore = new ArrayList<>();
+    List<String> PDC = new ArrayList<>();
+
+    String itemID = itemFile.getString(name + ".ItemID");
+    if (itemID != null && !ItemDB.containsKey(itemID)) {
+      ItemDB.put(itemID, itemFile);
+    }
+    PDC.add("ItemID;" + itemID);
+
+    int attributes = applyStats(name, itemFile, lore, PDC);
+    if (attributes > 0) lore.add(0, "");
+
+    applyNameAndModelData(name, itemFile, meta);
+    applyEnchantments(name, itemFile, meta);
+    applyHideFlags(name, itemFile, meta);
+    applyLore(name, itemFile, lore);
+    applyRarity(name, itemFile, lore);
+
+    meta.setLore(lore);
+    item.setItemMeta(meta);
+
+    applySpecialMeta(name, itemFile, item, meta);
+
+    if (itemFile.contains(name + ".recipe.permission")) {
+      PDC.add("craftPerms;" + itemFile.getString(name + ".recipe.permission"));
+    }
+
+    if (Bukkit.getRecipesFor(item).isEmpty() && itemFile.contains(name + ".recipe.type")) {
+      addRecipe(name, itemFile, item);
+    }
+
+    for (String pdcString : PDC) {
+      String[] parts = pdcString.split(";", 2);
+      PDCHelper.setItemPDC(parts[0], item, parts[1]);
+    }
+
+    return item;
+  }
+
+  private static int applyStats(String name, YamlConfiguration itemFile, List<String> lore, List<String> PDC) {
+    int count = 0;
+    for (String stat : RPGCraft.itemStats) {
+      String path = name + "." + stat;
+      if (itemFile.contains(path)) {
+        String value = itemFile.getString(path);
+        String symbol = String.valueOf(yamlGetter.getConfig("stats." + stat + ".char", null, true));
+        lore.add(ColorizeReString("&8" + stat + ": &f+" + value + symbol));
+        PDC.add(stat + ";" + value);
+        count++;
+      }
+    }
+    return count;
+  }
+
+  private static void applyNameAndModelData(String name, YamlConfiguration file, ItemMeta meta) {
+    if (file.contains(name + ".name")) {
+      meta.setItemName(ColorizeReString(file.getString(name + ".name")));
+    }
+    if (file.contains(name + ".customModelData")) {
+      meta.setCustomModelData(file.getInt(name + ".customModelData"));
+    }
+  }
+
+  private static void applyEnchantments(String name, YamlConfiguration file, ItemMeta meta) {
+    if (file.contains(name + ".enchantments")) {
+      for (String enchantString : file.getStringList(name + ".enchantments")) {
+        String[] split = enchantString.split(":");
+        Enchantment enchant = Enchantment.getByName(split[0]);
+        int level = Integer.parseInt(split[1]);
+        if (enchant != null) {
+          meta.addEnchant(enchant, level, true);
+        }
+      }
+    }
+  }
+
+  private static void applyHideFlags(String name, YamlConfiguration file, ItemMeta meta) {
+    if (file.contains(name + ".hide")) {
+      for (Object flag : file.getList(name + ".hide")) {
+        meta.addItemFlags(ItemFlag.valueOf("HIDE_" + flag.toString().toUpperCase()));
+      }
+    }
+  }
+
+  private static void applyLore(String name, YamlConfiguration file, List<String> lore) {
+    if (file.contains(name + ".lore")) {
+      if (isConfigSet("items.lore.prefix")) {
+        lore.add(ColorizeReString((String) yamlGetter.getConfig("items.lore.prefix", null, true)));
+      }
+      for (String line : file.getStringList(name + ".lore")) {
+        lore.add(ColorizeReString(line));
+      }
+      if (isConfigSet("items.lore.suffix")) {
+        lore.add(ColorizeReString((String) yamlGetter.getConfig("items.lore.suffix", null, true)));
+      }
+    }
+  }
+
+  private static void applyRarity(String name, YamlConfiguration file, List<String> lore) {
+    if (file.contains(name + ".rarity")) {
+      lore.add("");
+      String rarity = file.getString(name + ".rarity");
+      lore.add(ColorizeReString(getFileConfig("config").getString("items.display.rarity." + rarity)));
+      lore.add("");
+    }
+  }
+
+  private static void applySpecialMeta(String name, YamlConfiguration file, ItemStack item, ItemMeta meta) {
+    if (meta instanceof LeatherArmorMeta leatherMeta && file.contains(name + ".color")) {
+      String[] rgb = file.getString(name + ".color").split(",");
+      leatherMeta.setColor(Color.fromARGB(1, Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
+      item.setItemMeta(leatherMeta);
+    } else if (meta instanceof BookMeta bookMeta) {
+      if (file.contains(name + ".title")) bookMeta.setTitle(file.getString(name + ".title"));
+      if (file.contains(name + ".author")) bookMeta.setAuthor(file.getString(name + ".author"));
+      if (file.contains(name + ".pages")) bookMeta.setPages(file.getStringList(name + ".pages"));
+      item.setItemMeta(bookMeta);
+    }
+  }
+
+  private static void addRecipe(String name, YamlConfiguration file, ItemStack item) {
+    NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), name);
+    String type = file.getString(name + ".recipe.type").toLowerCase();
+
+    if (type.equals("shaped")) {
+      ShapedRecipe shaped = new ShapedRecipe(key, item);
+      shaped.shape(file.getStringList(name + ".recipe.shape").toArray(new String[0]));
+
+      for (String ingredient : file.getStringList(name + ".recipe.ingredients")) {
+        String[] parts = ingredient.split(":", 2);
+        shaped.setIngredient(parts[0].charAt(0), Material.getMaterial(parts[1]));
+      }
+      Bukkit.addRecipe(shaped);
+    } else {
+      ShapelessRecipe shapeless = new ShapelessRecipe(key, item);
+      for (String ingredient : file.getStringList(name + ".recipe.ingredients")) {
+        String[] parts = ingredient.split(":");
+        shapeless.addIngredient(Integer.parseInt(parts[1]), Material.getMaterial(parts[0]));
+      }
+      Bukkit.addRecipe(shapeless);
+    }
+  }
+
+  /*public ItemStack getItems(String name) {
       List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
       YamlConfiguration itemFile = null;
       for (YamlConfiguration yaml : itemDB) {
@@ -551,7 +720,7 @@ public class yamlManager {
 
             return item;
         }
-    }
+    } */
 
     public boolean isItemSetInAnyITEMDBFile(String path) {
       List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
@@ -577,7 +746,7 @@ public class yamlManager {
       }
     }
 
-    public boolean isConfigSet(String path) {
+    public static boolean isConfigSet(String path) {
         return getFileConfig("config").get(path) != null;
     }
 

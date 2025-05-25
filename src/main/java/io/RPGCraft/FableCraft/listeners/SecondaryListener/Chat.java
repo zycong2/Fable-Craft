@@ -47,7 +47,7 @@ public class Chat implements Listener {
     e.setCancelled(true);
     String format = yamlManager.getInstance().getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
-    Component str2 = mm.deserialize(setPlaceholders(str1, false, e));
+    TextComponent str2 = (TextComponent) mm.deserialize(setPlaceholders(str1, false, e));
 
     if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 
@@ -55,7 +55,7 @@ public class Chat implements Listener {
     if (itemInHand != null && itemInHand.getType() != Material.AIR && str2.contains(Component.text("[item]"))) {
       ItemMeta meta = itemInHand.getItemMeta();
       String itemLore = meta != null && meta.hasLore() ? meta.getLore().stream().collect(Collectors.joining("\n")) : "";
-      str2 = MiniMessage.miniMessage().deserialize("<ItemLore>[" + meta.getDisplayName() + "]</ItemLore>", Placeholder.styling("ItemLore", HoverEvent.showText(Component.text(itemLore))));
+      str2 = (TextComponent) MiniMessage.miniMessage().deserialize("<ItemLore>[" + meta.getDisplayName() + "]</ItemLore>", Placeholder.styling("ItemLore", HoverEvent.showText(Component.text(itemLore))));
     }
 
     for(Player player : Bukkit.getOnlinePlayers()){
