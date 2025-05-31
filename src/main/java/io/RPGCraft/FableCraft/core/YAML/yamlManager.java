@@ -302,28 +302,6 @@ public class yamlManager {
 
         if (getFileConfig("format").getDefaults() == null) {
           getFileConfig("format").addDefault("format.chat", "%rankPrefix% %target% &7: %messageChat%");
-          getFileConfig("format").addDefault("format.tab.animationinterval", 10);
-          getFileConfig("format").addDefault("format.tab.header.animationcycle", 18);
-          getFileConfig("format").addDefault("format.tab.header.animation1", List.of("<#C90A0A>Welcome to RPGCraft</#FF8787> ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation2", List.of("<#C90A0A>Welcome to RPGCraf_</#FF8787> ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation3", List.of("<#C90A0A>Welcome to RPGCra_</#FF8787>  ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation4", List.of("<#C90A0A>Welcome to RPGCr_</#FF8787>   ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation5", List.of("<#C90A0A>Welcome to RPGC_</#FF8787>    ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation6", List.of("<#C90A0A>Welcome to RPG_</#FF8787>     ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation7", List.of("<#C90A0A>Welcome to RP_</#FF8787>      ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation8", List.of("<#C90A0A>Welcome to R_</#FF8787>       ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation9", List.of("<#C90A0A>Welcome to _</#FF8787>        ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation10", List.of(" <#C90A0A>Welcome to </#FF8787>       ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation11", List.of("<#C90A0A>Welcome to _</#FF8787>       ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation12", List.of("<#C90A0A>Welcome to R_</#FF8787>      ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation13", List.of("<#C90A0A>Welcome to RP_</#FF8787>     ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation14", List.of("<#C90A0A>Welcome to RPG_</#FF8787>    ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation15", List.of("<#C90A0A>Welcome to RPGC_</#FF8787>   ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation16", List.of("<#C90A0A>Welcome to RPGCr_</#FF8787>  ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation17", List.of("<#C90A0A>Welcome to RPGCra_</#FF8787> ", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.header.animation18", List.of("<#C90A0A>Welcome to RPGCraf_</#FF8787>", "&aHave fun!"));
-          getFileConfig("format").addDefault("format.tab.footer.animationcycle", 1);
-          getFileConfig("format").addDefault("format.tab.footer.animation1", List.of("<#C90A0A>Hope you have a great stay!</#FF8787>", "&aBottom Text!"));
           getFileConfig("format").options().copyDefaults(true);
         }
 

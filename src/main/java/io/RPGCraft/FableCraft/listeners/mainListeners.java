@@ -26,6 +26,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
@@ -186,13 +187,28 @@ public class mainListeners implements Listener {
         } else {
           Sound sound = Sound.ITEM_SHIELD_BREAK;
           p.playSound(p, sound, 1f, 1f);
-          p.getInventory().remove(item);
+          removeOneItem(p, item);
         }
       }
     }
   }
   @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
   @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && yamlManager.getInstance().getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
+
+  public void removeOneItem(Player player, ItemStack target) {
+    PlayerInventory inv = player.getInventory();
+    for (int i = 0; i < inv.getSize(); i++) {
+      ItemStack stack = inv.getItem(i);
+      if (stack != null && stack.isSimilar(target)) {
+        if (stack.getAmount() > 1) {
+          stack.setAmount(stack.getAmount() - 1);
+        } else {
+          inv.setItem(i, null);
+        }
+        break;
+      }
+    }
+  }
 
   // Adjust stats on armor change
   @EventHandler

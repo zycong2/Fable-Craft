@@ -1,13 +1,10 @@
 package io.RPGCraft.FableCraft;
 
-import ch.njol.skript.Skript;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
-import io.RPGCraft.FableCraft.Tasks.TabList;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
-import io.RPGCraft.FableCraft.Utils.VaultUtils;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
@@ -127,7 +124,6 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
-    scheduler.scheduleSyncRepeatingTask(this, TabList.getTabInstance(), 10L, 10L);
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
