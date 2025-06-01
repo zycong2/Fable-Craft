@@ -71,7 +71,6 @@ public class yamlManager {
             RPGCraft.fileConfigurationList.add(new YamlConfiguration());
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
             if (cfile.exists()) {
-                getFileConfig(config) ;
                 int index = 0;
                 for (String s : RPGCraft.yamlFiles) {
                     if (Objects.equals(s, config)) {break;}index++;}
@@ -301,7 +300,10 @@ public class yamlManager {
         }
 
         if (getFileConfig("format").getDefaults() == null) {
-          getFileConfig("format").addDefault("format.chat", "%rankPrefix% %target% &7: %messageChat%");
+          getFileConfig("format").addDefault("format.chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
+          getFileConfig("format").addDefault("tag.player1.HoverEvent.ShowText", List.of("&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            ", "", "&7Name &a- &r%rankPrefix% &r%target%", "&cHealth &a- &r%maxHealth% &c❤", "", "&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            "));
+          getFileConfig("format").addDefault("tag.player2.ClickEvent.URL", "https://discord.gg/asg3WyTpKf");
+          getFileConfig("format").setInlineComments("tag.player2.ClickEvent.URL", Collections.singletonList("sadly I only support 1 event per tag"));
           getFileConfig("format").options().copyDefaults(true);
         }
 
@@ -364,6 +366,7 @@ public class yamlManager {
     public List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList();
         List<Object> nodes = getAllNodesInDB("itemDB");
+        if(nodes == null) {Bukkit.getLogger().warning("No Items Loaded");return List.of(new ItemStack(Material.DIRT));}
         for (Object node : nodes) {
             String key = node.toString();
             items.add(getItem(key));

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.RPGCraft.FableCraft"
-version = "1.2"
+version = "1.3"
 description = "RPG inspired plugin."
 
 java {
