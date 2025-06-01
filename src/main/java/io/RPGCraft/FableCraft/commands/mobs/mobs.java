@@ -15,9 +15,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -34,6 +32,8 @@ import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getPathInDB;
 
 
 public class mobs implements CommandInterface, Listener {
@@ -67,7 +67,7 @@ public class mobs implements CommandInterface, Listener {
         if (args.length == 1){
             return List.of("spawn", "killAll", "reload", "editor");
         } if (args.length == 2 && args[0].equals("spawn")){
-            List<Object> o =  yamlGetter.getNodes("mobDB", "");
+            List<Object> o =  getAllNodesInDB("mobDB", "");
             List<String> completion = new java.util.ArrayList<>(List.of());
             for (Object v : o){ completion.add(v.toString()); }
             return completion;
@@ -123,11 +123,11 @@ public class mobs implements CommandInterface, Listener {
         }
     }
     public static void reloadSpawns(){
-        List<Object> mobsObject = yamlGetter.getNodes("mobDB", "");
+        List<Object> mobsObject = getAllNodesInDB("mobDB", "");
         List<String> mobs = new java.util.ArrayList<>(List.of());
         for (Object o : mobsObject) {mobs.add(o.toString());}
         for (String s : mobs){
-            if(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency") != null){
+            if(getPathInDB("mobDB", s + ".randomSpawns.frequency") != null){
                 for (int i = 0; i < Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100; i++) { RPGCraft.spawns.add(s); }
                 for (int i = 0; i < 100 - (Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100); i++) { RPGCraft.spawns.add("null"); }
             }

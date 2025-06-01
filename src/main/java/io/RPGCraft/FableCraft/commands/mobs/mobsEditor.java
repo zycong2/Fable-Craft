@@ -1,19 +1,15 @@
 package io.RPGCraft.FableCraft.commands.mobs;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,6 +29,7 @@ import java.util.function.Consumer;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
 import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
 public class mobsEditor implements Listener {
@@ -184,7 +181,7 @@ public class mobsEditor implements Listener {
 
   public static void mobDBMenu(Player p) {
     Inventory menu = Bukkit.createInventory(p, 45, "mobDB");
-    List<Object> mobs = yamlGetter.getNodes("mobDB", "");
+    List<Object> mobs = getAllNodesInDB("mobDB", "");
     List<ItemStack> items = new java.util.ArrayList<>(List.of());
     for (Object o : mobs) {
       ItemStack item = ItemStack.of(Material.valueOf(yamlManager.getInstance().getOption("mobDB", o + ".type").toString().toUpperCase() + "_SPAWN_EGG"));
@@ -227,7 +224,7 @@ public class mobsEditor implements Listener {
     mobDB = menu;
   }
   private static String getMobKey(ItemStack item){
-    return yamlGetter.getNodes("mobDB", "").stream()
+    return getAllNodesInDB("mobDB", "").stream()
       .map(Object::toString)
       .filter(key -> key
         .equals(getItemPDC("MobID", item)))

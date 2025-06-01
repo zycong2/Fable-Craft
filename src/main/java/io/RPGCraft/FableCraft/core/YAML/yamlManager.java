@@ -2,7 +2,6 @@ package io.RPGCraft.FableCraft.core.YAML;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.PDCHelper;
-import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -364,21 +363,7 @@ public class yamlManager {
         }
     }
 
-    public List<Object> getAllNodesInDB(String DBFolder){
-      if(DBFileConfiguration.get(DBFolder) == null){ return null; }
-      List<Object> nodes = new ArrayList<>();
-      for (YamlConfiguration yaml : DBFileConfiguration.get(DBFolder)) {
-        List<Object> node = List.of(yaml.getKeys(false));
-        for (Object s : node) {
-          if (!nodes.contains(s)) {
-            nodes.add(s);
-          }
-        }
-      }
-      return nodes;
-    }
-
-    public Object getOption(String file, String path){
+  public Object getOption(String file, String path){
         if (getFileConfig(file).get(path) == null){ return null; }
         return getFileConfig(file).get(path);
     }
@@ -388,7 +373,7 @@ public class yamlManager {
 
     public List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList();
-        List<Object> nodes = getAllNodesInDB("itemDB");
+        List<Object> nodes = yamlGetter.getAllNodesInDB("itemDB", "");
         if(nodes == null) {Bukkit.getLogger().warning("No Items Loaded");return List.of(new ItemStack(Material.DIRT));}
         for (Object node : nodes) {
             String key = node.toString();

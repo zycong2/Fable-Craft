@@ -13,6 +13,7 @@ import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
 public class questManager {
   public static void startQuest(Player p, String quest){
@@ -65,7 +66,7 @@ public class questManager {
           return;
         }
 
-        for (Object s : yamlGetter.getNodes("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
+        for (Object s : getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
           switch (s.toString()) {
             case "removeItem":
               if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "removeItems") instanceof List list) {
@@ -107,7 +108,7 @@ public class questManager {
 
     //if the player doesn't have a quest so maybe needs to start it
     else {
-      for (Object quest : yamlGetter.getNodes("quests","")) {
+      for (Object quest : getAllNodesInDB("quests","")) {
 
         if (activeQuests.contains(quest)){ continue; }
 
