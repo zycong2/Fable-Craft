@@ -19,16 +19,14 @@ public class VaultUtils {
   @Getter
   private static Chat chat = null;
 
-  public static void giveOFPlayerMoney(OfflinePlayer player, Double money){
-    // you see what I did there? OF player XD it's actually stands for offline
+  public static void givePlayerMoney(OfflinePlayer player, Double money){
     if(econ == null) return;
     if(player == null) return;
     if(money == null) return;
     econ.depositPlayer(player, money);
   }
 
-  public static void giveOFPlayerMoney(OfflinePlayer player, Integer money){
-    // you see what I did there? OF player XD it's actually stands for offline
+  public static void givePlayerMoney(OfflinePlayer player, Integer money){
     if(econ == null) return;
     if(player == null) return;
     if(money == null) return;

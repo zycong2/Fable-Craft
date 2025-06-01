@@ -1,13 +1,18 @@
 package io.RPGCraft.FableCraft.Utils;
 
+import io.papermc.paper.configuration.type.fallback.FallbackValue;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class Utils {
   public static List<Group> getPossibleGroup(){
@@ -44,4 +49,18 @@ public class Utils {
     }
     return output;
   }
+
+  public static void broadcast(String message){
+    Bukkit.getOnlinePlayers().stream()
+      .forEach(player -> player.sendMessage(message));
+  }
+
+  public static void sendPrefixedMessage(Player p, String message){
+    sendPrefixedMessage(p, message, getFileConfig("config").getString("prefix"));
+  }
+
+  public static void sendPrefixedMessage(Player p, String message, String prefix){
+    p.sendMessage(MiniMessage.miniMessage().deserialize(prefix + message));
+  }
+
 }

@@ -29,17 +29,19 @@ public class StatsUpgrade implements CommandExecutor, Listener {
       statsMenu.setItem(11, ItemEditor.createButton(
         ColorizeReString("<#F86667>Stregth</#DA1717>"),
         Material.IRON_SWORD,
-        ColorizeReString("&fUpgrade your damage!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
+        ColorizeReString("&fUpgrade your damage!"),
+        ColorizeReString("&7 "),
+        ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(13, ItemEditor.createButton(
         ColorizeReString("<#F86667>Health</#DA1717>"),
         Material.IRON_CHESTPLATE,
-        ColorizeReString("&fUpgrade your health!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
+        ColorizeReString("&fUpgrade your health!"),ColorizeReString("&7" ),ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(15, ItemEditor.createButton(
         ColorizeReString("<#98C7FE>Mana</#2FBBED>"),
         Material.EXPERIENCE_BOTTLE,
-        ColorizeReString("&fUpgrade your max mana!!\n&7 \n&fYou have &e" + points + " &fpoints to spend!")
+        ColorizeReString("&fUpgrade your max mana!!"),ColorizeReString("&7 "),ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(26, ItemEditor.createButton(
         ColorizeReString("<#F86667>Close</#DA1717>"),
