@@ -7,60 +7,69 @@ description: RPG style plugin.
 license: MIT
 
 commands:
-  itemDB:
-    description: Manage the custom items in this server.
-    permission: FableCraft.itemDB
+#  itemDB:
+  #    description: Manage the custom items in this server.
+  #  permission: FableCraft.itemDB
+  #  aliases:
+  #    - idb
+  #createNPC:
+  #  description: idk
+  #  usage: /<command> <string>
+  #  permission: FableCraft.createNPC
+  #  aliases:
+  #    - makenpc
+  #stats:
+  #  description: Open the stats menu.
+  #  permission: FableCraft.stats
+  #  aliases:
+  #    - s
+  #    - stat
+  #resetStats:
+  #  description: Reset the stats of the specified player.
+  #  permission: FableCraft.resetStats
+  #  aliases:
+  #    - rs
+  #buildHelper:
+  ##  description: Some tools for building
+  #  permission: FableCraft.build
+  #  aliases:
+  #    - bh
+  #mobs:
+  #  description: Manage the custom mobs.
+  #  permission: FableCraft.mobs
+  #  aliases:
+  #    - m
+  #    - mob
+  #lootTables:
+  #  description: Manage the loot tables for chests.
+  #  permission: FableCraft.lootTables
+  #  aliases:
+  ##    - lt
+  #setNPCType:
+  #  description: Set the type of the npc.
+  #  permission: FableCraft.npcType
+  #  aliases:
+  #    - snt
+  #todolist:
+  #  description: Todolist for the devs.
+  #  permission: FableCraft.todolist
+  #  aliases:
+  #    - todo
+  #    - tdl
+  #    - todol
+  #    - tdlist
+  #quests:
+  #  description: Manage your quests.
+  #  permission: FableCraft.quest
+  #reloadRPG:
+  #  description: Reloads the RPGCraft plugin.
+#  permission: FableCraft.reload
+
+  RPGCraft:
+    description: Manage the RPGCraft plugin
+    permission: RPGCraft
     aliases:
-      - idb
-  createNPC:
-    description: idk
-    usage: /<command> <string>
-    permission: FableCraft.createNPC
-    aliases:
-      - makenpc
-  stats:
-    description: Open the stats menu.
-    permission: FableCraft.stats
-    aliases:
-      - s
-      - stat
-  resetStats:
-    description: Reset the stats of the specified player.
-    permission: FableCraft.resetStats
-    aliases:
-      - rs
-  buildHelper:
-    description: Some tools for building
-    permission: FableCraft.build
-    aliases:
-      - bh
-  mobs:
-    description: Manage the custom mobs.
-    permission: FableCraft.mobs
-    aliases:
-      - m
-      - mob
-  lootTables:
-    description: Manage the loot tables for chests.
-    permission: FableCraft.lootTables
-    aliases:
-      - lt
-  setNPCType:
-    description: Set the type of the npc.
-    permission: FableCraft.npcType
-    aliases:
-      - snt
-  todolist:
-    description: Todolist for the devs.
-    permission: FableCraft.todolist
-    aliases:
-      - todo
-      - tdl
-      - todol
-      - tdlist
-  quests:
-    description: Manage your quests.
-    permission: FableCraft.quest
-  reloadRPG:
-    description: Reloads the RPGCraft plugin.
-    permission: FableCraft.reload
+      - rc
+      - rCraft
+      - RPGC
+

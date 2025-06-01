@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
@@ -12,9 +13,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 
-public class reload implements CommandExecutor {
+public class reload implements CommandInterface {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
@@ -36,5 +39,10 @@ public class reload implements CommandExecutor {
     setPDC.initializeNPCs();
 
     return true;
+  }
+
+  @Override
+  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    return List.of();
   }
 }

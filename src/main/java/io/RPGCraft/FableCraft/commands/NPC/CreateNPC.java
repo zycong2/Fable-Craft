@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.commands.NPC;
 
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
@@ -17,7 +18,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsCitizen;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setNPCPDC;
 
-public class CreateNPC implements CommandExecutor {
+public class CreateNPC implements CommandInterface {
   private List<String> ValidNPCType = List.of(
     "shop",
     "quest",
@@ -51,4 +52,9 @@ public class CreateNPC implements CommandExecutor {
       }
       return false;
     }
+
+  @Override
+  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    return List.of();
+  }
 }

@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.commands;
 import java.util.List;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.kyori.adventure.text.TextComponent;
@@ -16,8 +17,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class stats implements CommandExecutor, TabCompleter {
-    @Override
+public class stats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
@@ -54,7 +54,6 @@ public class stats implements CommandExecutor, TabCompleter {
           p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
         }
     }
-    @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         List<Player> players = (List<Player>) Bukkit.getOnlinePlayers();
         List<String> args = new java.util.ArrayList<>(List.of());

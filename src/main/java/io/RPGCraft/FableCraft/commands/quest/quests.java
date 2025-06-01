@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands.quest;
 import java.util.List;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.lootTableHelper;
@@ -27,7 +28,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.startQuest;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 
-public class quests implements CommandExecutor, TabCompleter, Listener {
+public class quests implements CommandInterface, Listener {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;

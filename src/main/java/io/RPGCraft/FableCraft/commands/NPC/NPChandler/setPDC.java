@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.commands.NPC.NPChandler;
 
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 
-public class setPDC implements CommandExecutor, TabCompleter {
+public class setPDC implements CommandInterface {
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
     Player p = (Player) sender;

@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Location;
@@ -24,7 +25,7 @@ import java.util.Random;
 
 import static org.joml.SimplexNoise.noise;
 
-public class buildHelper implements CommandExecutor, Listener, TabCompleter {
+public class buildHelper implements CommandInterface, Listener {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 1) {

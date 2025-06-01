@@ -7,7 +7,7 @@ import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
-import io.RPGCraft.FableCraft.Utils.VaultUtils;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
@@ -46,8 +46,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
-
 public final class RPGCraft extends JavaPlugin {
   @Getter
   private static RPGCraft instance;
@@ -55,8 +53,8 @@ public final class RPGCraft extends JavaPlugin {
   public static boolean IsLuckperms = false;
   public static boolean IsCitizen = false;
   public static boolean IsSkript = false;
-  public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
+  public static boolean IsVault = false;
 
   public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
@@ -81,8 +79,6 @@ public final class RPGCraft extends JavaPlugin {
       new DefensePlaceholder().register();
       new ManaPlaceholder().register();
     }
-    setupEconomy();
-    setupChat();
 
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
@@ -94,22 +90,8 @@ public final class RPGCraft extends JavaPlugin {
 
     new PlaceholdersRegistry();
 
-    this.getCommand("itemDB").setExecutor(new itemDB());
-    this.getCommand("createNPC").setExecutor(new CreateNPC());
-    this.getCommand("stats").setExecutor(new StatsUpgrade());
-    this.getCommand("resetStats").setExecutor(new stats());
-    this.getCommand("resetStats").setTabCompleter(new stats());
-    this.getCommand("buildHelper").setExecutor(new buildHelper());
-    this.getCommand("buildHelper").setTabCompleter(new buildHelper());
-    this.getCommand("mobs").setExecutor(new mobs());
-    this.getCommand("mobs").setTabCompleter(new mobs());
-    this.getCommand("lootTables").setExecutor(new lootTableHelper());
-    this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
-    this.getCommand("setNPCType").setExecutor(new setPDC());
-    this.getCommand("setNPCType").setTabCompleter(new setPDC());
-    this.getCommand("quests").setExecutor(new quests());
-    this.getCommand("quests").setTabCompleter(new quests());
-    this.getCommand("reloadRPG").setExecutor(new reload());
+    this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
+    this.getCommand("RPGCraft").setExecutor(new CommandManager());
 
     registerListeners(
       new mainListeners(),
@@ -184,8 +166,7 @@ public final class RPGCraft extends JavaPlugin {
     meta.setLore(Arrays.asList(lore));
     item.setItemMeta(meta);
     SkullMeta skullMeta = (SkullMeta)item.getItemMeta();
-    skullMeta.setOwningPlayer(p);
-    // skullMeta.setPlayerProfile(p.getPlayerProfile());
+    skullMeta.setPlayerProfile(p.getPlayerProfile());
     item.setItemMeta(skullMeta);
     return item;
   }

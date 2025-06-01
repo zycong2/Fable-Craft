@@ -227,7 +227,7 @@ public class mainListeners implements Listener {
     if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, oldItem))));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
         }
       }
     }
@@ -235,7 +235,7 @@ public class mainListeners implements Listener {
     if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, newItem))));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
         }
       }
     }
@@ -251,7 +251,7 @@ public class mainListeners implements Listener {
     if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.valueOf(getItemPDC(s, oldItem))));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
         }
       }
     }
@@ -259,7 +259,7 @@ public class mainListeners implements Listener {
     if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.valueOf(getItemPDC(s, newItem))));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
         }
       }
     }

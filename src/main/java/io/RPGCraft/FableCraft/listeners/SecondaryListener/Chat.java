@@ -29,6 +29,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
 
@@ -47,7 +48,7 @@ public class Chat implements Listener {
     e.setCancelled(true);
     String format = yamlManager.getInstance().getFileConfig("format").getString("format.chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
-    Component str2 = mm.deserialize(setPlaceholders(str1, false, e));
+    Component str2 = Colorize(setPlaceholders(str1, false, e));
 
     if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 

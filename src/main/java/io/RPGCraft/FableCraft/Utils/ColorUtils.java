@@ -55,7 +55,7 @@ public class ColorUtils {
       String content = l.group(2);
 
       Color start = fromChatColor(first != null ? first : ChatColor.WHITE);
-      Color end = fromChatColor(second != null ? second : ChatColor.WHITE);
+      Color end = fromChatColor(second != null ? second : ChatColor.DARK_RED);
       String replacement = hexSupport ? rgbGradient(content, start, end, colorSymbol) : content;
       l.appendReplacement(legacyBuffer, Matcher.quoteReplacement(replacement));
     }
