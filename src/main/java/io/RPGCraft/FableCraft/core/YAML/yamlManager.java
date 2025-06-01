@@ -40,21 +40,6 @@ public class yamlManager {
       }
       return myInstance;
     }
-
-    public boolean defaultConfig() {
-        for (String config : RPGCraft.yamlFiles) {
-            cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
-            fileConfig = new YamlConfiguration();
-
-            if (!cfile.exists()){
-                try {
-                    cfile.createNewFile();
-                } catch (IOException ignored) { }
-            }
-        }
-        return setDefaults();
-    }
-
     public synchronized boolean saveData() {
         boolean ok = true;
         for (String config : RPGCraft.yamlFiles) {
@@ -73,133 +58,150 @@ public class yamlManager {
             if (cfile.exists()) {
                 int index = 0;
                 for (String s : RPGCraft.yamlFiles) {
-                    if (Objects.equals(s, config)) {break;}index++;}
+                    if (Objects.equals(s, config)) { break; }
+                    index++;
+                }
                 RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));}
-            else {return defaultConfig();}}
+            else {
+              try {
+                cfile.getParentFile().mkdirs();
+                cfile.createNewFile();
+              } catch (IOException ignored) {}
+              setDefaults(config);
+            }
+        }
         for(String s : DBFolders){
           File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
           File defaultFile = new File(file.getAbsolutePath(), "Default.yml");
+
           if (!file.exists()){file.mkdirs();}
-          if(!defaultFile.exists()){try{defaultFile.createNewFile();}catch (Exception e){}}
+          if(!defaultFile.exists()){try{defaultFile.createNewFile();}catch (Exception ignored){}}
+
           List<YamlConfiguration> list = new ArrayList<>();
           getAllFilesConfig(file, list);
+
           DBFileConfiguration.put(s, list);
         }
         return true;
     }
 
-    public boolean setDefaults() {
-        if (getFileConfig("messages").getDefaults() == null) {
-          getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
-          getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
-          getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
-          getFileConfig("messages").addDefault("messages.error.noPermissionCraft", "&cYou don't have permission to make this item!");
-          getFileConfig("messages").addDefault("messages.error.noPermission", "&cYou don't have permission to execute this command!");
-          getFileConfig("messages").addDefault("messages.error.noValidArgument", "&cInvalid arguments!");
-          getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
-          getFileConfig("messages").addDefault("messages.error.questAlreadyStarted", "&cYou already activated this quest!");
-          getFileConfig("messages").addDefault("messages.error.questNotStarted", "&cYou don't have a quest active with this name!");
-          getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of %target%!");
-          getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
-          getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");
-          getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
-          getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
-          getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
-          getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
-          getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
-          getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
-          getFileConfig("messages").addDefault("messages.itemeditor.enchants.success", "&aYou successfully add/set/remove enchant this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.enchants.notFound", "&aThere no such enchantment in this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.enchants.info", "&rFirst enter the enchantment you want to add/set, then enter the level of the enchantment. &cExample: &fsharpness 5");
-          getFileConfig("messages").addDefault("messages.itemeditor.custommodel.success", "&aYou successfully change the custom model data of this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.custommodel.info", "&rEnter an Integer value for the custom model data. 0 to remove");
-          getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.success", "&aYou successfully change the crafting permission of this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.info", "&rEnter the permission you want to set for this item (Enter remove to remove this). &cExample: &fcraft.wooden_sword");
-          getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
-          getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
-          getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
-          getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
-          getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
-          getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
-          getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
-          getFileConfig("messages").addDefault("messages.itemeditor.defense.success", "&aYou successfully set the defense value!");
-          getFileConfig("messages").addDefault("messages.itemeditor.defense.info", "&rEnter the defense value (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.damage.success", "&aYou successfully set the damage value!");
-          getFileConfig("messages").addDefault("messages.itemeditor.damage.info", "&rEnter the damage value (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.mana.success", "&aYou successfully set the mana cost or bonus!");
-          getFileConfig("messages").addDefault("messages.itemeditor.mana.info", "&rEnter the mana value (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.health.success", "&aYou successfully set the health stat!");
-          getFileConfig("messages").addDefault("messages.itemeditor.health.info", "&rEnter the health value (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.durability.success", "&aYou successfully set the durability!");
-          getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.minlvl.success", "&aYou successfully set the minimum required level!");
-          getFileConfig("messages").addDefault("messages.itemeditor.minlvl.info", "&rEnter the minimum level required to use this item (as an integer)");
-          getFileConfig("messages").addDefault("messages.itemeditor.createItem", "&rPlease send the id/name of the item");
-          getFileConfig("messages").addDefault("messages.itemeditor.type.success", "&aYou successfully set the new item type!");
-          getFileConfig("messages").addDefault("messages.itemeditor.type.info", "&rEnter the new item type of the item in the chat.");
-          getFileConfig("messages").addDefault("messages.itemeditor.type.fail", "&rUnknown item type, using the previous item type.");
+    public boolean setDefaults(String fileName) {
+        switch (fileName) {
 
-          getFileConfig("messages").addDefault("messages.mobEditor.create.info", "&rPlease send the id/name of the mob you want to create.");
-          getFileConfig("messages").addDefault("messages.mobEditor.create.success", "&aSuccessfully made the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.lootTable.success", "&aSuccessfully set the loot table of the entity.");
-          getFileConfig("messages").addDefault("messages.mobEditor.lootTable.info", "&rEnter the name of the loot table you want to use for this mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.health.success", "&aSuccessfully set the health of the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.health.fail", "&cFailed to set the health for the mob, nothing has changed.");
-          getFileConfig("messages").addDefault("messages.mobEditor.health.info", "&rEnter the health for the mob in numbers.");
-          getFileConfig("messages").addDefault("messages.mobEditor.damage.success", "&aSuccessfully set the damage of the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.damage.fail", "&cFailed to set the damage for the mob, nothing has changed.");
-          getFileConfig("messages").addDefault("messages.mobEditor.damage.info", "&rEnter the damage for the mob in numbers.");
-          getFileConfig("messages").addDefault("messages.mobEditor.speed.success", "&aSuccessfully set the speed of the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.speed.fail", "&cFailed to set the speed for the mob, nothing has changed.");
-          getFileConfig("messages").addDefault("messages.mobEditor.speed.info", "&rEnter the speed for the mob in numbers.");
-          getFileConfig("messages").addDefault("messages.mobEditor.type.success", "&aSuccessfully set the type of the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.type.fail", "&cFailed to set the type for the mob, nothing has changed.");
-          getFileConfig("messages").addDefault("messages.mobEditor.type.info", "&rEnter the type for the mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.rename.success", "&aSuccessfully renamed mob.");
-          getFileConfig("messages").addDefault("messages.mobEditor.rename.info", "&rEnter the new name for the mob.");
-          getFileConfig("messages").options().copyDefaults(true);
-        }
+          case("messages"): {
+            if (getFileConfig("messages").getDefaults() == null) {
+              getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
+              getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
+              getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
+              getFileConfig("messages").addDefault("messages.error.noPermissionCraft", "&cYou don't have permission to make this item!");
+              getFileConfig("messages").addDefault("messages.error.noPermission", "&cYou don't have permission to execute this command!");
+              getFileConfig("messages").addDefault("messages.error.noValidArgument", "&cInvalid arguments!");
+              getFileConfig("messages").addDefault("messages.error.noLootTable", "&cThis block doesn't have a loot table!");
+              getFileConfig("messages").addDefault("messages.error.questAlreadyStarted", "&cYou already activated this quest!");
+              getFileConfig("messages").addDefault("messages.error.questNotStarted", "&cYou don't have a quest active with this name!");
+              getFileConfig("messages").addDefault("messages.info.resetSuccess", "&aSuccessfully reset the stats of %target%!");
+              getFileConfig("messages").addDefault("messages.info.randomItems.enabled", "&aEnabled random items!");
+              getFileConfig("messages").addDefault("messages.info.randomItems.disabled", "&aDisabled random items!");
+              getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
+              getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
+              getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
+              getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
+              getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
+              getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
+              getFileConfig("messages").addDefault("messages.itemeditor.enchants.success", "&aYou successfully add/set/remove enchant this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.enchants.notFound", "&aThere no such enchantment in this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.enchants.info", "&rFirst enter the enchantment you want to add/set, then enter the level of the enchantment. &cExample: &fsharpness 5");
+              getFileConfig("messages").addDefault("messages.itemeditor.custommodel.success", "&aYou successfully change the custom model data of this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.custommodel.info", "&rEnter an Integer value for the custom model data. 0 to remove");
+              getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.success", "&aYou successfully change the crafting permission of this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.info", "&rEnter the permission you want to set for this item (Enter remove to remove this). &cExample: &fcraft.wooden_sword");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
+              getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
+              getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
+              getFileConfig("messages").addDefault("messages.itemeditor.defense.success", "&aYou successfully set the defense value!");
+              getFileConfig("messages").addDefault("messages.itemeditor.defense.info", "&rEnter the defense value (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.damage.success", "&aYou successfully set the damage value!");
+              getFileConfig("messages").addDefault("messages.itemeditor.damage.info", "&rEnter the damage value (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.mana.success", "&aYou successfully set the mana cost or bonus!");
+              getFileConfig("messages").addDefault("messages.itemeditor.mana.info", "&rEnter the mana value (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.health.success", "&aYou successfully set the health stat!");
+              getFileConfig("messages").addDefault("messages.itemeditor.health.info", "&rEnter the health value (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.durability.success", "&aYou successfully set the durability!");
+              getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.minlvl.success", "&aYou successfully set the minimum required level!");
+              getFileConfig("messages").addDefault("messages.itemeditor.minlvl.info", "&rEnter the minimum level required to use this item (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.createItem", "&rPlease send the id/name of the item");
+              getFileConfig("messages").addDefault("messages.itemeditor.type.success", "&aYou successfully set the new item type!");
+              getFileConfig("messages").addDefault("messages.itemeditor.type.info", "&rEnter the new item type of the item in the chat.");
+              getFileConfig("messages").addDefault("messages.itemeditor.type.fail", "&rUnknown item type, using the previous item type.");
 
-        if (getFileConfig("config").getDefaults() == null) {
-          getFileConfig("config").addDefault("prefix", "&bAfter&aDusk &6»");
-          getFileConfig("config").addDefault("food.removeHunger", true);
-          getFileConfig("config").addDefault("autoMod.enabled", true);
-          getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
-          getFileConfig("config").addDefault("autoMod.punishments.3.type", "tempBan");
-          getFileConfig("config").addDefault("autoMod.punishments.3.duration", "1D");
-          getFileConfig("config").addDefault("autoMod.punishments.5.type", "permBan");
-          getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
-          getFileConfig("config").addDefault("items.unbreakable.enabled", true);
-          getFileConfig("config").addDefault("items.default.Item", "dirt");
-          getFileConfig("config").addDefault("items.default.File", "ItemDB/Default.yml");
-          getFileConfig("config").addDefault("items.removeDefaultRecipes", true);
-          getFileConfig("config").addDefault("items.display.rarity.common", "&f&lCOMMON");
-          getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
-          getFileConfig("config").addDefault("items.display.rarity.rare", "&9&lRARE");
-          getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
-          getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lEPIC");
-          getFileConfig("config").setInlineComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
-          getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-");
-          getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-");
-          getFileConfig("config").addDefault("stats.Health.default", 100);
-          getFileConfig("config").addDefault("stats.Health.char", "&c❤");
-          getFileConfig("config").addDefault("stats.Regeneration.default", 1);
-          getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
-          getFileConfig("config").addDefault("stats.Defence.default", 0);
-          getFileConfig("config").addDefault("stats.Defence.char", "&7\ud83d\udee1");
-          getFileConfig("config").addDefault("stats.Mana.default", 20);
-          getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
-          getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);
-          getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
-          getFileConfig("config").addDefault("stats.Damage.default", 1);
-          getFileConfig("config").addDefault("stats.Damage.char", "&4⚔");
-          getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
-          getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
-          getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
-          getFileConfig("config").addDefault("actionbar.enabled", true);
-          getFileConfig("config").options().copyDefaults(true);
-        }
+              getFileConfig("messages").addDefault("messages.mobEditor.create.info", "&rPlease send the id/name of the mob you want to create.");
+              getFileConfig("messages").addDefault("messages.mobEditor.create.success", "&aSuccessfully made the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.lootTable.success", "&aSuccessfully set the loot table of the entity.");
+              getFileConfig("messages").addDefault("messages.mobEditor.lootTable.info", "&rEnter the name of the loot table you want to use for this mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.health.success", "&aSuccessfully set the health of the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.health.fail", "&cFailed to set the health for the mob, nothing has changed.");
+              getFileConfig("messages").addDefault("messages.mobEditor.health.info", "&rEnter the health for the mob in numbers.");
+              getFileConfig("messages").addDefault("messages.mobEditor.damage.success", "&aSuccessfully set the damage of the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.damage.fail", "&cFailed to set the damage for the mob, nothing has changed.");
+              getFileConfig("messages").addDefault("messages.mobEditor.damage.info", "&rEnter the damage for the mob in numbers.");
+              getFileConfig("messages").addDefault("messages.mobEditor.speed.success", "&aSuccessfully set the speed of the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.speed.fail", "&cFailed to set the speed for the mob, nothing has changed.");
+              getFileConfig("messages").addDefault("messages.mobEditor.speed.info", "&rEnter the speed for the mob in numbers.");
+              getFileConfig("messages").addDefault("messages.mobEditor.type.success", "&aSuccessfully set the type of the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.type.fail", "&cFailed to set the type for the mob, nothing has changed.");
+              getFileConfig("messages").addDefault("messages.mobEditor.type.info", "&rEnter the type for the mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.rename.success", "&aSuccessfully renamed mob.");
+              getFileConfig("messages").addDefault("messages.mobEditor.rename.info", "&rEnter the new name for the mob.");
+              getFileConfig("messages").options().copyDefaults(true);
+            }
+          }
+          case("config"): {
+            if (getFileConfig("config").getDefaults() == null) {
+              getFileConfig("config").addDefault("prefix", "&bAfter&aDusk &6»");
+              getFileConfig("config").addDefault("food.removeHunger", true);
+              getFileConfig("config").addDefault("autoMod.enabled", true);
+              getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
+              getFileConfig("config").addDefault("autoMod.punishments.3.type", "tempBan");
+              getFileConfig("config").addDefault("autoMod.punishments.3.duration", "1D");
+              getFileConfig("config").addDefault("autoMod.punishments.5.type", "permBan");
+              getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
+              getFileConfig("config").addDefault("items.unbreakable.enabled", true);
+              getFileConfig("config").addDefault("items.default.Item", "dirt");
+              getFileConfig("config").addDefault("items.default.File", "ItemDB/Default.yml");
+              getFileConfig("config").addDefault("items.removeDefaultRecipes", true);
+              getFileConfig("config").addDefault("items.display.rarity.common", "&f&lCOMMON");
+              getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
+              getFileConfig("config").addDefault("items.display.rarity.rare", "&9&lRARE");
+              getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
+              getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lEPIC");
+              getFileConfig("config").setInlineComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
+              getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-");
+              getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-");
+              getFileConfig("config").addDefault("stats.Health.default", 100);
+              getFileConfig("config").addDefault("stats.Health.char", "&c❤");
+              getFileConfig("config").addDefault("stats.Regeneration.default", 1);
+              getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
+              getFileConfig("config").addDefault("stats.Defence.default", 0);
+              getFileConfig("config").addDefault("stats.Defence.char", "&7\ud83d\udee1");
+              getFileConfig("config").addDefault("stats.Mana.default", 20);
+              getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
+              getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);
+              getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
+              getFileConfig("config").addDefault("stats.Damage.default", 1);
+              getFileConfig("config").addDefault("stats.Damage.char", "&4⚔");
+              getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
+              getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
+              getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
+              getFileConfig("config").addDefault("actionbar.enabled", true);
+              getFileConfig("config").options().copyDefaults(true);
+            }
+          }
 
         /*if (getFileConfig("itemDB").getDefaults() == null) {
           getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
@@ -261,62 +263,83 @@ public class yamlManager {
           getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
           getFileConfig("mobDB").options().copyDefaults(true);
         }*/
+          case("lootTables"): {
+            if (getFileConfig("lootTables").getDefaults() == null) {
+              getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
+              getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
+              getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
+              getFileConfig("lootTables").setInlineComments("spiderDrops.items", List.of("First number: minimal amount of item (default 1)", "Second number: maximal amount of item", "Third number: weight of the item (default 1)"));
 
-        if (getFileConfig("lootTables").getDefaults() == null) {
-          getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
-          getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
-          getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
-          getFileConfig("lootTables").setInlineComments("spiderDrops.items", List.of("First number: minimal amount of item (default 1)", "Second number: maximal amount of item", "Third number: weight of the item (default 1)"));
+              getFileConfig("lootTables").addDefault("quest1.maxItems", 10);
+              getFileConfig("lootTables").addDefault("quest1.minItems", 1);
+              getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
 
-          getFileConfig("lootTables").addDefault("quest1.maxItems", 10);
-          getFileConfig("lootTables").addDefault("quest1.minItems", 1);
-          getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
+              getFileConfig("lootTables").options().copyDefaults(true);
+            }
+          }
+          case("data"): {
+            if (getFileConfig("data").getDefaults() == null) {
+              getFileConfig("data").addDefault("customMobs", List.of());
+              getFileConfig("data").options().copyDefaults(true);
+            }
+          }
 
-          getFileConfig("lootTables").options().copyDefaults(true);
-        }
+          case("quests"): {
+            if (getFileConfig("quests").getDefaults() == null) {
+              getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
+              getFileConfig("quests").addDefault("quest1.npcStarter", "John");
+              getFileConfig("quests").addDefault("quest1.steps.amount", 1);
+              getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
+              getFileConfig("quests").addDefault("quest1.steps.1.value", 10);
+              getFileConfig("quests").addDefault("quest1.steps.1.entity", "spider");
+              getFileConfig("quests").addDefault("quest1.steps.2.type", "get");
+              getFileConfig("quests").addDefault("quest1.steps.2.value", 10);
+              getFileConfig("quests").addDefault("quest1.steps.2.item", "STRING");
+              getFileConfig("quests").addDefault("quest1.steps.3.type", "talkToNPC");
+              getFileConfig("quests").addDefault("quest1.steps.3.NPCName", "John");
+              getFileConfig("quests").addDefault("quest1.steps.3.actions.talk", List.of("Hello", "I am John", "I am a NPC"));
+              getFileConfig("quests").addDefault("quest1.steps.3.actions.removeItems", List.of("STRING:10"));
+              getFileConfig("quests").addDefault("quest1.steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
+              getFileConfig("quests").addDefault("quest1.reward", "quest1");
+              getFileConfig("quests").options().copyDefaults(true);
+            }
+          }
 
-        if (getFileConfig("data").getDefaults() == null) {
-          getFileConfig("data").addDefault("customMobs", List.of());
-          getFileConfig("data").options().copyDefaults(true);
-        }
-
-        if (getFileConfig("quests").getDefaults() == null) {
-          getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
-          getFileConfig("quests").addDefault("quest1.npcStarter", "John");
-          getFileConfig("quests").addDefault("quest1.steps.amount", 1);
-          getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
-          getFileConfig("quests").addDefault("quest1.steps.1.value", 10);
-          getFileConfig("quests").addDefault("quest1.steps.1.entity", "spider");
-          getFileConfig("quests").addDefault("quest1.steps.2.type", "get");
-          getFileConfig("quests").addDefault("quest1.steps.2.value", 10);
-          getFileConfig("quests").addDefault("quest1.steps.2.item", "STRING");
-          getFileConfig("quests").addDefault("quest1.steps.3.type", "talkToNPC");
-          getFileConfig("quests").addDefault("quest1.steps.3.NPCName", "John");
-          getFileConfig("quests").addDefault("quest1.steps.3.actions.talk", List.of("Hello", "I am John", "I am a NPC"));
-          getFileConfig("quests").addDefault("quest1.steps.3.actions.removeItems", List.of("STRING:10"));
-          getFileConfig("quests").addDefault("quest1.steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
-          getFileConfig("quests").addDefault("quest1.reward", "quest1");
-          getFileConfig("quests").options().copyDefaults(true);
-        }
-
-        if (getFileConfig("format").getDefaults() == null) {
-          getFileConfig("format").addDefault("format.chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
-          getFileConfig("format").addDefault("tag.player1.HoverEvent.ShowText", List.of("&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            ", "", "&7Name &a- &r%rankPrefix% &r%target%", "&cHealth &a- &r%maxHealth% &c❤", "", "&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            "));
-          getFileConfig("format").addDefault("tag.player2.ClickEvent.URL", "https://discord.gg/asg3WyTpKf");
-          getFileConfig("format").setInlineComments("tag.player2.ClickEvent.URL", Collections.singletonList("sadly I only support 1 event per tag"));
-          getFileConfig("format").options().copyDefaults(true);
+          case("format"): {
+            if (getFileConfig("format").getDefaults() == null) {
+              getFileConfig("format").addDefault("format.chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("tag.player1.HoverEvent.ShowText", List.of("&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            ", "", "&7Name &a- &r%rankPrefix% &r%target%", "&cHealth &a- &r%maxHealth% &c❤", "", "&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            "));
+              getFileConfig("format").addDefault("tag.player2.ClickEvent.URL", "https://discord.gg/asg3WyTpKf");
+              getFileConfig("format").setInlineComments("tag.player2.ClickEvent.URL", Collections.singletonList("sadly I only support 1 event per tag"));
+              getFileConfig("format").options().copyDefaults(true);
+            }
+          }
         }
 
         saveData();
         return true;
     }
 
+
     public static YamlConfiguration getFileConfig(String ymlFile) {
         int index = 0;
-        for (String s : RPGCraft.yamlFiles) {
-            if (Objects.equals(s, ymlFile)) { return RPGCraft.fileConfigurationList.get(index); }
+        try {
+          for (String s : RPGCraft.yamlFiles) {
+            if (Objects.equals(s, ymlFile)) {
+              Bukkit.getLogger().info(String.valueOf(RPGCraft.fileConfigurationList.size()));
+              return RPGCraft.fileConfigurationList.get(index);
+            }
             index++;
-        }
+          }
+          index = 0;
+          for (String s : DBFolders) {
+            if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(ymlFile)) && DBFileConfiguration.get(ymlFile) != null) {
+              return DBFileConfiguration.get(s).get(index);
+            }
+            index++;
+          }
+        } catch(IndexOutOfBoundsException ignored){}
+
         return null;
     }
 

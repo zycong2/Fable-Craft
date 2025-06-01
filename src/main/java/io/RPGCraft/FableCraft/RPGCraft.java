@@ -5,6 +5,7 @@ import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
 import io.RPGCraft.FableCraft.commands.NPC.CreateNPC;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
@@ -59,8 +60,8 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("data", "messages", "mobDB", "config", "lootTables", "skills", "quests", "format");
-  public static List<String> DBFolders = List.of("itemDB");
+  public static List<String> yamlFiles = List.of("config", "data", "messages", "config", "format");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
   public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
@@ -91,22 +92,9 @@ public final class RPGCraft extends JavaPlugin {
 
     new PlaceholdersRegistry();
 
-    this.getCommand("itemDB").setExecutor(new itemDB());
-    this.getCommand("createNPC").setExecutor(new CreateNPC());
-    this.getCommand("stats").setExecutor(new StatsUpgrade());
-    this.getCommand("resetStats").setExecutor(new stats());
-    this.getCommand("resetStats").setTabCompleter(new stats());
-    this.getCommand("buildHelper").setExecutor(new buildHelper());
-    this.getCommand("buildHelper").setTabCompleter(new buildHelper());
-    this.getCommand("mobs").setExecutor(new mobs());
-    this.getCommand("mobs").setTabCompleter(new mobs());
-    this.getCommand("lootTables").setExecutor(new lootTableHelper());
-    this.getCommand("lootTables").setTabCompleter(new lootTableHelper());
-    this.getCommand("setNPCType").setExecutor(new setPDC());
-    this.getCommand("setNPCType").setTabCompleter(new setPDC());
-    this.getCommand("quests").setExecutor(new quests());
-    this.getCommand("quests").setTabCompleter(new quests());
-    this.getCommand("reloadRPG").setExecutor(new reload());
+
+    this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
+    this.getCommand("RPGCraft").setExecutor(new CommandManager());
 
     registerListeners(
       new mainListeners(),
