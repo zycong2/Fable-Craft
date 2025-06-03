@@ -62,10 +62,11 @@ public class Chat implements Listener {
       Bukkit.getLogger().warning("format.yml not loaded!");
       return;
     }
-    if (!config.contains("format.chat")) {
-      Bukkit.getLogger().warning("format.chat missing from format.yml!");
+    if (!config.contains("chat")) {
+      Bukkit.getLogger().warning("chat missing from format.yml!");
+      return;
     }
-    String format = config.getString("format.chat");
+    String format = config.getString("chat");
     String str1 = setPlaceholders(format, false, (Entity) p);
     TextComponent str2 = (TextComponent) mm.deserialize(FormatForMiniMessage(setPlaceholders(str1, false, e)));
 

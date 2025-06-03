@@ -306,7 +306,7 @@ public class yamlManager {
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
-              getFileConfig("format").addDefault("format.chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
               getFileConfig("format").addDefault("tag.player1.HoverEvent.ShowText", List.of("&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            ", "", "&7Name &a- &r%rankPrefix% &r%target%", "&cHealth &a- &r%maxHealth% &c❤", "", "&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            "));
               getFileConfig("format").addDefault("tag.player2.ClickEvent.URL", "https://discord.gg/asg3WyTpKf");
               getFileConfig("format").setInlineComments("tag.player2.ClickEvent.URL", Collections.singletonList("sadly I only support 1 event per tag"));
@@ -342,12 +342,32 @@ public class yamlManager {
         return null;
     }
 
+    public static void setDB(String DB, String filePath, String path, String value){
+      if(filePath == "Default.yml"){
+        getDefaultDB(DB).set(path, value);
+      }else{
+        List<YamlConfiguration> yamls = DBFileConfiguration.get(DB);
+        if(yamls == null) return;
+        File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/" + DB, filePath);
+      }
+    }
+
     public static YamlConfiguration getDefaultDB(String DBFile) {
         File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), DBFile);
-        if (!file.exists()){
+        File Defaultfile = new File(file.getAbsolutePath(), "Default.yml");
+        if(!file.exists()){
           file.mkdir();
         }
-        return YamlConfiguration.loadConfiguration(file);
+        if (!Defaultfile.exists()){
+          try {
+            Defaultfile.createNewFile();
+          }catch (IOException e){
+            // Ignored
+            Bukkit.getLogger().warning("Fail to get default.yml in DB");
+            e.printStackTrace();
+          }
+        }
+        return YamlConfiguration.loadConfiguration(Defaultfile);
     }
 
     public void getAllFilesConfig(File f, List<YamlConfiguration> list){

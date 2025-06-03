@@ -63,9 +63,9 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> yamlFiles = List.of("config", "data", "messages", "config", "format");
   public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
+  public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
   public static List<YamlConfiguration> fileConfigurationList = new java.util.ArrayList<>(List.of());
-  public static Map<UUID, Map<String, FileConfiguration>> playerData = new HashMap<>();
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 

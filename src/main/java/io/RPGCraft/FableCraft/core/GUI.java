@@ -29,7 +29,6 @@ import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getDefaultDB;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
 
 public class GUI implements Listener {
