@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.RPGCraft.FableCraft"
-version = "1.3"
+version = "TEST-1.3"
 description = "RPG inspired plugin."
 
 java {
@@ -25,10 +25,11 @@ repositories {
 dependencies {
   paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   implementation("net.kyori:adventure-text-minimessage:4.19.0")
+  implementation("io.github.classgraph:classgraph:4.8.157")
   compileOnly("com.github.SkriptLang:Skript:2.11.1")
   compileOnly("org.projectlombok:lombok:1.18.30")
   compileOnly("me.clip:placeholderapi:2.11.6")
-  implementation("com.github.MilkBowl:VaultAPI:1.7") {
+  compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
     exclude(group = "org.bukkit", module = "bukkit")
   }
   compileOnly("net.luckperms:api:5.4")

@@ -16,6 +16,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,6 +75,7 @@ public class Chat implements Listener {
 
     TextComponent finalStr = applyTagFormatting(p, str2, str1, e);
 
+    Bukkit.getLogger().info(PlainTextComponentSerializer.plainText().serialize(finalStr));
     for(Player player : Bukkit.getOnlinePlayers()){
       player.sendMessage(finalStr);
     }
