@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface command {
   String name();
-  String[] args() default  {};
+  argument[] args() default  {};
   String[] aliases() default {};
   String permission() default "";
   String description() default "A Command";
