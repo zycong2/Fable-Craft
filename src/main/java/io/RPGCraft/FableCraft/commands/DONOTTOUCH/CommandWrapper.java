@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,9 +45,12 @@ public class CommandWrapper extends Command {
 
   @Override
   public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
-    String[] suggestions = annotation.args();
-    if (suggestions == null || suggestions.length == 0) return List.of();
-    return Arrays.asList(suggestions);
+    argument[] suggestions = annotation.args();
+    int index = args.length - 1;
+    if (index < 0 || index >= suggestions.length) return List.of();
+    return Arrays.asList(suggestions[index].args());
   }
+
+
 }
 

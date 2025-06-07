@@ -14,6 +14,5 @@ public @interface command {
   String permission() default "";
   String description() default "A Command";
   boolean playerOnly() default false;
-  int arguments() default 0;
 }
 
