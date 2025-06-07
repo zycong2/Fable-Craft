@@ -307,9 +307,6 @@ public class yamlManager {
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
               getFileConfig("format").addDefault("chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
-              getFileConfig("format").addDefault("tag.player1.HoverEvent.ShowText", List.of("&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            ", "", "&7Name &a- &r%rankPrefix% &r%target%", "&cHealth &a- &r%maxHealth% &c❤", "", "&m            &r&bᴀꜰᴛᴇʀᴅᴜꜱᴋ&m            "));
-              getFileConfig("format").addDefault("tag.player2.ClickEvent.URL", "https://discord.gg/asg3WyTpKf");
-              getFileConfig("format").setInlineComments("tag.player2.ClickEvent.URL", Collections.singletonList("sadly I only support 1 event per tag"));
               getFileConfig("format").options().copyDefaults(true);
             }
           }

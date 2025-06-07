@@ -1,8 +1,9 @@
 plugins {
   `java-library`
+  kotlin("jvm") version "1.9.23"
   id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
   id("xyz.jpenilla.run-paper") version "2.3.1"
-  id ("com.github.johnrengelman.shadow") version "8.1.1"
+  id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "io.RPGCraft.FableCraft"
@@ -25,7 +26,7 @@ repositories {
 dependencies {
   paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
   implementation("net.kyori:adventure-text-minimessage:4.19.0")
-  implementation("io.github.classgraph:classgraph:4.8.157")
+  implementation("io.github.classgraph:classgraph:4.8.149")
   compileOnly("com.github.SkriptLang:Skript:2.11.1")
   compileOnly("org.projectlombok:lombok:1.18.30")
   compileOnly("me.clip:placeholderapi:2.11.6")
@@ -44,9 +45,18 @@ dependencies {
   implementation("org.javassist:javassist:3.29.2-GA")
 }
 
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(21))
+  }
+}
+
 tasks {
-  compileJava {
-    options.release = 21
+  shadowJar {
+    archiveClassifier.set("")
+  }
+  build {
+    dependsOn(shadowJar)
   }
   javadoc {
     options.encoding = Charsets.UTF_8.name()

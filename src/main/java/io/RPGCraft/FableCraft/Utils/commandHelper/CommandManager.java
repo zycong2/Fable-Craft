@@ -65,7 +65,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
   public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     if (args.length == 1){
       List<String> commands = new ArrayList<>(List.of());
-      Reflections reflections = new Reflections("org.zycong.theHordes.commands");
+      Reflections reflections = new Reflections("io.RPGCraft.FableCraft.commands");
 
       Set<Class<? extends CommandInterface>> classes = reflections.getSubTypesOf(CommandInterface.class);
 
@@ -80,7 +80,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
       }
       return commands;
     } else {
-      Reflections reflections = new Reflections("org.zycong.theHordes.commands");
+      Reflections reflections = new Reflections("io.RPGCraft.FableCraft.commands");
 
       Set<Class<? extends CommandInterface>> classes = reflections.getSubTypesOf(CommandInterface.class);
 
@@ -112,6 +112,6 @@ public class CommandManager implements CommandExecutor, TabCompleter {
   }
 
   private String makeCommandName(String input){
-    return input.replace("org.zycong.theHordes.commands.", "");
+    return input.replace("io.RPGCraft.FableCraft.commands.", "");
   }
 }

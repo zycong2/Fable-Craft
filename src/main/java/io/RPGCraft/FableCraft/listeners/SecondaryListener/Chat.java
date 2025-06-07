@@ -73,81 +73,9 @@ public class Chat implements Listener {
 
     if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 
-    TextComponent finalStr = applyTagFormatting(p, str2, str1, e);
-
-    Bukkit.getLogger().info(PlainTextComponentSerializer.plainText().serialize(finalStr));
+    Bukkit.getLogger().info(PlainTextComponentSerializer.plainText().serialize(str2));
     for(Player player : Bukkit.getOnlinePlayers()){
-      player.sendMessage(finalStr);
+      player.sendMessage(str2);
     }
-  }
-
-  private boolean tagExist(String tag, String event) {
-    return getFileConfig("format").get("tag." + tag + "." + event) == null;
-  }
-
-  private TextComponent applyTagFormatting(Player p, TextComponent str2, String str1, AsyncChatEvent e) {
-    ConfigurationSection tagSection = getFileConfig("format").getConfigurationSection("tag");
-    TextComponent finalStr = str2;
-    if (tagSection != null) {
-      for (String key : tagSection.getKeys(false)) {
-        Pattern pattern = Pattern.compile("<" + key + ">(.*?)</" + key + ">");
-        Matcher matcher = pattern.matcher(setPlaceholders(str1, false, e));
-
-        while (matcher.find()) {
-          String innerText = matcher.group(1);
-          if (tagExist(key, "HoverEvent")) {
-            Set<String> subTagSection = getFileConfig("format").getConfigurationSection("tag." + key + ".HoverEvent").getKeys(false);
-            subTagSection.stream().forEach(subString -> {
-              if (subString == "ShowText") {
-                List<String> string = new ArrayList<>();
-                for (String text : getFileConfig("format").getStringList("tag." + key + ".HoverEvent.ShowText")) {
-                  string.add(setPlaceholders(text, false, (Entity) p));
-                }
-                finalStr.replaceText(replaced -> replaced.match("<" + key + ">(.*?)</" + key + ">")
-                  .replacement(MiniMessage.miniMessage().deserialize(
-                    "<" + key + ">" + innerText + "</" + key + ">",
-                    Placeholder.styling("key", HoverEvent.showText((Component) ColorizeListReComponent(string))))
-                  ));
-              } else if (subString == "ShowEntity") {
-                finalStr.replaceText(replaced -> replaced.match("<" + key + ">(.*?)</" + key + ">")
-                  .replacement(MiniMessage.miniMessage().deserialize(
-                    "<" + key + ">" + innerText + "</" + key + ">",
-                    Placeholder.styling("key", HoverEvent.showEntity(
-                      Key.key("minecraft", getFileConfig("format").getString("tag." + key + ".HoverEvent.ShowEntity").toLowerCase()),
-                      UUID.randomUUID()))
-                  )));
-              } else if (subString == "ShowItem") {
-                finalStr.replaceText(replaced -> replaced.match("<" + key + ">(.*?)</" + key + ">")
-                  .replacement(MiniMessage.miniMessage().deserialize(
-                    "<" + key + ">" + innerText + "</" + key + ">",
-                    Placeholder.styling("key", HoverEvent.showItem(
-                      Key.key("minecraft", getFileConfig("format").getString("tag." + key + ".HoverEvent.ShowItem").toLowerCase()), 1))
-                  )));
-              }
-            });
-          } else if (tagExist(key, "ClickEvent")) {
-            Set<String> subTagSection = getFileConfig("format").getConfigurationSection("tag." + key + ".HoverEvent").getKeys(false);
-            subTagSection.stream().forEach(subString -> {
-              if (subString == "URL") {
-                finalStr.replaceText(replaced -> replaced.match("<" + key + ">(.*?)</" + key + ">")
-                  .replacement(MiniMessage.miniMessage().deserialize(
-                    "<" + key + ">" + innerText + "</" + key + ">",
-                    Placeholder.styling("key", ClickEvent.openUrl(
-                      getFileConfig("format").getString("tag." + key + ".ClickEvent.URL").toLowerCase()))
-                  )));
-              } else if (subString == "SuggestCommand") {
-                finalStr.replaceText(replaced -> replaced.match("<" + key + ">(.*?)</" + key + ">")
-                  .replacement(MiniMessage.miniMessage().deserialize(
-                    "<" + key + ">" + innerText + "</" + key + ">",
-                    Placeholder.styling("key", ClickEvent.suggestCommand(
-                      getFileConfig("format").getString("tag." + key + ".ClickEvent.Command")))
-                  )));
-              }
-            });
-          }
-        }
-      }
-    }
-    return finalStr;
   }
 }
