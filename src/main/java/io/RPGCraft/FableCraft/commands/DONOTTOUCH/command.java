@@ -13,6 +13,7 @@ public @interface command {
   String[] aliases() default {};
   String permission() default "";
   String description() default "A Command";
+  String root() default "RPGCraft"; // No space allow
   boolean playerOnly() default false;
 }
 

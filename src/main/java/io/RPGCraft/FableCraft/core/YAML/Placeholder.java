@@ -1,8 +1,7 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
+import io.RPGCraft.FableCraft.Utils.NumberUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.regex.Pattern;
 
 import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.parseDynamic;
 import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.round;
@@ -10,7 +9,7 @@ import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.rou
 public class Placeholder {
   public static @NotNull <T> String setPlaceholders(String s, boolean round, T context){
     String parsed = parseDynamic(s, context);
-    if(isNumber(parsed)) {
+    if(NumberUtils.isNumber(parsed)) {
       if (round) {
         return round(Double.valueOf(parsed));
       }
@@ -18,18 +17,4 @@ public class Placeholder {
     return parsed;
   }
 
-  public static boolean isNumber(String input) {
-    return isValidInteger(input) || isValidFloatOrDouble(input);
-  }
-
-  public static boolean isValidInteger(String input) {
-    String integerPattern = "^-?\\d+$";  // Matches integer only
-    return Pattern.matches(integerPattern, input);
-  }
-
-  // Check if the entire string is a valid float or double
-  public static boolean isValidFloatOrDouble(String input) {
-    String floatPattern = "^-?\\d*\\.\\d+$|^-?\\d+\\.\\d*([eE][-+]?\\d+)?$";
-    return Pattern.matches(floatPattern, input);
-  }
 }

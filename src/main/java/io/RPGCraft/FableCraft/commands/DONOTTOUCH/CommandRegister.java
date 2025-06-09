@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands.DONOTTOUCH;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -38,7 +39,7 @@ public class CommandRegister {
       CommandWrapper wrapper = new CommandWrapper(
         annotation.name(), annotation, obj, method
       );
-      commandMap.register(plugin.getName(), wrapper);
+      commandMap.register(annotation.root(), wrapper);
     }
   }
 }

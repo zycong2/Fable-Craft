@@ -1,5 +1,7 @@
 package io.RPGCraft.FableCraft.Utils;
 
+import java.util.regex.Pattern;
+
 public class NumberUtils {
   //I think I added too many class XD
 
@@ -21,4 +23,18 @@ public class NumberUtils {
     }
   }
 
+  public static boolean isNumber(String input) {
+    return isValidInteger(input) || isValidFloatOrDouble(input);
+  }
+
+  public static boolean isValidInteger(String input) {
+    String integerPattern = "^-?\\d+$";  // Matches integer only
+    return Pattern.matches(integerPattern, input);
+  }
+
+  // Check if the entire string is a valid float or double
+  public static boolean isValidFloatOrDouble(String input) {
+    String floatPattern = "^-?\\d*\\.\\d+$|^-?\\d+\\.\\d*([eE][-+]?\\d+)?$";
+    return Pattern.matches(floatPattern, input);
+  }
 }

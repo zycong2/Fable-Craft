@@ -50,7 +50,5 @@ public class CommandWrapper extends Command {
     if (index < 0 || index >= suggestions.length) return List.of();
     return Arrays.asList(suggestions[index].args());
   }
-
-
 }
 
