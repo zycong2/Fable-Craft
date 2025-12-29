@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
@@ -47,10 +48,26 @@ public class yamlManager {
                 getFileConfig(config).save(cfile);
             } catch (IOException ignored) { ok = false;}
         }
+
+        for (String folder : DBFolders){
+          File dbFolder = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), folder);
+          int count = 0;
+          for (File config : getAllFiles(dbFolder) ){
+            cfile = new File(dbFolder.getAbsolutePath(), config.getName());
+            try {
+              getFileConfig(folder, count).save(cfile);
+              count++;
+            } catch (IOException ignored) { ok = false;}
+          }
+        }
+
         return ok;
     }
 
     public boolean loadData() {
+        Bukkit.getLogger().info("");
+        List<String> toReset = new ArrayList<>(List.of(""));
+
         for (String config : RPGCraft.yamlFiles) {
             RPGCraft.fileConfigurationList.add(new YamlConfiguration());
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
@@ -60,33 +77,66 @@ public class yamlManager {
                     if (Objects.equals(s, config)) { break; }
                     index++;
                 }
-                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));}
+                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));
+            }
             else {
               try {
                 cfile.getParentFile().mkdirs();
-                cfile.createNewFile();
-              } catch (IOException ignored) {}
-              setDefaults(config);
+                if (cfile.createNewFile()) {
+                  Bukkit.getLogger().info("Successfully made the '" + config + "' config folder.");
+                  toReset.add(config);
+                } else {
+                  Bukkit.getLogger().severe("Could not make the '" + config + "' config folder.");
+                }
+              } catch (IOException ignored){}
             }
         }
         for(String s : DBFolders){
-          File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
-          File defaultFile = new File(file.getAbsolutePath(), "Default.yml");
+          File folder = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
+          File defaultFile = new File(folder.getAbsolutePath(), "Default.yml");
 
-          if (!file.exists()){file.mkdirs();}
-          if(!defaultFile.exists()){try{defaultFile.createNewFile();}catch (Exception ignored){}}
+          if (!folder.exists()){
+            folder.mkdirs();
+          }
 
-          List<YamlConfiguration> list = new ArrayList<>();
-          getAllFilesConfig(file, list);
+          List<YamlConfiguration> list = List.of();
+
+          if(!defaultFile.exists()){
+            try{
+              defaultFile.createNewFile();
+              toReset.add(s);
+
+              Bukkit.getLogger().info("Successfully made the '" + s + "' config data folder.");
+
+              list = List.of(new YamlConfiguration());
+            }catch (Exception e){
+              Bukkit.getLogger().severe("Could not create data folder '" + s + "'.");
+            }
+          }
+          else {
+            list = getAllFilesConfig(folder);
+          }
 
           DBFileConfiguration.put(s, list);
         }
+
+        Bukkit.getLogger().info("");
+        for (String s : toReset){
+          try {
+            setDefaults(s);
+            Bukkit.getLogger().info("Successfully set the default of the '" + s + "' config folder. ");
+          } catch (NullPointerException e) {
+            Bukkit.getLogger().warning("Failed to set the default of the '" + s + "' config folder.");
+          }
+        }
+        Bukkit.getLogger().info("");
+
         return true;
     }
 
     public boolean setDefaults(String fileName) {
-        switch (fileName) {
 
+        switch (fileName) {
           case("messages"): {
             if (getFileConfig("messages").getDefaults() == null) {
               getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
@@ -201,69 +251,66 @@ public class yamlManager {
               getFileConfig("config").options().copyDefaults(true);
             }
           }
+          case("itemDB"): {
+              getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
+              getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
+              getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
+              getFileConfig("itemDB").addDefault("woodenSword.lore", List.of("Just a sword"));
+              getFileConfig("itemDB").addDefault("woodenSword.customModelData", 1);
+              getFileConfig("itemDB").addDefault("woodenSword.enchantments", List.of("mending:1", "fire_aspect:10"));
+              getFileConfig("itemDB").addDefault("woodenSword.Damage", 10);
+              getFileConfig("itemDB").addDefault("woodenSword.MinLevel", 2);
+              getFileConfig("itemDB").addDefault("woodenSword.hide", List.of("ENCHANTS", "ATTRIBUTES", "DYE", "PLACED_ON", "DESTROYS", "ARMOR_TRIM"));
+              getFileConfig("itemDB").addDefault("woodenSword.group", "swords");
+              getFileConfig("itemDB").addDefault("woodenSword.rarity", "common");
+              getFileConfig("itemDB").addDefault("woodenSword.recipe.type", "shaped");
+              getFileConfig("itemDB").addDefault("woodenSword.recipe.shape", List.of("  W", " W ", "S  "));
+              getFileConfig("itemDB").addDefault("woodenSword.recipe.ingredients", List.of("W:OAK_PLANKS", "S:STICK"));
+              getFileConfig("itemDB").addDefault("woodenSword.recipe.permission", "craft.wooden_sword");
 
-        /*if (getFileConfig("itemDB").getDefaults() == null) {
-          getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
-          getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
-          getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
-          getFileConfig("itemDB").addDefault("woodenSword.lore", List.of("Just a sword"));
-          getFileConfig("itemDB").addDefault("woodenSword.customModelData", 1);
-          getFileConfig("itemDB").addDefault("woodenSword.enchantments", List.of("mending:1", "fire_aspect:10"));
-          getFileConfig("itemDB").addDefault("woodenSword.Damage", 10);
-          getFileConfig("itemDB").addDefault("woodenSword.MinLevel", 2);
-          getFileConfig("itemDB").addDefault("woodenSword.hide", List.of("ENCHANTS", "ATTRIBUTES", "DYE", "PLACED_ON", "DESTROYS", "ARMOR_TRIM"));
-          getFileConfig("itemDB").addDefault("woodenSword.group", "swords");
-          getFileConfig("itemDB").addDefault("woodenSword.rarity", "common");
-          getFileConfig("itemDB").addDefault("woodenSword.recipe.type", "shaped");
-          getFileConfig("itemDB").addDefault("woodenSword.recipe.shape", List.of("  W", " W ", "S  "));
-          getFileConfig("itemDB").addDefault("woodenSword.recipe.ingredients", List.of("W:OAK_PLANKS", "S:STICK"));
-          getFileConfig("itemDB").addDefault("woodenSword.recipe.permission", "craft.wooden_sword");
-
-          getFileConfig("itemDB").addDefault("leatherChestplate.itemType", "LEATHER_CHESTPLATE");
-          getFileConfig("itemDB").addDefault("leatherChestplate.ItemID", "cool_chestplate");
-          getFileConfig("itemDB").addDefault("leatherChestplate.Health", 10);
-          getFileConfig("itemDB").addDefault("leatherChestplate.Defense", 10);
-          getFileConfig("itemDB").addDefault("leatherChestplate.Mana", 10);
-          getFileConfig("itemDB").addDefault("leatherChestplate.Durability", 5);
-          getFileConfig("itemDB").addDefault("leatherChestplate.color", "10,10,10");
-          getFileConfig("itemDB").addDefault("leatherChestplate.recipe.type", "shapeless");
-          getFileConfig("itemDB").addDefault("leatherChestplate.recipe.ingredients", List.of("DIAMOND:5", "LEATHER:2", "BLACK_DYE:1"));
-          getFileConfig("itemDB").addDefault("customBook.itemType", "WRITTEN_BOOK");
-          getFileConfig("itemDB").addDefault("customBook.ItemID", "cool_book");
-          getFileConfig("itemDB").addDefault("customBook.group", "books");
-          getFileConfig("itemDB").addDefault("customBook.title", "title");
-          getFileConfig("itemDB").addDefault("customBook.author", "author");
-          getFileConfig("itemDB").addDefault("customBook.pages", List.of("Page1", "Page2\nwith an enter"));
-          getFileConfig("itemDB").addDefault("customBread.itemType", "BREAD");
-          getFileConfig("itemDB").addDefault("customBread.ItemID", "bread_is_cool");
-          getFileConfig("itemDB").addDefault("customBread.group", "food");
-          getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
-          getFileConfig("itemDB").options().copyDefaults(true);
-        }
-
-        if (getFileConfig("mobDB").getDefaults() == null) {
-          getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
-          getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%entitycurrentHealth%/%entitymaxHealth%");
-          getFileConfig("mobDB").addDefault("spider.customName.visible", true);
-          getFileConfig("mobDB").addDefault("spider.glowing", false);
-          getFileConfig("mobDB").addDefault("spider.invulnerable", false);
-          getFileConfig("mobDB").setInlineComments("spider.health", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-          getFileConfig("mobDB").addDefault("spider.health", 100);
-          getFileConfig("mobDB").setInlineComments("spider.damage", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-          getFileConfig("mobDB").addDefault("spider.damage", 10);
-          getFileConfig("mobDB").setInlineComments("spider.speed", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-          getFileConfig("mobDB").addDefault("spider.speed", 2);
-          getFileConfig("mobDB").addDefault("spider.lootTable", "spiderDrops");
-          getFileConfig("mobDB").addDefault("spider.randomSpawns.frequency", 1);
-          getFileConfig("mobDB").setInlineComments("spider.randomSpawns.frequency", List.of("0 is 0% of entities, 1 is 100%, 0.01 is 1% etc"));
-          getFileConfig("mobDB").addDefault("spider.randomSpawns.options.spawnOn", List.of("GRASS_BLOCK"));
-          getFileConfig("mobDB").addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
-          getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
-          getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
-          getFileConfig("mobDB").options().copyDefaults(true);
-        }*/
+              getFileConfig("itemDB").addDefault("leatherChestplate.itemType", "LEATHER_CHESTPLATE");
+              getFileConfig("itemDB").addDefault("leatherChestplate.ItemID", "cool_chestplate");
+              getFileConfig("itemDB").addDefault("leatherChestplate.Health", 10);
+              getFileConfig("itemDB").addDefault("leatherChestplate.Defense", 10);
+              getFileConfig("itemDB").addDefault("leatherChestplate.Mana", 10);
+              getFileConfig("itemDB").addDefault("leatherChestplate.Durability", 5);
+              getFileConfig("itemDB").addDefault("leatherChestplate.color", "10,10,10");
+              getFileConfig("itemDB").addDefault("leatherChestplate.recipe.type", "shapeless");
+              getFileConfig("itemDB").addDefault("leatherChestplate.recipe.ingredients", List.of("DIAMOND:5", "LEATHER:2", "BLACK_DYE:1"));
+              getFileConfig("itemDB").addDefault("customBook.itemType", "WRITTEN_BOOK");
+              getFileConfig("itemDB").addDefault("customBook.ItemID", "cool_book");
+              getFileConfig("itemDB").addDefault("customBook.group", "books");
+              getFileConfig("itemDB").addDefault("customBook.title", "title");
+              getFileConfig("itemDB").addDefault("customBook.author", "author");
+              getFileConfig("itemDB").addDefault("customBook.pages", List.of("Page1", "Page2\nwith an enter"));
+              getFileConfig("itemDB").addDefault("customBread.itemType", "BREAD");
+              getFileConfig("itemDB").addDefault("customBread.ItemID", "bread_is_cool");
+              getFileConfig("itemDB").addDefault("customBread.group", "food");
+              getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
+              getFileConfig("itemDB").options().copyDefaults(true);
+          }
+          case ("mobDB"): {
+              getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
+              getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%entitycurrentHealth%/%entitymaxHealth%");
+              getFileConfig("mobDB").addDefault("spider.customName.visible", true);
+              getFileConfig("mobDB").addDefault("spider.glowing", false);
+              getFileConfig("mobDB").addDefault("spider.invulnerable", false);
+              getFileConfig("mobDB").setInlineComments("spider.health", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").addDefault("spider.health", 100);
+              getFileConfig("mobDB").setInlineComments("spider.damage", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").addDefault("spider.damage", 10);
+              getFileConfig("mobDB").setInlineComments("spider.speed", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").addDefault("spider.speed", 2);
+              getFileConfig("mobDB").addDefault("spider.lootTable", "spiderDrops");
+              getFileConfig("mobDB").addDefault("spider.randomSpawns.frequency", 1);
+              getFileConfig("mobDB").setInlineComments("spider.randomSpawns.frequency", List.of("0 is 0% of entities, 1 is 100%, 0.01 is 1% etc"));
+              getFileConfig("mobDB").addDefault("spider.randomSpawns.options.spawnOn", List.of("GRASS_BLOCK"));
+              getFileConfig("mobDB").addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
+              getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
+              getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
+              getFileConfig("mobDB").options().copyDefaults(true);
+          }
           case("lootTables"): {
-            if (getFileConfig("lootTables").getDefaults() == null) {
               getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
               getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
               getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
@@ -274,10 +321,9 @@ public class yamlManager {
               getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
 
               getFileConfig("lootTables").options().copyDefaults(true);
-            }
           }
           case("data"): {
-            if (getFileConfig("data").getDefaults() == null) {
+            if (getFileConfig("data") == null || getFileConfig("data").getDefaults() == null) {
               getFileConfig("data").addDefault("customMobs", List.of());
               getFileConfig("data").options().copyDefaults(true);
             }
@@ -322,21 +368,38 @@ public class yamlManager {
         try {
           for (String s : RPGCraft.yamlFiles) {
             if (Objects.equals(s, ymlFile)) {
-              Bukkit.getLogger().info(String.valueOf(RPGCraft.fileConfigurationList.size()));
               return RPGCraft.fileConfigurationList.get(index);
             }
             index++;
           }
-          index = 0;
           for (String s : DBFolders) {
-            if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(ymlFile)) && DBFileConfiguration.get(ymlFile) != null) {
-              return DBFileConfiguration.get(s).get(index);
+            if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(ymlFile)) && DBFileConfiguration.get(s) != null) {
+              //Bukkit.getLogger().info(DBFileConfiguration.get(s).get(0).getCurrentPath());
+              return DBFileConfiguration.get(s).get(0);
             }
-            index++;
           }
         } catch(IndexOutOfBoundsException ignored){}
 
         return null;
+    }
+
+    public static YamlConfiguration getFileConfig(String ymlFile, int fileCount) {
+      int index = 0;
+      try {
+        for (String s : RPGCraft.yamlFiles) {
+          if (Objects.equals(s, ymlFile)) {
+            return RPGCraft.fileConfigurationList.get(index);
+          }
+        index++;
+        }
+        for (String s : DBFolders) {
+          if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(ymlFile)) && DBFileConfiguration.get(s) != null) {
+            return DBFileConfiguration.get(s).get(fileCount);
+          }
+        }
+      } catch(IndexOutOfBoundsException ignored){}
+
+      return null;
     }
 
     public static void setDB(String DB, String filePath, String path, String value){
@@ -367,21 +430,48 @@ public class yamlManager {
         return YamlConfiguration.loadConfiguration(Defaultfile);
     }
 
-    public void getAllFilesConfig(File f, List<YamlConfiguration> list){
+    public List<YamlConfiguration> getAllFilesConfig(File f){
+        List<YamlConfiguration> yamls = new ArrayList<>(List.of());
         if (f.isDirectory()) {
             for (File file : f.listFiles()) {
                 if (file.isDirectory()) {
-                    getAllFilesConfig(file, list);
+                    yamls.addAll(getAllFilesConfig(file));
                 } else {
                     YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-                    list.add(yaml);
+                  yamls.add(yaml);
                 }
             }
         }
+        return yamls;
     }
 
-  public Object getOption(String file, String path){
-        if (getFileConfig(file).get(path) == null){ return null; }
+    public List<File> getAllFiles(File f){
+      List<File> yamls = new ArrayList<>(List.of());
+      if (f.isDirectory()) {
+        for (File file : f.listFiles()) {
+          if (file.isDirectory()) {
+            yamls.addAll(getAllFiles(file));
+          } else {
+            yamls.add(file);
+          }
+        }
+      }
+      return yamls;
+    }
+
+    public Object getOption(String file, String path){
+        if (getFileConfig(file).get(path) == null){
+          for (String s : DBFolders) {
+            if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(file)) && DBFileConfiguration.get(s) != null) {
+              //Bukkit.getLogger().info(DBFileConfiguration.get(s).get(0).getCurrentPath());
+              for (YamlConfiguration config : DBFileConfiguration.get(s)){
+                if (config.get(path.replace("[", "").replace("]", "")) != null){
+                  return config.get(path.replace("[", "").replace("]", ""));
+                }
+              }
+            }
+          }
+        }
         return getFileConfig(file).get(path);
     }
     public void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
@@ -391,11 +481,19 @@ public class yamlManager {
     public List<ItemStack> getCustomItems() {
         List<ItemStack> items = new ArrayList();
         List<Object> nodes = yamlGetter.getAllNodesInDB("itemDB", "");
-        if(nodes == null) {Bukkit.getLogger().warning("No Items Loaded");return List.of(new ItemStack(Material.DIRT));}
-        for (Object node : nodes) {
-            String key = node.toString();
-            items.add(getItem(key));
+        if(nodes == null) {
+          Bukkit.getLogger().warning("No Items Loaded");
+          return List.of(new ItemStack(Material.DIRT));
         }
+
+      Bukkit.getLogger().info(nodes.toString());
+        for (Object node : nodes) {
+          for (String looseNode : node.toString().replace("[", "").replace("]", "").replace(" ", "").split(",")) {
+            Bukkit.getLogger().info(looseNode);
+            items.add(getItem(looseNode));
+          }
+        }
+
 
         return items;
     }

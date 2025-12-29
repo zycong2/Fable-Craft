@@ -1,16 +1,19 @@
 package io.RPGCraft.FableCraft.commands;
 
-import io.RPGCraft.FableCraft.commands.DONOTTOUCH.command;
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class itemDB {
+import java.util.List;
 
-    @command(name = "itemDB", playerOnly = true, permission = "RPGCraft.itemDB")
-    public boolean onCommand(CommandSender sender, String[] args) {
-        Player p = (Player)sender;
+public class itemDB implements CommandInterface {
+
+  public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        Player p = (Player)commandSender;
         if (!p.hasPermission("FableCraft.itemDB")) {
             p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
@@ -19,4 +22,9 @@ public class itemDB {
         }
         return true;
     }
+
+  @Override
+  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    return List.of();
+  }
 }

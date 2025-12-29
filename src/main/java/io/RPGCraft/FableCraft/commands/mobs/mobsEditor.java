@@ -38,7 +38,7 @@ public class mobsEditor implements Listener {
     Inventory inv = Bukkit.createInventory(null, 36, "Mob Editor");
 
     setItemPDC("MobID", item, getItemPDC("MobID", item));
-    Bukkit.getLogger().info(getMobKey(item));
+    //Bukkit.getLogger().info(getMobKey(item));
     ItemMeta meta = item.getItemMeta();
     meta.setLore(List.of(
       ColorizeReString("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
@@ -229,7 +229,7 @@ public class mobsEditor implements Listener {
       .filter(key -> key
         .equals(getItemPDC("MobID", item)))
       .findFirst()
-      .orElse(null);
+      .orElse(null).toString().replace("[", "").replace("]", "");
   }
 
   // Handle mobDB and editor inventory clicks

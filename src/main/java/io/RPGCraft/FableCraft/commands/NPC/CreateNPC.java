@@ -38,7 +38,8 @@ public class CreateNPC implements CommandInterface {
 
         if (!ValidNPCType.contains(args[2].toLowerCase())){return false;}
 
-        if (!IsCitizen){Bukkit.getLogger().warning("Citizens is not installed, please install it to use this command");commandSender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));}
+        if (!IsCitizen){Bukkit.getLogger().warning("Citizens is not installed, please install it to use this command");
+          commandSender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));}
 
         Player player = (Player) commandSender;
 

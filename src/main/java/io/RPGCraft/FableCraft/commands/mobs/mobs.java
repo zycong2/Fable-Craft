@@ -154,7 +154,7 @@ public class mobs implements CommandInterface, Listener {
     public void randomSpawn(CreatureSpawnEvent event){
       if (RPGCraft.spawns.isEmpty()) {return; }
         int randomInt = (int) (Math.random() * RPGCraft.spawns.size());
-        //try {
+        try {
             boolean spawned = true;
             String type = RPGCraft.spawns.get(randomInt);
             if (type.equalsIgnoreCase("null") || type.isEmpty()) {
@@ -182,6 +182,6 @@ public class mobs implements CommandInterface, Listener {
                 getEntity(RPGCraft.spawns.get(randomInt), event.getLocation());
                 event.setCancelled(true);
             }
-        //} catch (IndexOutOfBoundsException ignored) { Bukkit.getLogger().info(ignored.toString()); }
+        } catch (IndexOutOfBoundsException ignored) { Bukkit.getLogger().info(ignored.toString()); }
     }
 }

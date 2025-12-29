@@ -73,7 +73,7 @@ public class Chat implements Listener {
 
     if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
 
-    Bukkit.getLogger().info(PlainTextComponentSerializer.plainText().serialize(str2));
+    //Bukkit.getLogger().info(PlainTextComponentSerializer.plainText().serialize(str2));
     for(Player player : Bukkit.getOnlinePlayers()){
       player.sendMessage(str2);
     }

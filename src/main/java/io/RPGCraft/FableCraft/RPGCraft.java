@@ -61,7 +61,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("config", "data", "messages", "config", "format");
+  public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
   public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
@@ -72,6 +72,10 @@ public final class RPGCraft extends JavaPlugin {
 
 
   public void onEnable() {
+    if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
+      Bukkit.getLogger().severe("Failed to load config!");
+    }
+
     if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
     if(doesPluginExist("Citizens")){IsCitizen = true;}
     if(doesPluginExist("Skript")){IsSkript = true;}
@@ -83,9 +87,6 @@ public final class RPGCraft extends JavaPlugin {
     setupEconomy();
     setupChat();
 
-    if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
-      Bukkit.getLogger().severe("Failed to load config!");
-    }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
