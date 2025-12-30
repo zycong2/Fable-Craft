@@ -22,7 +22,7 @@ public class yamlGetter {
   public static Object getConfig(String path, Player target, boolean round) {
     Object a = yamlManager.getInstance().getFileConfig("config").get(path);
     if (a == null) {
-      return ColorizeReString("&cOption not found");
+      return Colorize("&cOption not found");
     } else if (a instanceof String s) {
       return Placeholder.setPlaceholders(s, round, (Entity) target);
     } else {
@@ -33,7 +33,7 @@ public class yamlGetter {
   public static String getActionBar(Player target, boolean round) {
     Object a = yamlManager.getInstance().getFileConfig("config").get("actionbar.message");
     if (a == null) {
-      return ColorizeReString("&cOption not found");
+      return Colorize("&cOption not found");
     } else if (a instanceof String s) {
       return Placeholder.setPlaceholders(s, round, (Entity) target);
     } else {
@@ -44,9 +44,9 @@ public class yamlGetter {
   public static @NotNull Component getMessage(String path, Player target, boolean round) {
     Object a = yamlManager.getInstance().getFileConfig("messages").get(path);
     if (a == null) {
-      return Colorize("&cOption not found");
+      return MM("&cOption not found");
     } else {
-      return Colorize(Placeholder.setPlaceholders(a.toString(), round, (Entity) target));
+      return MM(Placeholder.setPlaceholders(a.toString(), round, (Entity) target));
     }
   }
 

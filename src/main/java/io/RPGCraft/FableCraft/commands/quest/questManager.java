@@ -1,9 +1,9 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.RPGCraft.FableCraft.core.lootTableHelper;
+import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
 public class questManager {

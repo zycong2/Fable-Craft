@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.commands.NPC.NPChandler;
 
-import io.RPGCraft.FableCraft.commands.quest.quests;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,7 +9,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.talkedNPC;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 
 public class TypeHandler implements Listener {
 

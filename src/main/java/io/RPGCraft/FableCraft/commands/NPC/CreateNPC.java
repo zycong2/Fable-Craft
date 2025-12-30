@@ -6,7 +6,6 @@ import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -16,7 +15,7 @@ import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsCitizen;
-import static io.RPGCraft.FableCraft.core.PDCHelper.setNPCPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setNPCPDC;
 
 public class CreateNPC implements CommandInterface {
   private List<String> ValidNPCType = List.of(

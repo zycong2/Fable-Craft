@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -20,7 +20,6 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
@@ -258,7 +257,7 @@ public class yamlManager {
               getFileConfig("itemDB").addDefault("woodenSword.lore", List.of("Just a sword"));
               getFileConfig("itemDB").addDefault("woodenSword.customModelData", 1);
               getFileConfig("itemDB").addDefault("woodenSword.enchantments", List.of("mending:1", "fire_aspect:10"));
-              getFileConfig("itemDB").addDefault("woodenSword.Damage", 10);
+              getFileConfig("itemDB").addDefault("woodenSword.AttackDamage", 10);
               getFileConfig("itemDB").addDefault("woodenSword.MinLevel", 2);
               getFileConfig("itemDB").addDefault("woodenSword.hide", List.of("ENCHANTS", "ATTRIBUTES", "DYE", "PLACED_ON", "DESTROYS", "ARMOR_TRIM"));
               getFileConfig("itemDB").addDefault("woodenSword.group", "swords");
@@ -520,25 +519,25 @@ public class yamlManager {
     }
 
     ItemStack item = ItemStack.of(material);
+    String itemID = itemFile.getString(name + ".ItemID");
     ItemMeta meta = item.getItemMeta();
     if (meta == null) return null;
 
     List<String> lore = new ArrayList<>();
     List<String> PDC = new ArrayList<>();
 
-    String itemID = itemFile.getString(name + ".ItemID");
     if (itemID != null && !ItemDB.containsKey(itemID)) {
       ItemDB.put(itemID, itemFile);
     }
     PDC.add("ItemID;" + itemID);
 
+    applyLore(name, itemFile, lore);
     int attributes = applyStats(name, itemFile, lore, PDC);
     if (attributes > 0) lore.add(0, "");
 
     applyNameAndModelData(name, itemFile, meta);
     applyEnchantments(name, itemFile, meta);
     applyHideFlags(name, itemFile, meta);
-    applyLore(name, itemFile, lore);
     applyRarity(name, itemFile, lore);
 
     meta.setLore(lore);
@@ -569,7 +568,7 @@ public class yamlManager {
       if (itemFile.contains(path)) {
         String value = itemFile.getString(path);
         String symbol = String.valueOf(yamlGetter.getConfig("stats." + stat + ".char", null, true));
-        lore.add(ColorizeReString("&8" + stat + ": &f+" + value + symbol));
+        lore.add(Colorize("&8" + stat + ": &f+" + value + symbol));
         PDC.add(stat + ";" + value);
         count++;
       }
@@ -579,7 +578,7 @@ public class yamlManager {
 
   private static void applyNameAndModelData(String name, YamlConfiguration file, ItemMeta meta) {
     if (file.contains(name + ".name")) {
-      meta.setItemName(ColorizeReString(file.getString(name + ".name")));
+      meta.setItemName(Colorize(file.getString(name + ".name")));
     }
     if (file.contains(name + ".customModelData")) {
       meta.setCustomModelData(file.getInt(name + ".customModelData"));
@@ -610,13 +609,13 @@ public class yamlManager {
   private static void applyLore(String name, YamlConfiguration file, List<String> lore) {
     if (file.contains(name + ".lore")) {
       if (isConfigSet("items.lore.prefix")) {
-        lore.add(ColorizeReString((String) yamlGetter.getConfig("items.lore.prefix", null, true)));
+        lore.add(Colorize((String) yamlGetter.getConfig("items.lore.prefix", null, true)));
       }
       for (String line : file.getStringList(name + ".lore")) {
-        lore.add(ColorizeReString(line));
+        lore.add(Colorize(line));
       }
       if (isConfigSet("items.lore.suffix")) {
-        lore.add(ColorizeReString((String) yamlGetter.getConfig("items.lore.suffix", null, true)));
+        lore.add(Colorize((String) yamlGetter.getConfig("items.lore.suffix", null, true)));
       }
     }
   }
@@ -625,7 +624,7 @@ public class yamlManager {
     if (file.contains(name + ".rarity")) {
       lore.add("");
       String rarity = file.getString(name + ".rarity");
-      lore.add(ColorizeReString(getFileConfig("config").getString("items.display.rarity." + rarity)));
+      lore.add(Colorize(getFileConfig("config").getString("items.display.rarity." + rarity)));
       lore.add("");
     }
   }

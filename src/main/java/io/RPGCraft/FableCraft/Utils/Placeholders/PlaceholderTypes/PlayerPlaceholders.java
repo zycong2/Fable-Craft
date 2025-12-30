@@ -7,9 +7,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsLuckperms;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static org.bukkit.Bukkit.getServer;
 
 public class PlayerPlaceholders {
@@ -25,7 +25,7 @@ public class PlayerPlaceholders {
       Player p = (Player) e;
       return String.valueOf(Math.round(Float.valueOf(getPlayerPDC("currentHealth", p))*10)/10);
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -35,7 +35,7 @@ public class PlayerPlaceholders {
       LivingEntity le = (LivingEntity) e;
       return String.valueOf(le.getHealth());
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -45,7 +45,7 @@ public class PlayerPlaceholders {
       Player p = (Player) e;
       return getPlayerPDC("Health", p).toString();
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -55,7 +55,7 @@ public class PlayerPlaceholders {
       LivingEntity le = (LivingEntity) e;
       return String.valueOf(le.getMaxHealth());
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -65,7 +65,7 @@ public class PlayerPlaceholders {
       Player p = (Player) e;
       return getPlayerPDC("currentMana", p);
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -75,7 +75,7 @@ public class PlayerPlaceholders {
       Player p = (Player) e;
       return getPlayerPDC("Mana", p);
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -84,7 +84,7 @@ public class PlayerPlaceholders {
     if (e instanceof Player p) {
       return getPlayerPDC("Defense", p);
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 
@@ -96,7 +96,7 @@ public class PlayerPlaceholders {
       String prefix = luckPerms.getPlayerAdapter(Player.class).getMetaData(p).getPrefix();
       return prefix;
     }else{
-      return ColorizeReString("The mob is not a living entity");
+      return Colorize("The mob is not a living entity");
     }
   }
 

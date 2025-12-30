@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import io.RPGCraft.FableCraft.listeners.ItemEditor;
+import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
-import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
 public class GUI implements Listener {
   Inventory menu; // Player profile GUI
@@ -47,7 +47,7 @@ public class GUI implements Listener {
 
       for (int i = 0; i < skills.length; ++i) {
         String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-        formattedSkills[i] = ColorizeReString(statLine + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
+        formattedSkills[i] = Colorize(statLine + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
       }
 
       this.menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "Profile", formattedSkills));

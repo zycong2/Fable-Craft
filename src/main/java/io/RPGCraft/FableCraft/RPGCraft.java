@@ -1,7 +1,9 @@
 package io.RPGCraft.FableCraft;
 
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
+import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
+import io.RPGCraft.FableCraft.Utils.GUI.GUIListener;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
@@ -13,12 +15,14 @@ import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.GUI;
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
+import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.RPGCraft.FableCraft.core.lootTableHelper;
-import io.RPGCraft.FableCraft.listeners.ItemEditor;
-import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
+import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
+import io.RPGCraft.FableCraft.listeners.Chat.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import lombok.Getter;
@@ -38,6 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.sql.Connection;
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
@@ -52,7 +57,7 @@ public final class RPGCraft extends JavaPlugin {
   public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
 
-  public static List<String> itemStats = List.of("Damage", "Health", "Mana", "Defence", "MaxDurability", "Minuselevel");
+  public static List<String> itemStats = List.of("AttackDamage", "Health", "Mana", "Defense", "MovementSpeed", "MaxDurability", "Minuselevel");
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
@@ -103,8 +108,25 @@ public final class RPGCraft extends JavaPlugin {
       new TypeHandler(),
       new questEvents(),
       new GUI(),
+      new Stats(),
+      new PlayerStats(),
+      new ChatInputManager(),
+      new GUIListener(),
       new mobsEditor()
     );
+
+    try{
+      DatabaseManager.createDBFile("player-info");
+      Connection c1 = DatabaseManager.getDBConnection("player-info");
+      DatabaseManager.createTable(c1, "player_stats",
+        "uuid TEXT PRIMARY KEY, " +
+          "data TEXT");
+      getServer().getLogger().info("&aSuccessfully created/loaded the Player Stats's Data");
+      getServer().getLogger().info("&aSuccessfully created/loaded the Plugin's Database files");
+    }catch (Exception e){
+      getPlugin().getComponentLogger().warn(MM("&e&iUnable to create database file &4"));
+      e.printStackTrace();
+    }
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
@@ -211,11 +233,11 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
-  public static String ColorizeReString(String input) {
+  public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }
 
-  public static List<String> ColorizeList(List<String> input) {
+  public static List<String> Colorize(List<String> input) {
     List<String> output = new ArrayList<>(List.of());
 
     for(String s : input) {
@@ -225,7 +247,13 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
-  public static List<TextComponent> ColorizeListReComponent(List<String> input) {
+  public static TextComponent MM(String input){
+    String s = FormatForMiniMessage(input);
+    TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
+    return deserialized;
+  }
+
+  public static List<TextComponent> MM(List<String> input) {
     List<TextComponent> output = new ArrayList<>(List.of());
 
     for(String s : input) {
@@ -236,11 +264,6 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
-  public static TextComponent Colorize(String input){
-    String s = FormatForMiniMessage(input);
-    TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
-    return deserialized;
-  }
   public static void wait(int ticks, Runnable task) {
     new BukkitRunnable() {
       @Override

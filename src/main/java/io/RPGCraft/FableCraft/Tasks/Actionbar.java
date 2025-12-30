@@ -4,7 +4,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getActionBar;
 
 public class Actionbar implements Runnable{
@@ -17,7 +17,7 @@ public class Actionbar implements Runnable{
   public void run() {
     if (!Boolean.valueOf(yamlManager.getInstance().getOption("config", "actionbar.enabled").toString())) { return; }
     for(Player p : Bukkit.getOnlinePlayers()) {
-      p.sendActionBar(ColorizeReString(getActionBar(p, true).toString()));
+      p.sendActionBar(Colorize(getActionBar(p, true).toString()));
     }
   }
 }

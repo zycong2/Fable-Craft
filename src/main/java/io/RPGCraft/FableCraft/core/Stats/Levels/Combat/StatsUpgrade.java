@@ -1,6 +1,7 @@
-package io.RPGCraft.FableCraft.core;
+package io.RPGCraft.FableCraft.core.Stats.Levels.Combat;
 
-import io.RPGCraft.FableCraft.listeners.ItemEditor;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -13,9 +14,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
-import static io.RPGCraft.FableCraft.core.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
 public class StatsUpgrade implements CommandExecutor, Listener {
 
@@ -25,28 +26,28 @@ public class StatsUpgrade implements CommandExecutor, Listener {
 
     if(commandSender instanceof Player p){
       int points = Integer.parseInt(getPlayerPDC("statsPoints", p));
-      Inventory statsMenu = Bukkit.createInventory(null, 3*9, ColorizeReString("<#C467F8>Evolution Of The Soul</#6917F6>"));
+      Inventory statsMenu = Bukkit.createInventory(null, 3*9, Colorize("<#C467F8>Evolution Of The Soul</#6917F6>"));
       statsMenu.setItem(11, ItemEditor.createButton(
-        ColorizeReString("<#F86667>Stregth</#DA1717>"),
+        Colorize("<#F86667>Stregth</#DA1717>"),
         Material.IRON_SWORD,
-        ColorizeReString("&fUpgrade your damage!"),
-        ColorizeReString("&7 "),
-        ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
+        Colorize("&fUpgrade your damage!"),
+        Colorize("&7 "),
+        Colorize("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(13, ItemEditor.createButton(
-        ColorizeReString("<#F86667>Health</#DA1717>"),
+        Colorize("<#F86667>Health</#DA1717>"),
         Material.IRON_CHESTPLATE,
-        ColorizeReString("&fUpgrade your health!"),ColorizeReString("&7" ),ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
+        Colorize("&fUpgrade your health!"),Colorize("&7" ),Colorize("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(15, ItemEditor.createButton(
-        ColorizeReString("<#98C7FE>Mana</#2FBBED>"),
+        Colorize("<#98C7FE>Mana</#2FBBED>"),
         Material.EXPERIENCE_BOTTLE,
-        ColorizeReString("&fUpgrade your max mana!!"),ColorizeReString("&7 "),ColorizeReString("&fYou have &e" + points + " &fpoints to spend!")
+        Colorize("&fUpgrade your max mana!!"),Colorize("&7 "),Colorize("&fYou have &e" + points + " &fpoints to spend!")
       ));
       statsMenu.setItem(26, ItemEditor.createButton(
-        ColorizeReString("<#F86667>Close</#DA1717>"),
+        Colorize("<#F86667>Close</#DA1717>"),
         Material.BARRIER,
-        ColorizeReString("&cClose the menu!")
+        Colorize("&cClose the menu!")
       ));
       p.openInventory(statsMenu);
     }
@@ -56,7 +57,7 @@ public class StatsUpgrade implements CommandExecutor, Listener {
 
   @EventHandler
   void onInventoryClick(InventoryClickEvent e) {
-    if (e.getView().getTitle().equals(ColorizeReString("<#C467F8>Evolution Of The Soul</#6917F6>"))) {
+    if (e.getView().getTitle().equals(Colorize("<#C467F8>Evolution Of The Soul</#6917F6>"))) {
       e.setCancelled(true);
       if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR) return;
       Player p = (Player) e.getWhoClicked();

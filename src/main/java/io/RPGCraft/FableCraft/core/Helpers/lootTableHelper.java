@@ -1,4 +1,4 @@
-package io.RPGCraft.FableCraft.core;
+package io.RPGCraft.FableCraft.core.Helpers;
 
 import java.util.List;
 import java.util.Random;

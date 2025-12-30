@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.commands.mobs;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -27,10 +27,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
-import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.*;
+import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
 public class mobsEditor implements Listener {
   public static Inventory mobDB;
@@ -41,10 +40,10 @@ public class mobsEditor implements Listener {
     //Bukkit.getLogger().info(getMobKey(item));
     ItemMeta meta = item.getItemMeta();
     meta.setLore(List.of(
-      ColorizeReString("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
-      ColorizeReString("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
-      ColorizeReString("&fHealth: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".health")),
-      ColorizeReString("&fLoot Table: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".lootTable"))
+      Colorize("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
+      Colorize("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
+      Colorize("&fHealth: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".health")),
+      Colorize("&fLoot Table: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".lootTable"))
     ));
 
     item.setItemMeta(meta);

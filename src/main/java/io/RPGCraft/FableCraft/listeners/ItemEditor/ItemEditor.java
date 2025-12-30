@@ -1,4 +1,4 @@
-package io.RPGCraft.FableCraft.listeners;
+package io.RPGCraft.FableCraft.listeners.ItemEditor;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
-import static io.RPGCraft.FableCraft.core.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import io.RPGCraft.FableCraft.core.GUI;
 
 public class ItemEditor implements Listener {
@@ -55,9 +55,9 @@ public class ItemEditor implements Listener {
     ItemStack item = new ItemStack(mat);
     ItemMeta meta = item.getItemMeta();
 
-    meta.setDisplayName(ColorizeReString(name));
+    meta.setDisplayName(Colorize(name));
     meta.setLore(Arrays.stream(loreLines)
-      .map(str -> ColorizeReString(str))
+      .map(str -> Colorize(str))
       .toList());
 
     // Optional: If you want to allow custom model data via overload later

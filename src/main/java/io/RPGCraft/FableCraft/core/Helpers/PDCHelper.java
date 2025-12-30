@@ -1,4 +1,4 @@
-package io.RPGCraft.FableCraft.core;
+package io.RPGCraft.FableCraft.core.Helpers;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import net.citizensnpcs.api.npc.NPC;

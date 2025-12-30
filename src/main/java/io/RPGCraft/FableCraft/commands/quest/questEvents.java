@@ -1,6 +1,6 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.commands.quest.questManager.finishedQuest;
-import static io.RPGCraft.FableCraft.core.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 
 public class questEvents implements Listener {
   @EventHandler

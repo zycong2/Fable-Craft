@@ -3,21 +3,18 @@ package io.RPGCraft.FableCraft.listeners;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
-import io.RPGCraft.FableCraft.core.PDCHelper;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -27,22 +24,16 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import javax.swing.plaf.ButtonUI;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.ColorizeReString;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
-import static io.RPGCraft.FableCraft.core.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.*;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.getItemKey;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.makeItemEditor;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 
 // This class handles a wide range of player-related events in the RPG plugin.
 // It manages joining, quitting, interacting with items, GUI menus, stats, combat, and inventory behavior.
@@ -163,7 +154,7 @@ public class mainListeners implements Listener {
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
       event.setDamage(event.getDamage() + Double.valueOf(getPlayerPDC("Damage", p)));
       if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-        event.getEntity().customName(Colorize(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
+        event.getEntity().customName(MM(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
       }
     }
   }
@@ -174,6 +165,7 @@ public class mainListeners implements Listener {
     event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));
   }
 
+  // Remind me later
   @EventHandler void onItemDamage(PlayerItemDamageEvent event) {
     if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) {
       event.setCancelled(true);
@@ -203,14 +195,14 @@ public class mainListeners implements Listener {
         if (stack.getAmount() > 1) {
           stack.setAmount(stack.getAmount() - 1);
         } else {
-          inv.setItem(i, null);
+          inv.setItem(i, ItemStack.of(Material.AIR));
         }
         break;
       }
     }
   }
 
-  // Adjust stats on armor change
+  /*// Adjust stats on armor change
   @EventHandler
   void onArmorChange(PlayerArmorChangeEvent event) {
     Player p = event.getPlayer();
@@ -280,5 +272,5 @@ public class mainListeners implements Listener {
       }
     }
     stats.checkCurrentStats(p);
-  }
+  }*/
 }
