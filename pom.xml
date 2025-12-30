@@ -1,0 +1,208 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Change to your own main package name. -->
+  <groupId>io.RPGCraft</groupId>
+
+  <!-- Change to your plugin name, must be lowercase, no spaces, and match your final package name. -->
+  <artifactId>FableCraft</artifactId>
+
+  <!-- Change to your plugin's display name. Can contain uppercase letters, but do NOT use spaces. -->
+  <name>FableCraft</name>
+
+  <!-- Plugin version. Start with 0.1 during early development and increase over time. -->
+  <version>1.4</version>
+
+  <!-- DO NOT EDIT. -->
+  <packaging>jar</packaging>
+
+  <properties>
+    <!-- Java version this plugin is built on.
+
+         IMPORTANT: For Java 8, use "1.8". For Java 11+, use "11", "17", or "21".
+
+         If you use Java 21, it may not run on older servers unless they support newer JVMs.
+    -->
+    <java.version>21</java.version>
+
+    <!-- Class Graph version -->
+    <classGraph.version>4.8.184</classGraph.version>
+
+    <!-- Reflection version -->
+    <reflection.version>0.10.2</reflection.version>
+
+    <!-- VaultAPI version -->
+    <vaultAPI.version>1.7</vaultAPI.version>
+
+    <!-- LuckPerms version -->
+    <luckPerms.version>5.4</luckPerms.version>
+
+    <!-- Citizens version -->
+    <citizens.version>2.0.35-SNAPSHOT</citizens.version>
+
+    <!-- ProtocolLibs version -->
+    <protocolLibs.version>5.4.0</protocolLibs.version>
+
+    <!-- PlaceholderAPI version -->
+    <placeholderAPI.version>2.11.6</placeholderAPI.version>
+
+    <!-- lombok version -->
+    <lombok.version>1.18.42</lombok.version>
+
+    <!-- paper API version -->
+    <paperAPI.version>1.21.10</paperAPI.version>
+
+    <!-- plugin version -->
+    <version>${version}</version>
+
+    <!-- DO NOT EDIT. -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+
+    <!-- Paper API (provided at runtime by the server) -->
+    <dependency>
+      <groupId>io.papermc.paper</groupId>
+      <artifactId>paper-api</artifactId>
+      <version>${paperAPI.version}-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- NMS for better controlling (provided by the server) -->
+    <!-- NMS PATH: D:\Users\tonnam\Documents\MAZE\M\M\Test-Servers\${paperAPI.version}\versions\${paperAPI.version}\paper-${paperAPI.version}.jar -->
+    <dependency>
+      <groupId>org.paper</groupId>
+      <artifactId>paper</artifactId>
+      <version>${paperAPI.version}</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/paper-${paperAPI.version}.jar</systemPath>
+    </dependency>
+
+    <!-- ClassGraph for scanning plugin -->
+    <dependency>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>${classGraph.version}</version>
+    </dependency>
+
+    <!-- Reflection for Reflection thing -->
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${reflection.version}</version>
+    </dependency>
+
+    <!-- VaultAPI -->
+    <dependency>
+      <groupId>com.github.MilkBowl</groupId>
+      <artifactId>VaultAPI</artifactId>
+      <version>${vaultAPI.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Luckperms -->
+    <dependency>
+      <groupId>net.luckperms</groupId>
+      <artifactId>api</artifactId>
+      <version>${luckPerms.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Citizens -->
+    <dependency>
+      <groupId>net.citizensnpcs</groupId>
+      <artifactId>citizens-main</artifactId>
+      <version>2.0.35-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- ProtocolLibs -->
+    <dependency>
+      <groupId>net.dmulloy2</groupId>
+      <artifactId>ProtocolLib</artifactId>
+      <version>${protocolLibs.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- PlaceholderAPI -->
+    <dependency>
+      <groupId>com.github.placeholderapi</groupId>
+      <artifactId>placeholderapi</artifactId>
+      <version>${placeholderAPI.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+  <repositories>
+
+    <repository>
+      <id>citizens-repo</id>
+      <url>https://maven.citizensnpcs.co/repo</url>
+    </repository>
+
+    <!-- PaperMC Maven repository for Paper API -->
+    <repository>
+      <id>papermc-repo</id>
+      <url>https://repo.papermc.io/repository/maven-public/</url>
+    </repository>
+
+    <!-- Sonatype OSS for JDA and related libraries -->
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+
+    <!-- JitPack for GitHub-based dependencies -->
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
+  <build>
+
+    <!-- This controls the name of your output plugin jar -->
+    <finalName>${project.artifactId}-${project.version}</finalName>
+
+    <!-- Replaces variables like ${project.name} in plugin.yml and other resources -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <!-- Compiler plugin for Java -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

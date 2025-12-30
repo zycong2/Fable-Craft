@@ -6,8 +6,6 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlacehold
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
-import io.RPGCraft.FableCraft.commands.DONOTTOUCH.AutoRegisterer;
-import io.RPGCraft.FableCraft.commands.DONOTTOUCH.CommandRegister;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
@@ -23,9 +21,6 @@ import io.RPGCraft.FableCraft.listeners.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.SecondaryListener.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ScanResult;
 import lombok.Getter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -93,23 +88,6 @@ public final class RPGCraft extends JavaPlugin {
     setPDC.initializeNPCs();
 
     new PlaceholdersRegistry();
-
-    new CommandRegister(this);
-
-    try (ScanResult result = new ClassGraph()
-      .enableClassInfo()
-      .enableAnnotationInfo()
-      .acceptPackages("io.RPGCraft.FableCraft") // path
-      .scan()) {
-
-      for (ClassInfo info : result.getClassesWithAnnotation(AutoRegisterer.class.getName())) {
-        Class<?> clazz = info.loadClass();
-        Object instance = clazz.getDeclaredConstructor().newInstance();
-        CommandRegister.global().registerCommands(instance);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
 
     this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
     this.getCommand("RPGCraft").setExecutor(new CommandManager());
