@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.Utils;
 
-import io.papermc.paper.configuration.type.fallback.FallbackValue;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;

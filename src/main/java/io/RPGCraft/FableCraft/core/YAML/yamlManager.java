@@ -834,19 +834,11 @@ public class yamlManager {
           break;
         }
       }
-      if(itemFile.get(path) == null) {
-        return false;
-      }else{
-        return true;
-      }
+      return itemFile.get(path) != null;
     }
 
     public boolean isItemSet(String path, FileConfiguration itemFile) {
-      if(itemFile.get(path) == null) {
-        return false;
-      }else{
-        return true;
-      }
+      return itemFile.get(path) != null;
     }
 
     public static boolean isConfigSet(String path) {
