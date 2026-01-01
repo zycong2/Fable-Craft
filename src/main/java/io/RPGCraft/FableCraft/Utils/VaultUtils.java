@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.Utils;
 
-import lombok.Getter;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -12,12 +11,13 @@ import static org.bukkit.Bukkit.getServer;
 
 public class VaultUtils {
 
-  @Getter
   private static Economy econ = null;
-  @Getter
   private static Permission perms = null;
-  @Getter
   private static Chat chat = null;
+
+  public static Chat getChat(){
+    return chat;
+  }
 
   public static void givePlayerMoney(OfflinePlayer player, Double money){
     if(econ == null) return;

@@ -30,7 +30,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -57,7 +56,6 @@ import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public final class RPGCraft extends JavaPlugin {
-  @Getter
   private static RPGCraft instance;
 
   public static boolean IsLuckperms = false;

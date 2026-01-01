@@ -22,7 +22,7 @@ public class ChatInputManager implements Listener {
     public static CompletableFuture<Component> getNextMessage(Player player, Long waitingTime){
         CompletableFuture<Component> future = new CompletableFuture<>();
         future.orTimeout(waitingTime, TimeUnit.SECONDS)
-                .exceptionally(ex -> {player.sendMessage(MM("&cYou took too LONG!!!"));waiting.remove(player.getUniqueId(), future);return  MM("NULL");});
+                .exceptionally(ex -> {player.sendMessage(MM("&cTimed out!"));waiting.remove(player.getUniqueId(), future);return  MM("NULL");});
         waiting.putIfAbsent(player.getUniqueId(), future);
         return future;
     }

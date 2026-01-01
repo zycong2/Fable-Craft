@@ -13,13 +13,13 @@ public class StatsMemory {
 
     private final UUID uuid;
 
-    private double Health = (double) yamlGetter.getConfig("stats.Health.default");
-    private double AttackDamage = (double) yamlGetter.getConfig("stats.AttackDamage.default");
-    private double Regeneration = (double) yamlGetter.getConfig("stats.Regeneration.default");
-    private double ManaRegeneration = (double) yamlGetter.getConfig("stats.ManaRegeneration.default");
-    private double Mana = (double) yamlGetter.getConfig("stats.Mana.default");
-    private double Defense = (double) yamlGetter.getConfig("stats.Defense.default");
-    private double MovementSpeed = (double) yamlGetter.getConfig("stats.MovementSpeed.default");
+    private double Health = Double.valueOf(yamlGetter.getConfig("stats.Health.default").toString());
+    private double AttackDamage = Double.valueOf(yamlGetter.getConfig("stats.AttackDamage.default").toString());
+    private double Regeneration = Double.valueOf(yamlGetter.getConfig("stats.Regeneration.default").toString());
+    private double ManaRegeneration = Double.valueOf(yamlGetter.getConfig("stats.ManaRegeneration.default").toString());
+    private double Mana = Double.valueOf(yamlGetter.getConfig("stats.Mana.default").toString());
+    private double Defense = Double.valueOf(yamlGetter.getConfig("stats.Defense.default").toString());
+    private double MovementSpeed = Double.valueOf(yamlGetter.getConfig("stats.MovementSpeed.default").toString());
 
     public StatsMemory(UUID uuid1){
         uuid = uuid1;

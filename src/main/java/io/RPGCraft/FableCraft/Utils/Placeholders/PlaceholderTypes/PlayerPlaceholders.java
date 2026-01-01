@@ -90,7 +90,10 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "rankPrefix")
   public static String rankPrefix(Entity e) {
-    if(!IsLuckperms){Bukkit.getLogger().warning("LuckPerms is not installed, rankPrefix placeholder will not work.");}
+    if(!IsLuckperms){
+      Bukkit.getLogger().warning("LuckPerms is not installed, rankPrefix placeholder will not work.");
+      return "";
+    }
     LuckPerms luckPerms = getServer().getServicesManager().load(LuckPerms.class);
     if (e instanceof Player p) {
       String prefix = luckPerms.getPlayerAdapter(Player.class).getMetaData(p).getPrefix();

@@ -54,7 +54,7 @@ public class Chat implements Listener {
       format = setPlaceholders(format, false, (Entity) player);
       Component output = MM(FormatForMiniMessage(setPlaceholders(format, false, e)));
 
-      if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
+      //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 
       return output;
     });
