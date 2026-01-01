@@ -13,7 +13,6 @@ public class particles {
   }
 
   public void particleLine(Location loc, int amount, String particle, int length){
-    double t = 0;
     int loops = amount/length;
     for (int i = 0; i < length; i+=loops){
       Vector direction = loc.getDirection().normalize();
@@ -25,7 +24,7 @@ public class particles {
       loc.subtract(x,y,z);
     }
   }
-  public void particleCyl(Location loc, int amount, String particle, int diameter, boolean hollow){
+  public void particleSph(Location loc, int amount, String particle, int diameter, boolean hollow){
     for(double phi=0; phi<=Math.PI; phi+=Math.PI/15) {
       for(double theta=0; theta<=2*Math.PI; theta+=Math.PI/30) {
         double r = 1.5;

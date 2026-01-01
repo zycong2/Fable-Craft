@@ -2,6 +2,9 @@ package io.RPGCraft.FableCraft.core.YAML;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.FoodProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -351,7 +354,7 @@ public class yamlManager {
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
-              getFileConfig("format").addDefault("chat", "%rankPrefix% </player2><player1>%target%</player1></player2> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/msg %player%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
               getFileConfig("format").options().copyDefaults(true);
             }
           }

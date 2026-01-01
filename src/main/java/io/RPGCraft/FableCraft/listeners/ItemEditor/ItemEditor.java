@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import io.RPGCraft.FableCraft.core.GUI;
+import org.jetbrains.annotations.ApiStatus;
 
 public class ItemEditor implements Listener {
   public static Inventory makeItemEditor(ItemStack item) {
@@ -51,6 +52,8 @@ public class ItemEditor implements Listener {
   }
 
 
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "1.4")
   public static ItemStack createButton(String name, Material mat, String... loreLines) {
     ItemStack item = new ItemStack(mat);
     ItemMeta meta = item.getItemMeta();

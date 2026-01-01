@@ -45,6 +45,24 @@ public class StatsMemory {
         }
     }
 
+    public Object stat(String name){
+        try {
+            Field field = this.getClass().getDeclaredField(name);
+            return field.get(this);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Double statDouble(String name){
+        if(stat(name) instanceof Number n){
+          return n.doubleValue();
+        }else{
+          return null;
+        }
+    }
+
     public void addStat(String name, Double value){
         try {
             Field field = this.getClass().getDeclaredField(name);
@@ -134,4 +152,13 @@ public class StatsMemory {
         updateAttributeStats();
         return this;
     }
+
+  public double getMana() {
+    return Mana;
+  }
+
+  public StatsMemory mana(double mana) {
+    Mana = mana;
+    return this;
+  }
 }

@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -25,11 +26,16 @@ import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -57,7 +63,7 @@ public final class RPGCraft extends JavaPlugin {
   public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
 
-  public static List<String> itemStats = List.of("AttackDamage", "Health", "Mana", "Defense", "MovementSpeed", "MaxDurability", "Minuselevel");
+  public static List<String> itemStats = List.of("AttackDamage", "Health", "Mana", "Defense", "MovementSpeed"/*, "Minuselevel"*/);
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
@@ -75,6 +81,10 @@ public final class RPGCraft extends JavaPlugin {
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
     }
+
+    LifecycleEventManager<Plugin> lifecycle = this.getLifecycleManager();
+    lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+    });
 
     if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
     if(doesPluginExist("Citizens")){IsCitizen = true;}

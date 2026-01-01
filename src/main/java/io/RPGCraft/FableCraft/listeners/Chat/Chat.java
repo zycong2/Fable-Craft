@@ -6,6 +6,7 @@ package io.RPGCraft.FableCraft.listeners.Chat;
 import io.RPGCraft.FableCraft.Utils.VaultUtils;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -21,6 +22,7 @@ import io.RPGCraft.FableCraft.core.autoMod;
 import java.util.regex.Pattern;
 
 import static io.RPGCraft.FableCraft.RPGCraft.FormatForMiniMessage;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
@@ -31,31 +33,30 @@ public class Chat implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void AsyncChat(AsyncChatEvent e){
+    if (VaultUtils.getChat() != null) return;
+    if (e.isCancelled()) return;
+    Player p = e.getPlayer();
+    if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return;}
+
+    FileConfiguration config = yamlManager.getInstance().getFileConfig("format");
+    if (config == null) {
+      Bukkit.getLogger().warning("format.yml not loaded!");
+      return;
+    }
+    if (!config.contains("chat")) {
+      Bukkit.getLogger().warning("chat missing from format.yml!");
+      return;
+    }
+
     e.renderer((player, playerName, message, viewer) -> {
 
-      if (VaultUtils.getChat() != null) return null;
-      if (e.isCancelled()) return null;
-      MiniMessage mm = MiniMessage.miniMessage();
-
-      Player p = e.getPlayer();
-      if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return null;}
-      e.setCancelled(true);
-      FileConfiguration config = yamlManager.getInstance().getFileConfig("format");
-      if (config == null) {
-        Bukkit.getLogger().warning("format.yml not loaded!");
-        return null;
-      }
-      if (!config.contains("chat")) {
-        Bukkit.getLogger().warning("chat missing from format.yml!");
-        return null;
-      }
       String format = config.getString("chat");
-      String str1 = setPlaceholders(format, false, (Entity) p);
-      TextComponent str2 = (TextComponent) mm.deserialize(FormatForMiniMessage(setPlaceholders(str1, false, e)));
+      format = setPlaceholders(format, false, (Entity) player);
+      Component output = MM(FormatForMiniMessage(setPlaceholders(format, false, e)));
 
-      if (!p.hasPermission("RPGCraft.noChatFilter")){str2 = autoMod.autoModMessage(str2, p);}
+      if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 
-      return str2;
+      return output;
     });
   }
 }

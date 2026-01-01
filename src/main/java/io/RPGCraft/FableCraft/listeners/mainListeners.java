@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -34,6 +35,7 @@ import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 // This class handles a wide range of player-related events in the RPG plugin.
 // It manages joining, quitting, interacting with items, GUI menus, stats, combat, and inventory behavior.
@@ -78,7 +80,7 @@ public class mainListeners implements Listener {
     for (String s : RPGCraft.itemStats) {
       if (getPlayerPDC("current" + s, p) == null) {
         p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
-        setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
+        //setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
       } else {
         p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + s, p)));
       }
@@ -101,17 +103,16 @@ public class mainListeners implements Listener {
 
     // Remove armor-based stats
     List<ItemStack> gear = new ArrayList<>(List.of());
-    if (p.getEquipment().getHelmet() != null) gear.add(p.getEquipment().getHelmet());
-    if (p.getEquipment().getChestplate() != null) gear.add(p.getEquipment().getChestplate());
-    if (p.getEquipment().getLeggings() != null) gear.add(p.getEquipment().getLeggings());
-    if (p.getEquipment().getBoots() != null) gear.add(p.getEquipment().getBoots());
+    if (p.getEquipment().getHelmet() != null && !p.getEquipment().getHelmet().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getHelmet());
+    if (p.getEquipment().getChestplate() != null && !p.getEquipment().getChestplate().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getChestplate());
+    if (p.getEquipment().getLeggings() != null && !p.getEquipment().getLeggings().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getLeggings());
+    if (p.getEquipment().getBoots() != null && !p.getEquipment().getBoots().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getBoots());
 
     for (ItemStack item : gear) {
-      if (!item.equals(ItemStack.of(Material.AIR))) {
-        for (String s : RPGCraft.itemStats) {
-          if (getItemPDC(s, item) != null && getPlayerPDC(s, p) != null) {
-            setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, item))));
-          }
+      for (String s : RPGCraft.itemStats) {
+        if (getItemPDC(s, item) != null && getPlayerPDC(s, p) != null) {
+          StatsMemory stats = getPlayerStats(p);
+          stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, item)));
         }
       }
     }
@@ -137,7 +138,13 @@ public class mainListeners implements Listener {
     }
   }
 
-  // Modify damage taken/dealt based on stats
+  /**
+   *
+   * Moved to Stats.java
+   *
+   */
+
+  /* Modify damage taken/dealt based on stats
   @EventHandler
   void onDamage(EntityDamageEvent event) {
     if(isCitizensNPC(event.getEntity())){return;}
@@ -157,19 +164,22 @@ public class mainListeners implements Listener {
         event.getEntity().customName(MM(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
       }
     }
-  }
+  }*/
 
   // Reset health metadata on respawn
   @EventHandler
   void onRespawn(PlayerRespawnEvent event) {
-    event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));
+    Player player = event.getPlayer();
+    StatsMemory stats = getPlayerStats(player);
+    player.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
+    player.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
   }
 
   // Remind me later
   @EventHandler void onItemDamage(PlayerItemDamageEvent event) {
     if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) {
       event.setCancelled(true);
-    }else{
+    }/*else{
       Player p = event.getPlayer();
       ItemStack item = event.getItem();
       if (getItemPDC("MaxDurability", item) != null) {
@@ -182,7 +192,7 @@ public class mainListeners implements Listener {
           removeOneItem(p, item);
         }
       }
-    }
+    }*/
   }
   @EventHandler void onRegenerate(EntityRegainHealthEvent event) { if (event.getEntityType().equals(EntityType.PLAYER)) { event.setCancelled(true); } }
   @EventHandler void onHungerLoss(FoodLevelChangeEvent event) { if (event.getEntityType().equals(EntityType.PLAYER) && yamlManager.getInstance().getFileConfig("config").getBoolean("food.removeHunger")) { event.setCancelled(true); }}
@@ -201,6 +211,12 @@ public class mainListeners implements Listener {
       }
     }
   }
+
+  /**
+   *
+   * Moved to Stats.java
+   *
+   */
 
   /*// Adjust stats on armor change
   @EventHandler
