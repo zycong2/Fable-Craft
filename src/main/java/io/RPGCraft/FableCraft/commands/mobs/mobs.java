@@ -7,6 +7,7 @@ import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
@@ -30,7 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getPathInDB;
 
@@ -96,7 +98,7 @@ public class mobs implements CommandInterface, Listener {
             if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed")));}
 
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(MM(Placeholder.setPlaceholders((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name"), true, entity))); }
+            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(MiniMessage.miniMessage().deserialize(Colorize(Placeholder.setPlaceholders((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name"), true, entity)))); }
             if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
 
@@ -170,10 +172,10 @@ public class mobs implements CommandInterface, Listener {
             }
             if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes") != null && spawned) {
                 for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes"))){
-                    //if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.Va(s.toUpperCase()))){
+                    if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
                         spawned = true;
                         break;
-                    //} else { spawned = false; }
+                    } else { spawned = false; }
                 }
             }
 

@@ -1,7 +1,7 @@
 plugins {
   `java-library`
   kotlin("jvm") version "1.9.23"
-  id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
+  id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
   id("xyz.jpenilla.run-paper") version "2.3.1"
   id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
 
+  paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
   implementation("net.bytebuddy:byte-buddy:1.14.9")
   implementation("org.javassist:javassist:3.29.2-GA")
 }
