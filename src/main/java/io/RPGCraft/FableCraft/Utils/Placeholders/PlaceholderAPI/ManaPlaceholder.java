@@ -15,7 +15,7 @@ public class ManaPlaceholder extends PlaceholderExpansion {
 
   @Override
   public @NotNull String getAuthor() {
-    return "Tonnam_101";
+    return "Zycong, Tonnam_101";
   }
 
   @Override

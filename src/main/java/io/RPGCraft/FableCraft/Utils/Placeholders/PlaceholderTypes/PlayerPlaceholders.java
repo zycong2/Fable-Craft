@@ -21,9 +21,8 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "currentHealth")
   public static String currentHealth(Entity e) {
-    if (e instanceof Player) {
-      Player p = (Player) e;
-      return String.valueOf(Math.round(Float.valueOf(getPlayerPDC("currentHealth", p))*10)/10);
+    if (e instanceof Player p) {
+      return String.valueOf(Math.round(Float.valueOf(getPlayerPDC("currentHealth", p))));
     }else{
       return ColorizeReString("The mob is not a living entity");
     }
@@ -90,7 +89,10 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "rankPrefix")
   public static String rankPrefix(Entity e) {
-    if(!IsLuckperms){Bukkit.getLogger().warning("LuckPerms is not installed, rankPrefix placeholder will not work.");}
+    if(!IsLuckperms){
+      Bukkit.getLogger().warning("LuckPerms is not installed, rankPrefix placeholder will not work.");
+      return "";
+    }
     LuckPerms luckPerms = getServer().getServicesManager().load(LuckPerms.class);
     if (e instanceof Player p) {
       String prefix = luckPerms.getPlayerAdapter(Player.class).getMetaData(p).getPrefix();

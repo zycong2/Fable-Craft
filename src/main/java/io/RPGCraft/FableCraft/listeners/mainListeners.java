@@ -152,12 +152,15 @@ public class mainListeners implements Listener {
     if(isCitizensNPC(event.getEntity())){return;}
     if (event.getEntityType().equals(EntityType.PLAYER)) {
       Player p = (Player)event.getEntity();
+
       double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));
-      double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-      double playerDefense = Double.parseDouble(getPlayerPDC("Defense", p));
+      double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
+      double playerDefense = Double.parseDouble(getPlayerPDC("Defence", p));
       double damage = event.getDamage() - playerDefense * (double)10.0F;
+
       currentHealth -= damage;
-      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
+      PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
+
       double scaledHealth = (double)20.0F / maxPlayerHealth * damage;
       event.setDamage(Math.abs(scaledHealth));
     } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
@@ -171,7 +174,7 @@ public class mainListeners implements Listener {
   // Reset health metadata on respawn
   @EventHandler
   void onRespawn(PlayerRespawnEvent event) {
-    event.getPlayer().setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", event.getPlayer()))));
+    setPlayerPDC("currentHealth", event.getPlayer(), PDCHelper.getPlayerPDC("Health", event.getPlayer()));
   }
 
   @EventHandler void onItemDamage(PlayerItemDamageEvent event) {
