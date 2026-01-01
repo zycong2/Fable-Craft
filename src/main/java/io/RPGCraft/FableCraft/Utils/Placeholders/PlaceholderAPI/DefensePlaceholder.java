@@ -1,11 +1,12 @@
 package io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI;
 
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public class DefensePlaceholder extends PlaceholderExpansion {
   @Override
@@ -27,12 +28,13 @@ public class DefensePlaceholder extends PlaceholderExpansion {
   public String onRequest(OfflinePlayer player, @NotNull String params) {
     if(player.isOnline()){
       Player p = (Player) player;
+      StatsMemory stats = getPlayerStats(p);
       if (params.equalsIgnoreCase("current")) {
-        return getPlayerPDC("Defense", p);
+        return stats.stat("Defense").toString();
       }else if(params.equalsIgnoreCase("FuckYou")) {
         return "FUCK YOU!!!!!";
       } else{
-        return getPlayerPDC("Defense", p);
+        return stats.stat("Defense").toString();
       }
     }
     return "Player is not online";

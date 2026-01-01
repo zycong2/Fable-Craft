@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsLuckperms;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 import static org.bukkit.Bukkit.getServer;
 
 public class PlayerPlaceholders {
@@ -23,7 +23,7 @@ public class PlayerPlaceholders {
   public static String currentHealth(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return String.valueOf(Math.round(Float.valueOf(getPlayerPDC("currentHealth", p))*10)/10);
+      return String.valueOf(Math.round(p.getMetadata("currentHealth").getFirst().asDouble()*100)/100);
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -43,7 +43,7 @@ public class PlayerPlaceholders {
   public static String maxHealth(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerPDC("Health", p).toString();
+      return getPlayerStats(p).stat("Health").toString();
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -63,7 +63,7 @@ public class PlayerPlaceholders {
   public static String currentMana(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerPDC("currentMana", p);
+      return p.getMetadata("currentMana").getFirst().asString();
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -73,7 +73,7 @@ public class PlayerPlaceholders {
   public static String maxMana(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return getPlayerPDC("Mana", p);
+      return getPlayerStats(p).stat("Mana").toString();
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -82,7 +82,7 @@ public class PlayerPlaceholders {
   @Placeholder(name = "Defense")
   public static String Defense(Entity e) {
     if (e instanceof Player p) {
-      return getPlayerPDC("Defense", p);
+      return getPlayerStats(p).stat("Defense").toString();
     }else{
       return Colorize("The mob is not a living entity");
     }

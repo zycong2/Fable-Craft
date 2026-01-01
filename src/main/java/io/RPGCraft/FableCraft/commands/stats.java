@@ -5,6 +5,7 @@ import java.util.List;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -13,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public class stats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -36,19 +39,20 @@ public class stats implements CommandInterface {
 
 
     public static void checkCurrentStats(Player p){
-        if (p.getMetadata("currentHealth").getFirst() != null) {
-          if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
+      StatsMemory stats = getPlayerStats(p);
+      if (p.getMetadata("currentHealth").getFirst() != null) {
+          if (p.getMetadata("currentHealth").getFirst().asDouble() > stats.statDouble("Health")) {
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
           }
         } else {
-          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Health", p))));
+          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
         }
         if (p.getMetadata("currentMana").getFirst() != null){
-          if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))) {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+          if (p.getMetadata("currentMana").getFirst().asDouble() > stats.statDouble("Mana")) {
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
           }
         } else {
-          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p))));
+          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
         }
     }
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {

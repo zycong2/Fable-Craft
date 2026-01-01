@@ -1,6 +1,9 @@
 package io.RPGCraft.FableCraft.core;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.GUI.GUI;
+import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
@@ -29,29 +32,35 @@ import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
-public class GUI implements Listener {
-  Inventory menu; // Player profile GUI
+public class MainGUI implements Listener {
+  GUI menu; // Player profile GUI
   public static Inventory itemDB; // The item database GUI (static so it can be shared)
 
 
   // Right-click with Nether Star to open profile menu
   @EventHandler
   void onInteraction(PlayerInteractEvent event) {
+    String name = event.getPlayer().getName();
+    GUIItem menuItem = new GUIItem()
+      .setMaterial(Material.NETHER_STAR)
+      .setName("&6RPG Menu");
     if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) &&
-      Objects.equals(event.getItem(), new ItemStack(Material.NETHER_STAR))) {
-      this.menu = Bukkit.createInventory(event.getPlayer(), 45, "Menu");
+      Objects.equals(event.getItem(), menuItem.toItemStack())) {
+      GUI menu = new GUI(name + "'s Menu", GUI.Rows.FIVE);
       String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
       String[] formattedSkills = new String[skills.length];
+      StatsMemory stats = getPlayerStats(event.getPlayer());
 
       for (int i = 0; i < skills.length; ++i) {
         String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-        formattedSkills[i] = Colorize(statLine + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
+        formattedSkills[i] = Colorize(statLine + " " + stats.stat(skills[i]) + " " + skills[i]);
       }
 
-      this.menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "Profile", formattedSkills));
-      event.getPlayer().openInventory(this.menu);
+      menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));
+      menu.open(event.getPlayer());
     }
   }
 
@@ -101,13 +110,8 @@ public class GUI implements Listener {
   void onInventoryClick(InventoryClickEvent event) {
     Player p = (Player) event.getWhoClicked();
 
-    // Profile GUI
-    if (event.getInventory().equals(this.menu)) {
-      event.setCancelled(true);
-    }
-
     // ItemDB GUI - navigation and editing
-    else if (event.getInventory().equals(itemDB)) {
+    if (event.getInventory().equals(itemDB)) {
       event.setCancelled(true);
 
       // Pagination back

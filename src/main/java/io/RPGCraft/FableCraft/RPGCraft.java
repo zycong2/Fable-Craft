@@ -14,8 +14,7 @@ import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
-import io.RPGCraft.FableCraft.core.GUI;
-import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
@@ -28,10 +27,11 @@ import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -142,7 +142,7 @@ public final class RPGCraft extends JavaPlugin {
       new Chat(),
       new TypeHandler(),
       new questEvents(),
-      new GUI(),
+      new MainGUI(),
       new Stats(),
       new PlayerStats(),
       new ChatInputManager(),
@@ -169,24 +169,24 @@ public final class RPGCraft extends JavaPlugin {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
           StatsMemory stats = getPlayerStats(p);
-          double maxPlayerHealth = stats.statDouble("Health");
-          double maxPlayerMana = stats.statDouble("Mana");
+          double maxHealth = stats.statDouble("Health");
+          double maxMana = stats.statDouble("Mana");
           double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
           double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
-          if (currentHealth < maxPlayerHealth) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
-            currentHealth += (double) 20.0F / maxPlayerHealth * amount;
+          if (currentHealth < maxHealth) {
+            double amount = stats.statDouble("Regeneration");
+            currentHealth += (double) 20.0F / maxHealth * amount;
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
-            p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
-          } else if (currentHealth > maxPlayerHealth) {
-            PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));
+            p.setHealth((double) 20.0F / maxHealth * currentHealth);
+          } else if (currentHealth > maxHealth) {
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), maxHealth));
           }
-          if (currentMana < maxPlayerMana) {
-            double amount = Double.parseDouble(PDCHelper.getPlayerPDC("ManaRegeneration", p));
-            currentMana += (double) 20.0F / maxPlayerMana * amount;
-            PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(currentMana));
-          } else if (currentMana > maxPlayerMana) {
-            PDCHelper.setPlayerPDC("currentMana", p, String.valueOf(maxPlayerMana));
+          if (currentMana < maxMana) {
+            double amount = stats.statDouble("ManaRegeneration");
+            currentMana += (double) 20.0F / maxMana * amount;
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), currentMana));
+          } else if (currentMana > maxMana) {
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), maxMana));
           }
         } catch (NumberFormatException ignored) {}
       }
@@ -218,7 +218,7 @@ public final class RPGCraft extends JavaPlugin {
   public static ItemStack createGuiHead(Player p, String name, String... lore) {
     ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
     ItemMeta meta = item.getItemMeta();
-    meta.setDisplayName(name);
+    item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
     meta.setLore(Arrays.asList(lore));
     item.setItemMeta(meta);
     SkullMeta skullMeta = (SkullMeta)item.getItemMeta();
@@ -272,32 +272,14 @@ public final class RPGCraft extends JavaPlugin {
   public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }
-
   public static List<String> Colorize(List<String> input) {
-    List<String> output = new ArrayList<>(List.of());
-
-    for(String s : input) {
-      s = ColorUtils.colorize(s, '&');
-      output.add(s);
-    }
-    return output;
+    return input.stream().map(RPGCraft::Colorize).toList();
   }
-
-  public static TextComponent MM(String input){
-    String s = FormatForMiniMessage(input);
-    TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
-    return deserialized;
+  public static Component MM(String input){
+    return MiniMessage.miniMessage().deserialize(FormatForMiniMessage(input));
   }
-
-  public static List<TextComponent> MM(List<String> input) {
-    List<TextComponent> output = new ArrayList<>(List.of());
-
-    for(String s : input) {
-      s = FormatForMiniMessage(s);
-      TextComponent deserialized = (TextComponent) MiniMessage.miniMessage().deserialize(s);
-      output.add(deserialized);
-    }
-    return output;
+  public static List<Component> MM(List<String> input) {
+    return input.stream().map(RPGCraft::MM).toList();
   }
 
   public static void wait(int ticks, Runnable task) {

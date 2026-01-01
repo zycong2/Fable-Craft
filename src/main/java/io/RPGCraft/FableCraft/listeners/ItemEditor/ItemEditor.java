@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
-import io.RPGCraft.FableCraft.core.GUI;
+import io.RPGCraft.FableCraft.core.MainGUI;
 import org.jetbrains.annotations.ApiStatus;
 
 public class ItemEditor implements Listener {
@@ -133,7 +133,7 @@ public class ItemEditor implements Listener {
       case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
       case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
       case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
-      case "Chat-id" -> GUI.gottenItemID(p, message);
+      case "Chat-id" -> MainGUI.gottenItemID(p, message);
       case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message.toUpperCase()));
     }
   }

@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
-import io.RPGCraft.FableCraft.core.GUI;
+import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,8 +17,8 @@ public class itemDB implements CommandInterface {
         if (!p.hasPermission("FableCraft.itemDB")) {
             p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
-            GUI.itemDBMenu(p);
-            p.openInventory(GUI.itemDB);
+            MainGUI.itemDBMenu(p);
+            p.openInventory(MainGUI.itemDB);
         }
         return true;
     }

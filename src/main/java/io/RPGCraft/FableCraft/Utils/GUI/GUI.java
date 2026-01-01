@@ -19,6 +19,7 @@ public class GUI implements InventoryHolder {
     private String Title;
     private Rows Row;
     private Inventory inventory;
+    private boolean canModified = false;
 
     private Map<Integer, GUIItem> itemMap;
 
@@ -43,6 +44,14 @@ public class GUI implements InventoryHolder {
     public void setItem(int slot, GUIItem item){
         inventory.setItem(slot, item.toItemStack());
         itemMap.put(slot, item);
+    }
+
+    public void canBeModified(){
+      canModified = !canModified;
+    }
+
+    public boolean getCanBeModified(){
+      return canModified;
     }
 
     public void setItem(int slot, ItemStack item) {

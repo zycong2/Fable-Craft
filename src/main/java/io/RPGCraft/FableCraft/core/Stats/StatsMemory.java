@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.core.Stats;
 
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -12,12 +13,13 @@ public class StatsMemory {
 
     private final UUID uuid;
 
-    private double Health = 20;
-    private double health = 20;
-    private double AttackDamage = 4;
-    private double Mana = 4;
-    private double Defense = 0;
-    private double MovementSpeed = 1;
+    private double Health = (double) yamlGetter.getConfig("stats.Health.default");
+    private double AttackDamage = (double) yamlGetter.getConfig("stats.AttackDamage.default");
+    private double Regeneration = (double) yamlGetter.getConfig("stats.Regeneration.default");
+    private double ManaRegeneration = (double) yamlGetter.getConfig("stats.ManaRegeneration.default");
+    private double Mana = (double) yamlGetter.getConfig("stats.Mana.default");
+    private double Defense = (double) yamlGetter.getConfig("stats.Defense.default");
+    private double MovementSpeed = (double) yamlGetter.getConfig("stats.MovementSpeed.default");
 
     public StatsMemory(UUID uuid1){
         uuid = uuid1;
@@ -159,6 +161,24 @@ public class StatsMemory {
 
   public StatsMemory mana(double mana) {
     Mana = mana;
+    return this;
+  }
+
+  public double getRegeneration() {
+    return Regeneration;
+  }
+
+  public StatsMemory regeneration(double regeneration) {
+    Regeneration = regeneration;
+    return this;
+  }
+
+  public double getManaRegeneration() {
+    return ManaRegeneration;
+  }
+
+  public StatsMemory manaRegeneration(double manaRegeneration) {
+    ManaRegeneration = manaRegeneration;
     return this;
   }
 }

@@ -12,7 +12,7 @@ public class GUIListener implements Listener {
     @EventHandler
     void onInventoryClick(InventoryClickEvent e){
         if(e.getInventory() instanceof GUI eventGUI) {
-            e.setCancelled(true);
+            e.setCancelled(!eventGUI.getCanBeModified());
             Player player = (Player) e.getWhoClicked();
             int slot = e.getSlot();
             if (eventGUI.getItemMap().containsKey(slot)) {

@@ -30,6 +30,17 @@ public class yamlGetter {
     }
   }
 
+  public static Object getConfig(String path) {
+    Object a = yamlManager.getInstance().getFileConfig("config").get(path);
+    if (a == null) {
+      return Colorize("&cOption not found");
+    } else if (a instanceof String s) {
+      return s;
+    } else {
+      return a.toString();
+    }
+  }
+
   public static String getActionBar(Player target, boolean round) {
     Object a = yamlManager.getInstance().getFileConfig("config").get("actionbar.message");
     if (a == null) {
