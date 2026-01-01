@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE xml>
-<project name="RPGia" default="Build">
+<project name="FableCraft" default="Build">
 
     <!-- We use this file to compile your plugin to your plugins/ directory
          automatically and use the hot swap (also known as live debug) feature.
@@ -19,7 +19,8 @@
          to compile your plugin to multiple servers. -->
 
     <target name="Build">
-      <!-- Change this to your plugin folder in the test server -->
+      <!-- Change this to your plugin folder in the test server
+        and this is where the plugin will go NOT the server.jar -->
         <jar jarfile="/Users/tonnam/Documents/MAZE/M/M/Test-Servers/1.21.10/plugins/${ant.project.name}.jar"
              basedir="./target/classes/"
              includes="**/*">

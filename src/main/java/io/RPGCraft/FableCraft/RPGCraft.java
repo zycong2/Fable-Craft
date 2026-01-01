@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft;
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -19,6 +18,7 @@ import io.RPGCraft.FableCraft.core.GUI;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
@@ -26,17 +26,16 @@ import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
+import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,15 +43,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.jspecify.annotations.Nullable;
 
 import java.sql.Connection;
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public final class RPGCraft extends JavaPlugin {
   @Getter
@@ -86,6 +88,28 @@ public final class RPGCraft extends JavaPlugin {
     LifecycleEventManager<Plugin> lifecycle = this.getLifecycleManager();
     lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
     });
+    BasicCommand MessageCommand = new BasicCommand() {
+      @Override
+      public void execute(CommandSourceStack source, String[] args) {
+
+      }
+
+      @Override
+      public Collection<String> suggest(CommandSourceStack commandSourceStack, String[] args) {
+        return BasicCommand.super.suggest(commandSourceStack, args);
+      }
+
+      @Override
+      public boolean canUse(CommandSender sender) {
+        return BasicCommand.super.canUse(sender);
+      }
+
+      @Override
+      public @Nullable String permission() {
+        return BasicCommand.super.permission();
+      }
+    };
+    registerCommand("message", List.of("msg", "m", "privatemessage", "pm", "directmessage", "dm"), MessageCommand);
 
     if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
     if(doesPluginExist("Citizens")){IsCitizen = true;}
@@ -144,14 +168,15 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          double maxPlayerHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
-          double maxPlayerMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
-          double currentHealth = Double.parseDouble(PDCHelper.getPlayerPDC("currentHealth", p));
-          double currentMana = Double.parseDouble(PDCHelper.getPlayerPDC("currentMana", p));
+          StatsMemory stats = getPlayerStats(p);
+          double maxPlayerHealth = stats.statDouble("Health");
+          double maxPlayerMana = stats.statDouble("Mana");
+          double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
+          double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
           if (currentHealth < maxPlayerHealth) {
             double amount = Double.parseDouble(PDCHelper.getPlayerPDC("Regeneration", p));
             currentHealth += (double) 20.0F / maxPlayerHealth * amount;
-            PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(currentHealth));
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
             p.setHealth((double) 20.0F / maxPlayerHealth * currentHealth);
           } else if (currentHealth > maxPlayerHealth) {
             PDCHelper.setPlayerPDC("currentHealth", p, String.valueOf(maxPlayerHealth));

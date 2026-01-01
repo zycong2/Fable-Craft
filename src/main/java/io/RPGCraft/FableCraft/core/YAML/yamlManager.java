@@ -354,7 +354,7 @@ public class yamlManager {
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
-              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/msg %player%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/pm %player%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
               getFileConfig("format").options().copyDefaults(true);
             }
           }
