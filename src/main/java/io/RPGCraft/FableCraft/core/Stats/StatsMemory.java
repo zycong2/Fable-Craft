@@ -76,38 +76,6 @@ public class StatsMemory {
         }
     }
 
-    public void addItemStats(ItemStats stats){
-        Field[] statsFields = stats.getClass().getDeclaredFields();
-        Field[] fields = this.getClass().getDeclaredFields();
-        Arrays.stream(statsFields).forEach(s -> {
-            for(Field field : fields){
-                if(field.getName().equals(s.getName())){
-                    field.setAccessible(true);
-                    try {
-                        double value = field.getDouble(this)+s.getDouble(stats);
-                        field.set(this, value);
-                    } catch (IllegalAccessException ignored) {}
-                }
-            }
-        });
-    }
-
-    public void removeItemStats(ItemStats stats){
-        Field[] statsFields = stats.getClass().getDeclaredFields();
-        Field[] fields = this.getClass().getDeclaredFields();
-        Arrays.stream(statsFields).forEach(s -> {
-            for(Field field : fields){
-                if(field.getName().equals(s.getName())){
-                    field.setAccessible(true);
-                    try {
-                        double value = field.getDouble(this)-s.getDouble(stats);
-                        field.set(this, value);
-                    } catch (IllegalAccessException ignored) {}
-                }
-            }
-        });
-    }
-
     public void removeStat(String name, Double value){
         try {
             Field field = this.getClass().getDeclaredField(name);

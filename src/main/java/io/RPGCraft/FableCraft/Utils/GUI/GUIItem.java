@@ -37,7 +37,7 @@ public class GUIItem {
         ItemStack item = new ItemStack(this.material);
         item.setItemMeta(this.meta);
         ItemMeta meta = item.getItemMeta();
-        ItemLore lore = ItemLore.lore(MM(this.lore));
+        ItemLore lore = ItemLore.lore(MM(this.lore).stream().toList());
         item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
         item.setData(DataComponentTypes.LORE, lore);
         enchantments.forEach(e -> {

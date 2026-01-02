@@ -49,6 +49,7 @@ public class PlayerStats implements Listener {
             ResultSet resultSet = statement.executeQuery("SELECT data FROM player_stats WHERE uuid = '" + p.getUniqueId() + "'");
             String json = resultSet.getString("data");
             if(json == null){
+                getPlayerStats(p);
                 getPlugin().getComponentLogger().error(MM("&4&oUnable to load " + p.getName() + "'s data because value is null"));
                 return;
             }

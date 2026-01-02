@@ -18,7 +18,7 @@ public class itemDB implements CommandInterface {
             p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
             MainGUI.itemDBMenu(p);
-            p.openInventory(MainGUI.itemDB);
+            MainGUI.itemDB.open(p);
         }
         return true;
     }

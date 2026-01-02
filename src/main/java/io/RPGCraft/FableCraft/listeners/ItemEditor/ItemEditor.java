@@ -174,7 +174,7 @@ public class ItemEditor implements Listener {
 
     e.setCancelled(true);
     quickReturn();
-    switch (state) {
+    /*switch (state) {
       case "Chat-name" -> withItemKey(p, key -> renameItem(p, key, message));
       case "Chat-lore" -> withItemKey(p, key -> handleLoreLineInput(p, message));
       case "Chat-lore2" -> withItemKey(p, key -> updateLoreLine(p, key, message));
@@ -189,7 +189,7 @@ public class ItemEditor implements Listener {
       case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
       case "Chat-id" -> MainGUI.gottenItemID(p, message);
       case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message.toUpperCase()));
-    }
+    }*/
   }
 
   private static void withItemKey(Player p, Consumer<String> action) {
@@ -268,7 +268,17 @@ public class ItemEditor implements Listener {
       lore.add(process);
       file.set(keys[0] + ".lore", lore);
     }else if(filter.equalsIgnoreCase("#SET")){
+      String raw = deMM(input);
+      String process = raw.substring(4);
+      String process2 = raw.substring(6);
 
+      int index = Integer.parseInt(process.split(" ")[0]);
+
+      String[] keys = key.split("/");
+      YamlConfiguration file = ItemDB.get(keys[1]);
+      List<String> lore =  file.getStringList( keys[0] + ".lore");
+      lore.set(index, process2);
+      file.set(keys[0] + ".lore", lore);
     }else if(filter.equalsIgnoreCase("#REMOVE")){
 
     }else{
