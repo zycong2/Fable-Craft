@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.core.Helpers;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -25,22 +26,12 @@ public class PDCHelper {
         return container.get(key, PersistentDataType.STRING);
     }
 
-    public static void setNPCPDC(String keyString, NPC npc, String data) {
-        NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
-        if (npc.getEntity().getType().equals(EntityType.PLAYER)){
-          Player p = (Player) npc;
-          p.getPersistentDataContainer().set(key, PersistentDataType.STRING, data);
-        }
+    public static void setNPCPDC(String keyString, Entity npc, Object data) {
+      yamlManager.getInstance().setOption("data", "npc." + npc.getUniqueId() + "." + keyString, data);
     }
 
-    public static String getNPCPDC(String keyString, NPC npc) {
-        NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
-      if (npc.getEntity().getType().equals(EntityType.PLAYER)) {
-        Player p = (Player) npc;
-        PersistentDataContainer container = p.getPersistentDataContainer();
-        return container.get(key, PersistentDataType.STRING);
-      }
-      return null;
+    public static Object getNPCPDC(String keyString, Entity npc) {
+      return yamlManager.getInstance().getOption("data", "npc." + npc.getUniqueId() + "." + keyString);
     }
 
 

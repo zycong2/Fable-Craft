@@ -336,7 +336,7 @@ public class yamlManager {
             if (getFileConfig("quests").getDefaults() == null) {
               getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
               getFileConfig("quests").addDefault("quest1.npcStarter", "John");
-              getFileConfig("quests").addDefault("quest1.steps.amount", 1);
+              getFileConfig("quests").addDefault("quest1.steps.amount", 3);
               getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
               getFileConfig("quests").addDefault("quest1.steps.1.value", 10);
               getFileConfig("quests").addDefault("quest1.steps.1.entity", "spider");
@@ -477,7 +477,10 @@ public class yamlManager {
         }
         return getFileConfig(file).get(path);
     }
-    public void setOption(String file, String path, Object option){ getFileConfig(file).set(path, option); }
+    public void setOption(String file, String path, Object option){
+      getFileConfig(file).set(path, option);
+      saveData();
+    }
 
     public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 

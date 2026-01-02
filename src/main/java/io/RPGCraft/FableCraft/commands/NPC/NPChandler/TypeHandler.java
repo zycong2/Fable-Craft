@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.talkedNPC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getNPCPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 
 public class TypeHandler implements Listener {
@@ -21,7 +22,7 @@ public class TypeHandler implements Listener {
         if(isCitizensNPC(gotClickedEntity)) {
             Bukkit.getLogger().info("isNPC");
             boolean isEditing = p.hasPermission("rpgcraft.edit") && p.isSneaking();
-            String type = getPlayerPDC("NPCType", (Player) gotClickedEntity);
+            String type = getNPCPDC("NPCType", gotClickedEntity).toString();
             if (type != null) {
               switch (type) {
                 case "shop":

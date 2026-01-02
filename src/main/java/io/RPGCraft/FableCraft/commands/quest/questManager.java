@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
@@ -31,14 +32,14 @@ public class questManager {
   public static void finishedQuest(Player p, String quest){
     p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true));
 
-    if (yamlManager.getInstance().getOption("quests", quest + ".rewards") == null){ return; }
+    if (yamlGetter.getPathInDB("quests", quest + ".rewards") == null){ return; }
 
-    if (yamlManager.getInstance().getOption("quests", quest + ".rewards") instanceof String){
-      List<ItemStack> rewards = lootTableHelper.getLootTable(yamlManager.getInstance().getOption("quests", quest + ".rewards").toString());
+    if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof String){
+      List<ItemStack> rewards = lootTableHelper.getLootTable(yamlGetter.getPathInDB("quests", quest + ".rewards").toString());
       for (ItemStack item : rewards) {
         p.getInventory().addItem(item);
       }
-    } else if (yamlManager.getInstance().getOption("quests", quest + ".rewards") instanceof List rewards){
+    } else if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof List rewards){
       for (Object s : rewards){
         if (Material.getMaterial(s.toString()) != null){
           p.getInventory().addItem(ItemStack.of(Material.getMaterial(s.toString())));
@@ -52,24 +53,24 @@ public class questManager {
   public static void talkedNPC(Player p, String NPC){
     String quests = getPlayerPDC("quests", p);
     List<String> activeQuests = new java.util.ArrayList<>(List.of());
+    Collections.addAll(activeQuests, quests.split(";"));
     if (quests != null) {
       for (String quest : quests.split(";")) {
-        activeQuests.add(quest);
 
         if (quest.isEmpty()) {
-          return;
+          tryNewQuest(activeQuests, p, NPC);;
         }
-        if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) {
-          return;
+        if (!yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC")) {
+          tryNewQuest(activeQuests, p, NPC);;
         }
-        if (!NPC.equals(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".NPCName"))) {
-          return;
+        if (!NPC.equals(yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".NPCName"))) {
+          tryNewQuest(activeQuests, p, NPC);;
         }
 
         for (Object s : getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
           switch (s.toString()) {
             case "removeItem":
-              if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "removeItems") instanceof List list) {
+              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "removeItems") instanceof List list) {
                 for (Object s2 : list) {
                   String[] data = s2.toString().split(":");
                   p.getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
@@ -78,7 +79,7 @@ public class questManager {
               }
 
             case "talk":
-              if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines) {
+              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines) {
                 for (Object s2 : lines) {
                   p.sendMessage(Colorize((String) s2));
                   /*FableCraft.wait(40, );*/
@@ -87,7 +88,7 @@ public class questManager {
               }
 
             case ("giveItem"):
-              if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "giveItems") instanceof List l) {
+              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "giveItems") instanceof List l) {
                 for (Object s2 : l) {
                   String[] data = s2.toString().split(":");
                   p.getInventory().addItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
@@ -97,7 +98,7 @@ public class questManager {
           }
 
           PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(Integer.valueOf(getPlayerPDC(quest + ".step", p)) + 1));
-          if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
+          if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlGetter.getPathInDB("quests", quest + ".steps.amount").toString())) {
             finishedQuest(p, quest);
           } else {
             PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
@@ -105,17 +106,15 @@ public class questManager {
         }
       }
     }
+    tryNewQuest(activeQuests, p, NPC);
+  }
+  static void tryNewQuest(List<String> activeQuests, Player p, String NPC){
+    for (Object quest : getAllNodesInDB("quests","")) {
 
-    //if the player doesn't have a quest so maybe needs to start it
-    else {
-      for (Object quest : getAllNodesInDB("quests","")) {
-
-        if (activeQuests.contains(quest)){ continue; }
-
-        if (yamlManager.getInstance().getOption("quests", quest + ".npcStarter").toString().equalsIgnoreCase(NPC)){
-          Bukkit.getLogger().info("is right npc quest: " + quests);
-          startQuest(p, (String) quest);
-        }
+      if (activeQuests.contains(quest)){ continue; }
+      String replace = quest.toString().replace("[", "").replace("]", "");
+      if (yamlGetter.getPathInDB("quests", replace + ".npcStarter").toString().equalsIgnoreCase(NPC)){
+        startQuest(p, replace);
       }
     }
   }

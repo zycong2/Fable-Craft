@@ -29,8 +29,7 @@ public class setPDC implements CommandInterface {
         for(Entity e : p.getNearbyEntities(10, 10, 10)){
           if(isCitizensNPC(e)){
             LivingEntity npc = (LivingEntity) e;
-            PDCHelper.setPlayerPDC("NPCType", (Player) npc, null);
-            yamlManager.getInstance().setOption("data", "NPCType." + npc.getUniqueId(), null);
+            PDCHelper.setNPCPDC("NPCType", npc, null);
             return true;
           }
         }
@@ -39,8 +38,7 @@ public class setPDC implements CommandInterface {
           for (Entity e : p.getNearbyEntities(10, 10, 10)) {
             if (isCitizensNPC(e)) {
               LivingEntity npc = (LivingEntity) e;
-              PDCHelper.setPlayerPDC("NPCType", (Player) npc, args[1]);
-              yamlManager.getInstance().setOption("data", "NPCType." + npc.getUniqueId(), args[1]);
+              PDCHelper.setNPCPDC("NPCType", npc, args[1]);
               return true;
             }
           }
@@ -65,7 +63,7 @@ public class setPDC implements CommandInterface {
   }
 
   public static void initializeNPCs(){
-    if (yamlManager.getInstance().getFileConfig("data").isSet("NPCType")) {
+    /*if (yamlManager.getInstance().getFileConfig("data").isSet("NPCType")) {
       List<Object> NPCsObject = yamlGetter.getNodes("data", "NPCType");
       List<String> NPCs = new java.util.ArrayList<>(List.of());
       for (Object o : NPCsObject) {
@@ -76,10 +74,10 @@ public class setPDC implements CommandInterface {
         Entity target = Bukkit.getEntity(UUID.fromString(s));
         if (target != null) {
           if (isCitizensNPC(target)) {
-            PDCHelper.setPlayerPDC("NPCType", (Player) target, yamlManager.getInstance().getOption("data", "NPCType." + s).toString());
+            PDCHelper.setNPCPDC("NPCType", target, get);
           }
         }
       }
-    }
+    }*/
   }
 }

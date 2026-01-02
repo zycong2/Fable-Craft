@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.core.YAML;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -68,18 +69,17 @@ public class yamlGetter {
     List<Object> nodes = new ArrayList<>();
     for (YamlConfiguration yaml : DBFileConfiguration.get(DBFolder)) {
       List<Object> node = List.of(yaml.getConfigurationSection(path).getKeys(false));
-      for (Object s : node) {
-        if (!nodes.contains(s)) {
-          nodes.add(s);
-        }
-      }
+      nodes.addAll(node);
     }
     return nodes;
   }
 
   public static Object getPathInDB(String DBFolder, String path) {
     List<YamlConfiguration> Config = DBFileConfiguration.get(DBFolder);
-    if (Config == null) {return null;}
+    if (Config == null) {
+      Bukkit.getLogger().severe("Couldn't find database " + DBFolder);
+      return null;
+    }
 
     for (YamlConfiguration yaml : Config) {
       if (yaml.get(path) != null) {

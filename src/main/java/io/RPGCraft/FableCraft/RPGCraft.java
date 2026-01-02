@@ -96,18 +96,7 @@ public final class RPGCraft extends JavaPlugin {
     StatsCommand.commands().forEach(c -> {lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(c));});
     //registerCommand("message", List.of("msg", "m", "privatemessage", "pm", "directmessage", "dm"), MessageCommand);
 
-    if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
-    if(doesPluginExist("Citizens")){IsCitizen = true;}
-    if(doesPluginExist("Skript")){IsSkript = true;}
-    if(doesPluginExist("Vault")){IsVault = true;}
-    if(doesPluginExist("PlaceholderAPI")){IsPlaceholderAPI = true;
-      new DefensePlaceholder().register();
-      new ManaPlaceholder().register();
-    }
-    setupEconomy();
-    setupChat();
-
-    if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
+    if (yamlManager.getInstance().getFileConfig("config").getBoolean("items.removeDefaultRecipes")) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
@@ -178,6 +167,31 @@ public final class RPGCraft extends JavaPlugin {
     }, 20L, 20L);
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);
+    RPGCraft.wait(5, new BukkitRunnable() {
+      @Override
+      public void run() {
+        if (doesPluginExist("LuckPerms")) {
+          IsLuckperms = true;
+        }
+        if (doesPluginExist("Citizens")) {
+          IsCitizen = true;
+        }
+        if (doesPluginExist("Skript")) {
+          IsSkript = true;
+        }
+        if (doesPluginExist("Vault")) {
+          IsVault = true;
+        }
+        if (doesPluginExist("PlaceholderAPI")) {
+          IsPlaceholderAPI = true;
+          new DefensePlaceholder().register();
+          new ManaPlaceholder().register();
+        }
+
+        setupEconomy();
+        setupChat();
+      }
+    });
   }
 
   private void registerListeners(Listener... l) {
