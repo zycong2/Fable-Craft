@@ -89,7 +89,7 @@ public class ColorUtils {
     text = hexBuffer.toString();
 
     // 5. Translate alternate color codes (&a, &l, etc.)
-    return ChatColor.translateAlternateColorCodes(colorSymbol, text);
+    return ChatColor.translateAlternateColorCodes(colorSymbol, text).replace("<", "").replace(">", "");
   }
 
 
