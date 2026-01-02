@@ -230,7 +230,7 @@ public class yamlManager {
               getFileConfig("config").addDefault("items.display.rarity.rare", "&9&lRARE");
               getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
               getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lEPIC");
-              getFileConfig("config").setInlineComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
+              getFileConfig("config").setComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
               getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-");
               getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-");
               getFileConfig("config").addDefault("stats.Health.default", 100);
@@ -252,6 +252,7 @@ public class yamlManager {
               getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
               getFileConfig("config").addDefault("actionbar.enabled", true);
               getFileConfig("config").options().copyDefaults(true);
+              getFileConfig("config").options().parseComments(true);
             }
           }
           case("itemDB"): {
@@ -298,32 +299,34 @@ public class yamlManager {
               getFileConfig("mobDB").addDefault("spider.customName.visible", true);
               getFileConfig("mobDB").addDefault("spider.glowing", false);
               getFileConfig("mobDB").addDefault("spider.invulnerable", false);
-              getFileConfig("mobDB").setInlineComments("spider.health", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").setComments("spider.health", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
               getFileConfig("mobDB").addDefault("spider.health", 100);
-              getFileConfig("mobDB").setInlineComments("spider.damage", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").setComments("spider.damage", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
               getFileConfig("mobDB").addDefault("spider.damage", 10);
-              getFileConfig("mobDB").setInlineComments("spider.speed", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
+              getFileConfig("mobDB").setComments("spider.speed", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
               getFileConfig("mobDB").addDefault("spider.speed", 2);
               getFileConfig("mobDB").addDefault("spider.lootTable", "spiderDrops");
               getFileConfig("mobDB").addDefault("spider.randomSpawns.frequency", 1);
-              getFileConfig("mobDB").setInlineComments("spider.randomSpawns.frequency", List.of("0 is 0% of entities, 1 is 100%, 0.01 is 1% etc"));
+              getFileConfig("mobDB").setComments("spider.randomSpawns.frequency", List.of("0 is 0% of entities, 1 is 100%, 0.01 is 1% etc"));
               getFileConfig("mobDB").addDefault("spider.randomSpawns.options.spawnOn", List.of("GRASS_BLOCK"));
               getFileConfig("mobDB").addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
               getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
               getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
               getFileConfig("mobDB").options().copyDefaults(true);
+              getFileConfig("mobDB").options().parseComments(true);
           }
           case("lootTables"): {
               getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
               getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
               getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
-              getFileConfig("lootTables").setInlineComments("spiderDrops.items", List.of("First number: minimal amount of item (default 1)", "Second number: maximal amount of item", "Third number: weight of the item (default 1)"));
+              getFileConfig("lootTables").setComments("spiderDrops.items", List.of("First number: minimal amount of item (default 1)", "Second number: maximal amount of item", "Third number: weight of the item (default 1)"));
 
               getFileConfig("lootTables").addDefault("quest1.maxItems", 10);
               getFileConfig("lootTables").addDefault("quest1.minItems", 1);
               getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
 
               getFileConfig("lootTables").options().copyDefaults(true);
+              getFileConfig("lootTables").options().parseComments(true);
           }
           case("data"): {
             if (getFileConfig("data") == null || getFileConfig("data").getDefaults() == null) {

@@ -105,24 +105,25 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
 
     public static List<ItemStack> getLootTable(String lootTable){
         List<ItemStack> items = new java.util.ArrayList<>(List.of());
-        int maxItems = (int)yamlManager.getInstance().getOption("lootTables", lootTable + ".maxItems");
-        int minItems = (int) yamlManager.getInstance().getOption("lootTables", lootTable + ".minItems");
+        int maxItems = (int)yamlGetter.getPathInDB("lootTables", lootTable + ".maxItems");
+        int minItems = (int) yamlGetter.getPathInDB("lootTables", lootTable + ".minItems");
+        
         int itemCount = new Random().nextInt(maxItems - minItems + 1) + minItems;
 
-        List<String> itemList = (List<String>) yamlManager.getInstance().getOption("lootTables", lootTable + ".items");
+        List<String> itemList = (List<String>) yamlGetter.getPathInDB("lootTables", lootTable + ".items");
+
         for (String s : itemList){
             String[] values = s.split(":");
-            if (Material.getMaterial(values[0]) != null){
-                for (int i = 0; i < Integer.valueOf(values[3]); i++) { items.add(ItemStack.of(Material.getMaterial(values[0]))); }
+            if (Material.getMaterial(values[0]) != null){ //if it is  a normal item
+                for (int i = 0; i < Integer.valueOf(values[3]); i++) { //always chooses the max number?
+                  items.add(ItemStack.of(Material.getMaterial(values[0])));
+                }
             } else {
-              // I'm sorry, but I don't know how to fix this except from nested code ewww I know, I know.
-              for(YamlConfiguration file : DBFileConfiguration.get(ItemDB)) {
+              for(YamlConfiguration file : DBFileConfiguration.get("ItemDB")) {
                 if (file.getConfigurationSection("").getKeys(false).contains(values[0])) {
-                  for (int i = 0; i < Integer.valueOf(values[3]); i++) {
+                  for (int i = 0; i < Integer.valueOf(values[3]); i++) { //again always max?
                     items.add(yamlManager.getInstance().getItem(values[0]));
                   }
-                } else {
-                  Bukkit.getLogger().severe("Material " + values[0] + " could not be found!");
                 }
               }
             }
