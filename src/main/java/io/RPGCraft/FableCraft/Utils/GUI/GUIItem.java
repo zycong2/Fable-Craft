@@ -21,7 +21,7 @@ public class GUIItem {
     private Material material;
     private String name;
     private Integer amount;
-    private List<String> lore;
+    private List<String> lore = List.of();
     private List<Enchants> enchantments;
     private Map<DataComponentType, Object> data = new HashMap<>();
     private Integer customModelData;
@@ -34,17 +34,20 @@ public class GUIItem {
     public GUIItem(){}
 
     public ItemStack toItemStack(){
-        ItemStack item = new ItemStack(this.material);
-        item.setItemMeta(this.meta);
-        ItemMeta meta = item.getItemMeta();
-        ItemLore lore = ItemLore.lore(MM(this.lore).stream().toList());
-        item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
+
+      ItemStack item = new ItemStack(this.material);
+      item.setItemMeta(this.meta);
+      ItemMeta meta = item.getItemMeta();
+      ItemLore lore = ItemLore.lore(MM(this.lore));
+      item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
+      try {
         item.setData(DataComponentTypes.LORE, lore);
         enchantments.forEach(e -> {
-            meta.addEnchant(e.getEnchantment(), e.getLevel(), e.getBoo());
+          meta.addEnchant(e.getEnchantment(), e.getLevel(), e.getBoo());
         });
-        meta.setCustomModelData(customModelData);
-        item.setItemMeta(meta);
+      } catch (NullPointerException ignored) {}
+      meta.setCustomModelData(customModelData);
+      item.setItemMeta(meta);
       for(Map.Entry<DataComponentType, Object> data : this.data.entrySet()){
         if(data.getKey() instanceof DataComponentType.Valued<?> valued) {
           applyComponent(item, valued, data.getValue());
@@ -54,7 +57,9 @@ public class GUIItem {
           getServer().getLogger().warning("I absolutely don't know how you actually got here if you're able because this likely is impossible");
         }
       }
+      try {
         item.setAmount(amount);
+      } catch (NullPointerException ignored) {}
 
         return item;
     }
