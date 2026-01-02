@@ -39,6 +39,8 @@ public class mobsEditor implements Listener {
     setItemPDC("MobID", item, getItemPDC("MobID", item));
     //Bukkit.getLogger().info(getMobKey(item));
     ItemMeta meta = item.getItemMeta();
+    Bukkit.getLogger().info(getItemPDC("MobID", item));
+
     meta.setLore(List.of(
       Colorize("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
       Colorize("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
@@ -168,10 +170,12 @@ public class mobsEditor implements Listener {
   }
 
   public static void reopenMobEditorLater(Player p, String key) {
-    RPGCraft.wait(1, new BukkitRunnable() {
+    RPGCraft.wait(2, new BukkitRunnable() {
       @Override
       public void run() {
-        p.openInventory(makeMobEditor(ItemStack.of(Material.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(key + ".type") + "_SPAWN_EGG"))));
+        ItemStack item = ItemStack.of(Material.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(key + ".type") + "_SPAWN_EGG"));
+        setItemPDC("MobID", item, key);
+        p.openInventory(makeMobEditor(item));
         setPlayerPDC("MobsEditorUsing", p, "GUI");
       }
     });
@@ -228,7 +232,9 @@ public class mobsEditor implements Listener {
       .filter(key -> key
         .equals(getItemPDC("MobID", item)))
       .findFirst()
-      .orElse(null).toString().replace("[", "").replace("]", "");
+      .orElse(null)
+      .replace("[", "")
+      .replace("]", "");
   }
 
   // Handle mobDB and editor inventory clicks
@@ -260,7 +266,7 @@ public class mobsEditor implements Listener {
       else if (event.getRawSlot() == 44) {
         setPlayerPDC("MobsEditorUsing", p, "Chat-id");
         p.closeInventory();
-        p.sendMessage(yamlGetter.getMessage("messages.mobEditor.createItem.info", p, true));
+        p.sendMessage(yamlGetter.getMessage("messages.mobEditor.create.info", p, true));
       }
 
       // Open item editor GUI

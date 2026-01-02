@@ -78,35 +78,35 @@ public class mobs implements CommandInterface, Listener {
     }
 
     public static LivingEntity getEntity(String name, Location p){
-        EntityType entityType = EntityType.valueOf((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".type"));
+        EntityType entityType = EntityType.valueOf((String) getPathInDB("mobDB",name + ".type"));
         if (!entityType.isSpawnable()) {
-            String var42 = String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".itemType"));
+            String var42 = String.valueOf(getPathInDB("mobDB",name + ".itemType"));
             Bukkit.getLogger().severe("Could not find entity type " + var42 + " " + name);
             return null;
         } else {
             Entity entity=p.getWorld().spawnEntity(p, entityType);
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".glowing") != null) { entity.setGlowing((Boolean) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".glowing")); }
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".invulnerable") != null) { entity.setInvulnerable((boolean) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".invulnerable")); }
+            if (getPathInDB("mobDB",name + ".glowing") != null) { entity.setGlowing((Boolean) getPathInDB("mobDB",name + ".glowing")); }
+            if (getPathInDB("mobDB",name + ".invulnerable") != null) { entity.setInvulnerable((boolean) getPathInDB("mobDB",name + ".invulnerable")); }
             LivingEntity LE = (LivingEntity) entity;
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health") != null) {
-                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health")));
-                LE.setHealth(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".health")));
+            if (getPathInDB("mobDB",name + ".health") != null) {
+                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf((int) getPathInDB("mobDB",name + ".health")));
+                LE.setHealth(Double.valueOf((int) getPathInDB("mobDB",name + ".health")));
             }
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".damage")));}
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".speed")));}
+            if (getPathInDB("mobDB",name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) getPathInDB("mobDB", name + ".damage")));}
+            if (getPathInDB("mobDB",name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getPathInDB("mobDB",name + ".speed")));}
 
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name") != null) { entity.customName(MiniMessage.miniMessage().deserialize(Colorize(Placeholder.setPlaceholders((String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.name"), true, entity)))); }
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
+            if (getPathInDB("mobDB",name + ".customName.name") != null) { entity.customName(MiniMessage.miniMessage().deserialize(Placeholder.setPlaceholders((String) getPathInDB("mobDB",name + ".customName.name"), true, entity))); }
+            if (getPathInDB("mobDB",name + ".customName.visible").equals(true)) { entity.setCustomNameVisible(true); }
             else { entity.setCustomNameVisible(false); }
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.color") != null) {
+            if (getPathInDB("mobDB",name + ".bossBar.color") != null) {
               BossBar bar = Bukkit.createBossBar(
                 entity.getCustomName(),
-                BarColor.valueOf(String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.color"))),
-                BarStyle.valueOf(String.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(name + ".bossBar.barStyle")))
+                BarColor.valueOf(String.valueOf(getPathInDB("mobDB",name + ".bossBar.color"))),
+                BarStyle.valueOf(String.valueOf(getPathInDB("mobDB",name + ".bossBar.barStyle")))
                 );
               for (Player pla : Bukkit.getOnlinePlayers()){
                 bar.addPlayer(pla);
@@ -114,7 +114,7 @@ public class mobs implements CommandInterface, Listener {
             }
 
 
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(name + ".lootTable") != null) { PDCHelper.setEntityPDC("lootTable", LE, (String) yamlManager.getInstance().getFileConfig("mobDB").get(name + ".lootTable")); }
+            if (getPathInDB("mobDB",name + ".lootTable") != null) { PDCHelper.setEntityPDC("lootTable", LE, (String) getPathInDB("mobDB",name + ".lootTable")); }
 
 
 
@@ -125,12 +125,18 @@ public class mobs implements CommandInterface, Listener {
     }
     public static void reloadSpawns(){
         List<Object> mobsObject = getAllNodesInDB("mobDB", "");
+        Bukkit.getLogger().info(mobsObject.toString());
         List<String> mobs = new java.util.ArrayList<>(List.of());
-        for (Object o : mobsObject) {mobs.add(o.toString());}
+        for (Object o : mobsObject) {mobs.addAll(List.of(o.toString().replace("[", "").replace("]", "").replace(" ", "").split(",")));}
         for (String s : mobs){
+          Bukkit.getLogger().info(s);
             if(getPathInDB("mobDB", s + ".randomSpawns.frequency") != null){
-                for (int i = 0; i < Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100; i++) { RPGCraft.spawns.add(s); }
-                for (int i = 0; i < 100 - (Double.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(s + ".randomSpawns.frequency").toString()) * 100); i++) { RPGCraft.spawns.add("null"); }
+                for (int i = 0; i < Double.valueOf(getPathInDB("mobDB", s + ".randomSpawns.frequency").toString()) * 100; i++) {
+                  RPGCraft.spawns.add(s);
+                }
+                for (int i = 0; i < 100 - (Double.valueOf(getPathInDB("mobDB", s + ".randomSpawns.frequency").toString()) * 100); i++) {
+                  RPGCraft.spawns.add("null");
+                }
             }
         }
         Bukkit.getLogger().info("spawns to look for: " + RPGCraft.spawns);
@@ -146,9 +152,7 @@ public class mobs implements CommandInterface, Listener {
     @EventHandler
     void onSpawn(CreatureSpawnEvent event){
         if(event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL)) {
-            if (yamlManager.getInstance().getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning")) {
-                event.setCancelled(true);
-            }
+            event.setCancelled(yamlManager.getInstance().getFileConfig("config").getBoolean("mobs.removeAllVanillaSpawning"));
             randomSpawn(event);
         }
     }
@@ -162,16 +166,16 @@ public class mobs implements CommandInterface, Listener {
                 event.setCancelled(true);
                 return;
             }
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn") != null) {
-                for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.spawnOn"))) {
+            if (getPathInDB("mobDB",type + ".randomSpawns.options.spawnOn") != null) {
+                for (String s : (List<String>) Objects.requireNonNull(getPathInDB("mobDB",type + ".randomSpawns.options.spawnOn"))) {
                     if (event.getLocation().subtract(0, 1, 0).getBlock().getType().name().equalsIgnoreCase(s)) {
                       spawned = true;
                       break;
                     } else { spawned = false; }
                 }
             }
-            if (yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes") != null && spawned) {
-                for (String s : (List<String>) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(type + ".randomSpawns.options.biomes"))){
+            if (getPathInDB("mobDB",type + ".randomSpawns.options.biomes") != null && spawned) {
+                for (String s : (List<String>) Objects.requireNonNull(getPathInDB("mobDB",type + ".randomSpawns.options.biomes"))){
                     if (event.getLocation().getWorld().getBiome(event.getLocation()).equals(Biome.valueOf(s.toUpperCase()))){
                         spawned = true;
                         break;
