@@ -139,49 +139,6 @@ public class MainGUI implements Listener {
       int slot = event.getRawSlot();
 
       switch (slot) {
-        case 4 -> p.getInventory().addItem(event.getCurrentItem());
-
-        case 9 -> {
-          setPlayerPDC("ItemEditorUsing", p, "Chat-name");
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
-        }
-        case 10 -> {
-          setPlayerPDC("ItemEditorUsing", p, "Chat-lore");
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
-        }
-        case 11 -> {
-          setPlayerPDC("ItemEditorUsing", p, "Chat-customModelData");
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.customModelData.info", p, false));
-        }
-        case 12 -> {
-          setPlayerPDC("ItemEditorUsing", p, "Chat-craftPerms");
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.craftPerms.info", p, false));
-        }
-        case 13 -> {
-          setPlayerPDC("ItemEditorUsing", p, "Chat-type");
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.info", p, false));
-        }
-        case 18, 19, 20, 21, 22, 23 -> {
-          String[] pdcTags = {"defense", "damage", "mana", "health", "durability", "minlvl"};
-          setPlayerPDC("ItemEditorUsing", p, "Chat-" + pdcTags[slot - 18]);
-          p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor." + pdcTags[slot - 18] + ".info", p, false));
-        }
-        case 34 -> {
-          String itemKey = p.getMetadata("SelectedItemKey").getFirst().asString();
-          if (itemKey == null) {
-            p.sendMessage(Colorize("&cError: No item selected!"));
-            return;
-          }
-          yamlManager.getInstance().getFileConfig("itemDB").set(itemKey, null);
-          try { yamlManager.getInstance().getFileConfig("itemDB").save("itemDB.yml"); } catch (IOException ignored) {}
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.delete.success", p, true));
-        }
         case 35 -> {
           p.closeInventory();
           setPlayerPDC("ItemEditorUsing", p, "notUsing");

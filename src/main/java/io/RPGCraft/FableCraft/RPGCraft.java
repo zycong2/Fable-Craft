@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft;
 
+import com.mojang.brigadier.Command;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -13,6 +14,8 @@ import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.*;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
+import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
+import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
@@ -32,10 +35,12 @@ import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -85,30 +90,11 @@ public final class RPGCraft extends JavaPlugin {
     }
 
     LifecycleEventManager<Plugin> lifecycle = this.getLifecycleManager();
-    lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+    lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+      MessageCommand.commands(event);
     });
-    BasicCommand MessageCommand = new BasicCommand() {
-      @Override
-      public void execute(CommandSourceStack source, String[] args) {
-
-      }
-
-      @Override
-      public Collection<String> suggest(CommandSourceStack commandSourceStack, String[] args) {
-        return BasicCommand.super.suggest(commandSourceStack, args);
-      }
-
-      @Override
-      public boolean canUse(CommandSender sender) {
-        return BasicCommand.super.canUse(sender);
-      }
-
-      @Override
-      public @Nullable String permission() {
-        return BasicCommand.super.permission();
-      }
-    };
-    registerCommand("message", List.of("msg", "m", "privatemessage", "pm", "directmessage", "dm"), MessageCommand);
+    StatsCommand.commands().forEach(c -> {lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(c));});
+    //registerCommand("message", List.of("msg", "m", "privatemessage", "pm", "directmessage", "dm"), MessageCommand);
 
     if(doesPluginExist("LuckPerms")){IsLuckperms = true;}
     if(doesPluginExist("Citizens")){IsCitizen = true;}
@@ -280,7 +266,7 @@ public final class RPGCraft extends JavaPlugin {
   public static Component MM(String input){
     return MiniMessage.miniMessage().deserialize(FormatForMiniMessage(input));
   }
-  public static Collection<Component> MM(Collection<String> input) {
+  public static List<Component> MM(Collection<String> input) {
     return input.stream().map(RPGCraft::MM).toList();
   }
 
@@ -290,6 +276,9 @@ public final class RPGCraft extends JavaPlugin {
   public static Collection<String> deMM(Collection<Component> input){
     return input.stream().map(RPGCraft::deMM).toList();
   }
+
+  public static String plaintext(Component input){return PlainTextComponentSerializer.plainText().serialize(input);}
+  public static Collection<String> plaintext(Collection<Component> input){return input.stream().map(RPGCraft::plaintext).toList();}
 
   public static void wait(int ticks, Runnable task) {
     new BukkitRunnable() {

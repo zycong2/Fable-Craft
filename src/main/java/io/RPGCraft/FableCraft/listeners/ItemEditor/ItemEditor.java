@@ -6,34 +6,30 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.papermc.paper.datacomponent.DataComponentType;
-import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
-import io.RPGCraft.FableCraft.core.MainGUI;
-import org.jetbrains.annotations.ApiStatus;
 
 public class ItemEditor implements Listener {
 
@@ -41,6 +37,12 @@ public class ItemEditor implements Listener {
 
   public static GUI makeItemEditor(GUIItem item) {
     GUI inv = new GUI("&eItem Editor", GUI.Rows.FOUR);
+    item = item.clickEvent(ce ->{
+      Player player = ce.player();
+
+      ItemStack i = yamlManager.getItem(player.getMetadata("SelectedItemKey").getFirst().asString());
+      player.getInventory().addItem(i);
+    });
 
     inv.setItem(4, item);
     inv.setItem(9,
@@ -50,9 +52,7 @@ public class ItemEditor implements Listener {
           p.closeInventory();
           p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
           CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 600L);
-          nextMessage.thenAccept(msg -> {
-            withItemKey(p, key -> renameItem(p, key, msg));
-          });
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> renameItem(p, key, msg)));
         })
     );
     inv.setItem(10,
@@ -60,45 +60,86 @@ public class ItemEditor implements Listener {
         .clickEvent(ce -> {
           Player p = ce.player();
           p.closeInventory();
-          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
-          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 600L);
-          nextMessage.thenAccept(msg -> {
-            withItemKey(p, key -> renameItem(p, key, msg));
-          });
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> handleLore(p, key, msg)));
     })
     );
     inv.setItem(11,
       GUIItem.IStoGUIItem(createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."))
+        .clickEvent(ce ->{
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> updateCustomModelData(p, key, msg)));
+        })
     );
     inv.setItem(12,
       GUIItem.IStoGUIItem(createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."))
+        .clickEvent(ce -> {
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> setCraftPermission(p, key, msg)));
+        })
     );
     inv.setItem(13,
       GUIItem.IStoGUIItem(createButton("&aItem Type", Material.COW_SPAWN_EGG, "&fDefine the type of the item."))
+        .clickEvent(ce -> {
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> setItemType(p, key, msg)));
+        })
     );
     inv.setItem(18,
       GUIItem.IStoGUIItem(createButton("&aDefense", Material.SHIELD, "&fDefine Defense stats."))
+        .clickEvent(ce ->{
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> updateStat(p, key, "Defense", msg)));
+        })
     );
     inv.setItem(19,
       GUIItem.IStoGUIItem(createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."))
+        .clickEvent(ce ->{
+        Player p = ce.player();
+        p.closeInventory();
+        p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+        CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+        nextMessage.thenAccept(msg -> withItemKey(p, key -> updateStat(p, key, "AttackDamage", msg)));
+      })
     );
     inv.setItem(20,
       GUIItem.IStoGUIItem(createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."))
+        .clickEvent(ce ->{
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> updateStat(p, key, "Mana", msg)));
+        })
     );
     inv.setItem(21,
       GUIItem.IStoGUIItem(createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."))
+        .clickEvent(ce ->{
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 1800L);
+          nextMessage.thenAccept(msg -> withItemKey(p, key -> updateStat(p, key, "Health", msg)));
+        })
     );
     inv.setItem(22,
       GUIItem.IStoGUIItem(createButton("&bDurability", Material.ANVIL, "&fDefine Durability stats."))
     );
-    inv.setItem(23,
-      GUIItem.IStoGUIItem(createButton("&eMinimum require levels", Material.EXPERIENCE_BOTTLE, "&fDefine Minimum require levels to use this item."))
-    );
     inv.setItem(34,
-      GUIItem.IStoGUIItem(createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."))
-    );
-    inv.setItem(35,
-      GUIItem.IStoGUIItem(createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."))
+      GUIItem.IStoGUIItem(createButton("&cClose Menu", Material.BARRIER, "&cExit")).clickEvent(ce -> ce.player().closeInventory())
     );
 
     return inv;
@@ -106,7 +147,6 @@ public class ItemEditor implements Listener {
 
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "1.4-2.0")
   public static ItemStack createButton(String name, Material mat, String... loreLines) {
     ItemStack item = new ItemStack(mat);
     ItemMeta meta = item.getItemMeta();
@@ -174,22 +214,9 @@ public class ItemEditor implements Listener {
 
     e.setCancelled(true);
     quickReturn();
-    /*switch (state) {
-      case "Chat-name" -> withItemKey(p, key -> renameItem(p, key, message));
-      case "Chat-lore" -> withItemKey(p, key -> handleLoreLineInput(p, message));
-      case "Chat-lore2" -> withItemKey(p, key -> updateLoreLine(p, key, message));
-      case "Chat-customModelData" -> withItemKey(p, key -> updateCustomModelData(p, key, message));
-      case "Chat-craftPerms" -> withItemKey(p, key -> setCraftPermission(p, key, message));
-      case "Chat-defense" -> withItemKey(p, key -> updateStat(p, key, "Defense", message));
-      case "Chat-damage" -> withItemKey(p, key -> updateStat(p, key, "Damage", message));
-      case "Chat-mana" -> withItemKey(p, key -> updateStat(p, key, "Mana", message));
-      case "Chat-health" -> withItemKey(p, key -> updateStat(p, key, "Health", message));
-      case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
-      case "Chat-minlvl" -> withItemKey(p, key -> updateStat(p, key, "MinLevel", message));
-      case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
-      case "Chat-id" -> MainGUI.gottenItemID(p, message);
-      case "Chat-type" -> withItemKey(p, key -> setItemType(p, key, message.toUpperCase()));
-    }*/
+      //case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
+      //case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
+      //case "Chat-id" -> MainGUI.gottenItemID(p, message);
   }
 
   private static void withItemKey(Player p, Consumer<String> action) {
@@ -201,10 +228,10 @@ public class ItemEditor implements Listener {
     }
   }
 
-  private void setItemType(Player p, String key, String material){
+  private static void setItemType(Player p, String key, Component material){
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
-    Material mat = Material.getMaterial(material);
+    Material mat = Material.getMaterial(plaintext(material));
     if (mat == null){
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.type.fail", p, true));
       return;
@@ -214,17 +241,17 @@ public class ItemEditor implements Listener {
     reopenEditorLater(p, key);
   }
 
-  private void updateStat(Player p, String key, String statPath, String input) {
+  private static void updateStat(Player p, String key, String statPath, Component input) {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
-    int value = parseInt(input, -1);
+    int value = parseInt(plaintext(input), -1);
     if (value < 0) {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
       return;
     }
 
-     file.set( keys[0] + "." + statPath, value);
-    p.sendMessage(Colorize("&a" + statPath + " set to &f" + value));
+    file.set(keys[0] + "." + statPath, value);
+    p.sendMessage(MM("&a" + statPath + " set to &f" + value));
     reopenEditorLater(p, key);
   }
 
@@ -232,29 +259,12 @@ public class ItemEditor implements Listener {
   private static void renameItem(Player p, String key, Component name) {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
-     file.set( keys[0] + ".name", name);
+    file.set(keys[0] + ".name", deMM(name));
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.success", p, true));
     reopenEditorLater(p, key);
   }
 
-  private void handleLoreLineInput(Player p, String input) {
-    if (input.contains(" ")) {
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.noSpace", p, true));
-      return;
-    }
-
-    int line = parseInt(input, -1);
-    if (line <= 0) {
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.null", p, true));
-      return;
-    }
-
-    setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
-    setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(line));
-    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
-  }
-
-  private void handleLore(Player p, String key, Component input){
+  private static void handleLore(Player p, String key, Component input){
 
     String s = PlainTextComponentSerializer.plainText().serialize(input);
     String filter = s.split(" ")[0];
@@ -267,7 +277,8 @@ public class ItemEditor implements Listener {
       List<String> lore =  file.getStringList( keys[0] + ".lore");
       lore.add(process);
       file.set(keys[0] + ".lore", lore);
-    }else if(filter.equalsIgnoreCase("#SET")){
+    }
+    else if(filter.equalsIgnoreCase("#SET")){
       String raw = deMM(input);
       String process = raw.substring(4);
       String process2 = raw.substring(6);
@@ -279,36 +290,27 @@ public class ItemEditor implements Listener {
       List<String> lore =  file.getStringList( keys[0] + ".lore");
       lore.set(index, process2);
       file.set(keys[0] + ".lore", lore);
-    }else if(filter.equalsIgnoreCase("#REMOVE")){
+    }
+    else if(filter.equalsIgnoreCase("#REMOVE")){
+      String raw = deMM(input);
+      int process = Integer.valueOf(raw.substring(9));
 
-    }else{
-
+      String[] keys = key.split("/");
+      YamlConfiguration file = ItemDB.get(keys[1]);
+      List<String> lore =  file.getStringList( keys[0] + ".lore");
+      lore.remove(process-1);
+      file.set(keys[0] + ".lore", lore);
+    }
+    else{
+      p.sendMessage(MM("I don't know what to put here I'll prob change it later or not if you're seeing this"));
     }
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
   }
 
-  private void updateLoreLine(Player p, String key, String lineText) {
+  private static void updateCustomModelData(Player p, String key, Component input) {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
-    List<String> lore =  file.getStringList( keys[0] + ".lore");
-    int lineNum = parseInt(getPlayerPDC("ItemEditorLoreLineNumber", p), 1);
-
-    if (lineNum > lore.size()) {
-      lore.add(lineText);
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.create", p, true));
-    } else {
-      lore.set(lineNum - 1, lineText);
-      p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.success", p, true));
-    }
-
-     file.set( keys[0] + ".lore", lore);
-    reopenEditorLater(p, key);
-  }
-
-  private void updateCustomModelData(Player p, String key, String input) {
-    String[] keys = key.split("/");
-    YamlConfiguration file = ItemDB.get(keys[1]);
-    int data = parseInt(input, 0);
+    int data = parseInt(plaintext(input), 0);
     if (data <= 0) {
       p.sendMessage(yamlGetter.getMessage("messages.itemeditor.general.fail", p, true));
       return;
@@ -319,10 +321,10 @@ public class ItemEditor implements Listener {
     reopenEditorLater(p, key);
   }
 
-  private void setCraftPermission(Player p, String key, String perm) {
+  private static void setCraftPermission(Player p, String key, Component perm) {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
-     file.set( keys[0] + ".recipe.permission", perm);
+     file.set(keys[0] + ".recipe.permission", plaintext(perm));
     p.sendMessage(Colorize("&aCrafting permission set!"));
   }
 
@@ -335,7 +337,7 @@ public class ItemEditor implements Listener {
     setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }
 
-  private int parseInt(String s, int fallback) {
+  private static int parseInt(String s, int fallback) {
     try {
       return Integer.parseInt(s);
     } catch (NumberFormatException e) {

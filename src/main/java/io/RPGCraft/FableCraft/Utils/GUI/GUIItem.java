@@ -177,7 +177,6 @@ public class GUIItem {
           output.material(item.getType() != null ? item.getType() : Material.DIRT)
             .name(meta.getDisplayName())
             .lore(meta.getLore())
-            .customModelData(meta.getCustomModelData())
             .meta(meta)
             .enchantments(list);
         }

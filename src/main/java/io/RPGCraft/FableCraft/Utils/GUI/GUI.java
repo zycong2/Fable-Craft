@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
@@ -21,7 +22,7 @@ public class GUI implements InventoryHolder {
     private Inventory inventory;
     private boolean canModified = false;
 
-    private Map<Integer, GUIItem> itemMap;
+    private Map<Integer, GUIItem> itemMap = new HashMap<>();
 
     Map<Integer, GUIItem> getItemMap(){
         return itemMap;

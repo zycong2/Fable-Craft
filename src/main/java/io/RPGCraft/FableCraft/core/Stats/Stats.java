@@ -29,10 +29,8 @@ import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 @SuppressWarnings("UnstableApiUsage")
 public class Stats implements Listener {
 
-    private List<String> validStats = List.of("MaxHealth", "Strength", "Defense", "MovementSpeed");
-
     public List<String> getValidStats(){
-        return validStats;
+        return RPGCraft.itemStats;
     }
 
   @EventHandler

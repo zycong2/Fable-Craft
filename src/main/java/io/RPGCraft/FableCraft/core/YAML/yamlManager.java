@@ -136,8 +136,8 @@ public class yamlManager {
         return true;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public boolean setDefaults(String fileName) {
-
         switch (fileName) {
           case("messages"): {
             if (getFileConfig("messages").getDefaults() == null) {
@@ -158,6 +158,7 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
               getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
               getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
+
               getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
               getFileConfig("messages").addDefault("messages.itemeditor.rename.info", "&rRename the item to anything you want. Use anything you want hex color? Fine by me.");
               getFileConfig("messages").addDefault("messages.itemeditor.enchants.success", "&aYou successfully add/set/remove enchant this item!");
@@ -184,8 +185,6 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.itemeditor.health.info", "&rEnter the health value (as an integer)");
               getFileConfig("messages").addDefault("messages.itemeditor.durability.success", "&aYou successfully set the durability!");
               getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
-              getFileConfig("messages").addDefault("messages.itemeditor.minlvl.success", "&aYou successfully set the minimum required level!");
-              getFileConfig("messages").addDefault("messages.itemeditor.minlvl.info", "&rEnter the minimum level required to use this item (as an integer)");
               getFileConfig("messages").addDefault("messages.itemeditor.createItem", "&rPlease send the id/name of the item");
               getFileConfig("messages").addDefault("messages.itemeditor.type.success", "&aYou successfully set the new item type!");
               getFileConfig("messages").addDefault("messages.itemeditor.type.info", "&rEnter the new item type of the item in the chat.");
@@ -483,7 +482,7 @@ public class yamlManager {
     public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 
     public List<ItemStack> getCustomItems() {
-        List<ItemStack> items = new ArrayList();
+        List<ItemStack> items = new ArrayList<>();
         List<Object> nodes = yamlGetter.getAllNodesInDB("itemDB", "");
         if(nodes == null) {
           Bukkit.getLogger().warning("No Items Loaded");
