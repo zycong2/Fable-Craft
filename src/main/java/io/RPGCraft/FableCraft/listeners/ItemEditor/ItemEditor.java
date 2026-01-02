@@ -1,9 +1,15 @@
 package io.RPGCraft.FableCraft.listeners.ItemEditor;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.ChatInputManager;
+import io.RPGCraft.FableCraft.Utils.GUI.GUI;
+import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,6 +27,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
@@ -29,38 +36,84 @@ import io.RPGCraft.FableCraft.core.MainGUI;
 import org.jetbrains.annotations.ApiStatus;
 
 public class ItemEditor implements Listener {
-  public static Inventory makeItemEditor(ItemStack item) {
-    Inventory inv = Bukkit.createInventory(null, 36, "Item Editor");
+
+  void quickReturn(){}
+
+  public static GUI makeItemEditor(GUIItem item) {
+    GUI inv = new GUI("&eItem Editor", GUI.Rows.FOUR);
 
     inv.setItem(4, item);
-    inv.setItem(9, createButton("&aDisplay Name", Material.NAME_TAG, "&fRename the item. Color codes allowed!"));
-    inv.setItem(10, createButton("&dLore", Material.BOOK, "&fSet specific lore lines. Colors too!"));
-    // inv.setItem(11, createButton("&dEnchantments", Material.ENCHANTING_TABLE, "&fAdd/remove enchantments. Use '&7[ench] 0' to remove."));
-    inv.setItem(11, createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."));
-    inv.setItem(12, createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."));
-    inv.setItem(13, createButton("&aItem Type", Material.COW_SPAWN_EGG, "&fDefine the type of the item."));
-    inv.setItem(18, createButton("&aDefense", Material.SHIELD, "&fDefine Defense stats."));
-    inv.setItem(19, createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."));
-    inv.setItem(20, createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."));
-    inv.setItem(21, createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."));
-    inv.setItem(22, createButton("&bDurability", Material.ANVIL, "&fDefine Durability stats."));
-    inv.setItem(23, createButton("&eMinimum require levels", Material.EXPERIENCE_BOTTLE, "&fDefine Minimum require levels to use this item."));
-    inv.setItem(34, createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."));
-    inv.setItem(35, createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."));
+    inv.setItem(9,
+      GUIItem.IStoGUIItem(createButton("&aDisplay Name", Material.NAME_TAG, "&fRename the item. Color codes allowed!"))
+        .clickEvent(ce -> {
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 600L);
+          nextMessage.thenAccept(msg -> {
+            withItemKey(p, key -> renameItem(p, key, msg));
+          });
+        })
+    );
+    inv.setItem(10,
+      GUIItem.IStoGUIItem(createButton("&dLore", Material.BOOK, "&fSet specific lore lines. Colors too!"))
+        .clickEvent(ce -> {
+          Player p = ce.player();
+          p.closeInventory();
+          p.sendMessage(yamlGetter.getMessage("messages.itemeditor.rename.info", p, false));
+          CompletableFuture<Component> nextMessage = ChatInputManager.getNextMessage(p, 600L);
+          nextMessage.thenAccept(msg -> {
+            withItemKey(p, key -> renameItem(p, key, msg));
+          });
+    })
+    );
+    inv.setItem(11,
+      GUIItem.IStoGUIItem(createButton("&bCustom Model Data", Material.COMPARATOR, "&fSet custom model data for resource pack stuff."))
+    );
+    inv.setItem(12,
+      GUIItem.IStoGUIItem(createButton("&aCrafting Permissions", Material.CRAFTING_TABLE, "&fDefine who can craft this item."))
+    );
+    inv.setItem(13,
+      GUIItem.IStoGUIItem(createButton("&aItem Type", Material.COW_SPAWN_EGG, "&fDefine the type of the item."))
+    );
+    inv.setItem(18,
+      GUIItem.IStoGUIItem(createButton("&aDefense", Material.SHIELD, "&fDefine Defense stats."))
+    );
+    inv.setItem(19,
+      GUIItem.IStoGUIItem(createButton("&cDMG", Material.IRON_SWORD, "&fDefine DMG stats."))
+    );
+    inv.setItem(20,
+      GUIItem.IStoGUIItem(createButton("&bMana", Material.END_CRYSTAL, "&fDefine Mana stats."))
+    );
+    inv.setItem(21,
+      GUIItem.IStoGUIItem(createButton("&cHealth", Material.IRON_CHESTPLATE, "&fDefine Health stats."))
+    );
+    inv.setItem(22,
+      GUIItem.IStoGUIItem(createButton("&bDurability", Material.ANVIL, "&fDefine Durability stats."))
+    );
+    inv.setItem(23,
+      GUIItem.IStoGUIItem(createButton("&eMinimum require levels", Material.EXPERIENCE_BOTTLE, "&fDefine Minimum require levels to use this item."))
+    );
+    inv.setItem(34,
+      GUIItem.IStoGUIItem(createButton("&cDelete Item", Material.LAVA_BUCKET, "&cDanger zone. Deletes the item permanently."))
+    );
+    inv.setItem(35,
+      GUIItem.IStoGUIItem(createButton("&cClose Menu", Material.BARRIER, "&cExit without saving."))
+    );
 
     return inv;
   }
 
 
   @Deprecated
-  @ApiStatus.ScheduledForRemoval(inVersion = "1.4")
+  @ApiStatus.ScheduledForRemoval(inVersion = "1.4-2.0")
   public static ItemStack createButton(String name, Material mat, String... loreLines) {
     ItemStack item = new ItemStack(mat);
     ItemMeta meta = item.getItemMeta();
 
     meta.setDisplayName(Colorize(name));
     meta.setLore(Arrays.stream(loreLines)
-      .map(str -> Colorize(str))
+      .map(RPGCraft::Colorize)
       .toList());
 
     // Optional: If you want to allow custom model data via overload later
@@ -113,13 +166,14 @@ public class ItemEditor implements Listener {
   @EventHandler
   void ChatEvent(AsyncChatEvent e) {
     Player p = e.getPlayer();
-    String message = PlainTextComponentSerializer.plainText().serialize(e.message());
+    Component message = e.message();
     String state = getPlayerPDC("ItemEditorUsing", p);
     File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/ItemDB", "Default.yml");
 
     if (state.equals("notUsing") || state.equals("GUI")) return;
 
     e.setCancelled(true);
+    quickReturn();
     switch (state) {
       case "Chat-name" -> withItemKey(p, key -> renameItem(p, key, message));
       case "Chat-lore" -> withItemKey(p, key -> handleLoreLineInput(p, message));
@@ -138,8 +192,8 @@ public class ItemEditor implements Listener {
     }
   }
 
-  private void withItemKey(Player p, Consumer<String> action) {
-    String key = getPlayerPDC("SelectedItemKey", p);
+  private static void withItemKey(Player p, Consumer<String> action) {
+    String key = p.getMetadata("SelectedItemKey").getFirst().asString();
     if (Objects.equals(key, "Not Found")) {
       p.sendMessage(Colorize("&cError: No item selected!"));
     } else {
@@ -175,7 +229,7 @@ public class ItemEditor implements Listener {
   }
 
 
-  private void renameItem(Player p, String key, String name) {
+  private static void renameItem(Player p, String key, Component name) {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
      file.set( keys[0] + ".name", name);
@@ -197,6 +251,29 @@ public class ItemEditor implements Listener {
 
     setPlayerPDC("ItemEditorUsing", p, "chat-lore2");
     setPlayerPDC("ItemEditorLoreLineNumber", p, String.valueOf(line));
+    p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
+  }
+
+  private void handleLore(Player p, String key, Component input){
+
+    String s = PlainTextComponentSerializer.plainText().serialize(input);
+    String filter = s.split(" ")[0];
+    if(filter.equalsIgnoreCase("#ADD")){
+      String raw = deMM(input);
+      String process = raw.substring(4);
+
+      String[] keys = key.split("/");
+      YamlConfiguration file = ItemDB.get(keys[1]);
+      List<String> lore =  file.getStringList( keys[0] + ".lore");
+      lore.add(process);
+      file.set(keys[0] + ".lore", lore);
+    }else if(filter.equalsIgnoreCase("#SET")){
+
+    }else if(filter.equalsIgnoreCase("#REMOVE")){
+
+    }else{
+
+    }
     p.sendMessage(yamlGetter.getMessage("messages.itemeditor.lore.info2", p, true));
   }
 
@@ -257,11 +334,10 @@ public class ItemEditor implements Listener {
   }
 
   public static void reopenEditorLater(Player p, String itemKey) {
-    String[] keys = itemKey.split("/");
     RPGCraft.wait(1, new BukkitRunnable() {
       @Override
       public void run() {
-        p.openInventory(makeItemEditor(yamlManager.getInstance().getItem(itemKey)));
+        makeItemEditor(GUIItem.ItemStackToGUIItem(yamlManager.getInstance().getItem(itemKey))).open(p);
         setPlayerPDC("ItemEditorUsing", p, "GUI");
       }
     });

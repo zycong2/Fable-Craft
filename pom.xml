@@ -16,7 +16,7 @@
     <java.version>21</java.version>
 
     <!-- Paper -->
-    <paperAPI.version>1.21.10-R0.1-SNAPSHOT</paperAPI.version>
+    <paperAPI.version>1.21.10</paperAPI.version>
 
     <!-- Libraries -->
     <classGraph.version>4.8.184</classGraph.version>
@@ -66,8 +66,24 @@
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>${paperAPI.version}</version>
+      <version>${paperAPI.version}-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- NMS -->
+    <dependency>
+      <groupId>org.paper</groupId>
+      <artifactId>paper</artifactId>
+      <version>${paperAPI.version}</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/paper-${paperAPI.version}.jar</systemPath>
+    </dependency>
+
+    <!-- ClassGraph for scanning plugin -->
+    <dependency>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>${classGraph.version}</version>
     </dependency>
 
     <!-- ClassGraph (runtime shaded) -->
@@ -163,6 +179,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <minimizeJar>true</minimizeJar>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <shadedClassifierName>shaded</shadedClassifierName>
@@ -170,12 +187,15 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>MTA-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                   </excludes>
                 </filter>
               </filters>
+              <finalName>${project.name}-${project.version}</finalName>
+              <!-- FOR THE LOVE OF GOD THIS IS THE PLUGIN FOLDER -->
+              <outputDirectory>/Users/tonnam/Documents/MAZE/M/M/Test-Servers/1.21.10/plugins</outputDirectory>
             </configuration>
           </execution>
         </executions>

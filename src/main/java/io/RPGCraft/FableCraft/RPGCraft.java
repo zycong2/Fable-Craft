@@ -51,6 +51,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.sql.Connection;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
@@ -267,17 +268,27 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
+  @Deprecated
   public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }
+  @Deprecated
   public static List<String> Colorize(List<String> input) {
     return input.stream().map(RPGCraft::Colorize).toList();
   }
+
   public static Component MM(String input){
     return MiniMessage.miniMessage().deserialize(FormatForMiniMessage(input));
   }
-  public static List<Component> MM(List<String> input) {
+  public static Collection<Component> MM(Collection<String> input) {
     return input.stream().map(RPGCraft::MM).toList();
+  }
+
+  public static String deMM(Component input){
+    return MiniMessage.miniMessage().serialize(input);
+  }
+  public static Collection<String> deMM(Collection<Component> input){
+    return input.stream().map(RPGCraft::deMM).toList();
   }
 
   public static void wait(int ticks, Runnable task) {
