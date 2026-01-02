@@ -41,12 +41,14 @@ public class mobsEditor implements Listener {
     ItemMeta meta = item.getItemMeta();
     Bukkit.getLogger().info(getItemPDC("MobID", item));
 
-    meta.setLore(List.of(
-      Colorize("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
-      Colorize("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
-      Colorize("&fHealth: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".health")),
-      Colorize("&fLoot Table: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".lootTable"))
-    ));
+    try {
+      meta.setLore(List.of(
+        Colorize("&fSpeed: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".speed")),
+        Colorize("&fDamage: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".damage")),
+        Colorize("&fHealth: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".health")),
+        Colorize("&fLoot Table: " + yamlManager.getInstance().getOption("mobDB", getMobKey(item) + ".lootTable"))
+      ));
+    } catch (NullPointerException ignored) {}
 
     item.setItemMeta(meta);
 
@@ -186,9 +188,16 @@ public class mobsEditor implements Listener {
     Inventory menu = Bukkit.createInventory(p, 45, "mobDB");
     List<Object> mobs = getAllNodesInDB("mobDB", "");
     List<ItemStack> items = new java.util.ArrayList<>(List.of());
-    for (Object o : mobs) {
-      ItemStack item = ItemStack.of(Material.valueOf(yamlManager.getInstance().getOption("mobDB", o + ".type").toString().toUpperCase() + "_SPAWN_EGG"));
-      PDCHelper.setItemPDC("MobID", item, o);
+    List<Object> allMobs = new java.util.ArrayList<>(List.of());
+    for (Object o : mobs){
+      allMobs.addAll(List.of(o.toString().split(",")));
+    }
+
+    for (Object o : allMobs) {
+      String replace = o.toString().replace("[", "").replace("]", "").replace(" ", "");
+      Bukkit.getLogger().info(replace.replace(" ", ""));
+      ItemStack item = ItemStack.of(Material.valueOf(yamlGetter.getPathInDB("mobDB", replace + ".type").toString().toUpperCase() + "_SPAWN_EGG"));
+      PDCHelper.setItemPDC("MobID", item, replace);
       items.add(item);
     }
 
@@ -232,9 +241,8 @@ public class mobsEditor implements Listener {
       .filter(key -> key
         .equals(getItemPDC("MobID", item)))
       .findFirst()
-      .orElse(null)
-      .replace("[", "")
-      .replace("]", "");
+      .orElse(null);
+
   }
 
   // Handle mobDB and editor inventory clicks

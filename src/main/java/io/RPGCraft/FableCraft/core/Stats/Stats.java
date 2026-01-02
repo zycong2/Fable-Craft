@@ -127,7 +127,7 @@ public class Stats implements Listener {
     } else if (event instanceof EntityDamageByEntityEvent entityEvent
               && entityEvent.getDamager() instanceof Player p) {
       StatsMemory stats = getPlayerStats(p);
-      event.setDamage(damage + stats.statDouble("Damage"));
+      event.setDamage(damage + stats.statDouble("AttackDamage"));
       if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
         event.getEntity().customName(MM(
           Placeholder.setPlaceholders(

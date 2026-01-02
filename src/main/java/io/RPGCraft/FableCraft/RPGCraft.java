@@ -199,9 +199,11 @@ public final class RPGCraft extends JavaPlugin {
   }
 
   public void onDisable() {
-    yamlManager.getInstance().getFileConfig("data").set("customMobs", customMobs);
+    yamlManager.getInstance().setOption("data", "customMobs", customMobs);
     if (!yamlManager.getInstance().saveData()) {
       Bukkit.getLogger().severe("Failed to save data!");
+    } else {
+      Bukkit.getLogger().info("Saved data.");
     }
   }
 
