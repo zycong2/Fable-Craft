@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
@@ -99,13 +100,13 @@ public class mobsEditor implements Listener {
   }
 
   private void setMobLootTable(Player p, String key, String message) {
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".lootTable", message);
+    yamlManager.getInstance().setOption("mobDB",key + ".lootTable", message);
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.lootTable.success", p, true));
     reopenMobEditorLater(p, key);
   }
 
   private void createMob(Player p, String message) {
-    yamlManager.getInstance().getFileConfig("mobDB").set(message + ".type", "COW");
+    yamlManager.getInstance().setOption("mobDB",message + ".type", "COW");
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.create.success", p, true));
     reopenMobEditorLater(p, message);
   }
@@ -116,7 +117,7 @@ public class mobsEditor implements Listener {
     } catch(final NumberFormatException e) {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.health.fail", p, true));
     }
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".health", Double.valueOf(message));
+    yamlManager.getInstance().setOption("mobDB",key + ".health", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.health.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -127,7 +128,7 @@ public class mobsEditor implements Listener {
     } catch(final NumberFormatException e) {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.damage.fail", p, true));
     }
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".damage", Double.valueOf(message));
+    yamlManager.getInstance().setOption("mobDB",key + ".damage", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.damage.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -139,7 +140,7 @@ public class mobsEditor implements Listener {
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor.speed.fail", p, true));
     }
 
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".speed", Double.valueOf(message));
+    yamlManager.getInstance().setOption("mobDB",key + ".speed", Double.valueOf(message));
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.speed.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -151,13 +152,13 @@ public class mobsEditor implements Listener {
       return;
     }
 
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".type", message.toUpperCase());
+    yamlManager.getInstance().setOption("mobDB", key + ".type", message.toUpperCase());
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.type.success", p, true));
     reopenMobEditorLater(p, key);
   }
 
   private void renameMob(Player p, String key, String message) {
-    yamlManager.getInstance().getFileConfig("mobDB").set(key + ".customName.name", message);
+    yamlManager.getInstance().setOption("mobDB",key + ".customName.name", message);
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.customName.rename.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -176,9 +177,9 @@ public class mobsEditor implements Listener {
       @Override
       public void run() {
         ItemStack item = ItemStack.of(Material.valueOf(yamlManager.getInstance().getFileConfig("mobDB").get(key + ".type") + "_SPAWN_EGG"));
-        setItemPDC("MobID", item, key);
-        p.openInventory(makeMobEditor(item));
+        p.openInventory(makeMobEditor(setItemPDC("MobID", item, key)));
         setPlayerPDC("MobsEditorUsing", p, "GUI");
+        setPlayerPDC("SelectedMobKey", p, key);
       }
     });
   }
@@ -195,10 +196,12 @@ public class mobsEditor implements Listener {
 
     for (Object o : allMobs) {
       String replace = o.toString().replace("[", "").replace("]", "").replace(" ", "");
-      Bukkit.getLogger().info(replace.replace(" ", ""));
+
       ItemStack item = ItemStack.of(Material.valueOf(yamlGetter.getPathInDB("mobDB", replace + ".type").toString().toUpperCase() + "_SPAWN_EGG"));
-      PDCHelper.setItemPDC("MobID", item, replace);
-      items.add(item);
+      ItemMeta meta = item.getItemMeta();
+      meta.setDisplayName(Colorize(replace));
+      item.setItemMeta(meta);
+      items.add(PDCHelper.setItemPDC("MobID", item, replace));
     }
 
     if (items.size() <= 36) {
@@ -236,12 +239,14 @@ public class mobsEditor implements Listener {
     mobDB = menu;
   }
   private static String getMobKey(ItemStack item){
-    return getAllNodesInDB("mobDB", "").stream()
+    /*return getAllNodesInDB("mobDB", "").stream()
       .map(Object::toString)
       .filter(key -> key
         .equals(getItemPDC("MobID", item)))
       .findFirst()
       .orElse(null);
+     */
+    return PDCHelper.getItemPDC("MobID", item);
 
   }
 
@@ -283,7 +288,8 @@ public class mobsEditor implements Listener {
         String itemKey = getMobKey(event.getCurrentItem());
 
         if (itemKey == null) {
-          //p.sendMessage(Colorize("&cCouldn't find the item in the database"));
+          p.sendMessage(Colorize("&cCouldn't find the item in the database"));
+          Bukkit.getLogger().info(PDCHelper.getItemPDC("MobID", event.getCurrentItem()));
           return;
         }
 
@@ -336,7 +342,7 @@ public class mobsEditor implements Listener {
             p.sendMessage(Colorize("&cError: No mob selected!"));
             return;
           }
-          yamlManager.getInstance().getFileConfig("mobDB").set(mobKey, null);
+          yamlManager.getInstance().setOption("mobDB",mobKey, null);
           try { yamlManager.getInstance().getFileConfig("mobDB").save("mobDB.yml"); } catch (IOException ignored) {}
           p.sendMessage(yamlGetter.getMessage("messages.itemeditor.delete.success", p, true));
         }

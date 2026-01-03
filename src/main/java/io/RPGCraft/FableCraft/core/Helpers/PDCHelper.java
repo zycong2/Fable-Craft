@@ -35,11 +35,12 @@ public class PDCHelper {
     }
 
 
-    public static void setItemPDC(String keyString, ItemStack i, Object data) {
+    public static ItemStack setItemPDC(String keyString, ItemStack i, Object data) {
         NamespacedKey key = new NamespacedKey(RPGCraft.getPlugin(), keyString);
         ItemMeta meta = i.getItemMeta();
         meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, data.toString());
         i.setItemMeta(meta);
+        return i;
     }
 
     public static String getItemPDC(String keyString, ItemStack i) {

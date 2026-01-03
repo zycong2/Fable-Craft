@@ -401,7 +401,7 @@ public class yamlManager {
     }
 
     public static void setDB(String DB, String filePath, String path, String value){
-      if(filePath == "Default.yml"){
+      if(Objects.equals(filePath, "Default.yml")){
         getDefaultDB(DB).set(path, value);
       }else{
         List<YamlConfiguration> yamls = DBFileConfiguration.get(DB);
@@ -473,7 +473,21 @@ public class yamlManager {
         return getFileConfig(file).get(path);
     }
     public void setOption(String file, String path, Object option){
-      getFileConfig(file).set(path, option);
+      try {
+        getFileConfig(file).set(path, option);
+      } catch (NullPointerException e){
+        for (String s : DBFolders) {
+          if (Objects.equals(DBFileConfiguration.get(s), DBFileConfiguration.get(file)) && DBFileConfiguration.get(s) != null) {
+            for (YamlConfiguration config : DBFileConfiguration.get(s)){
+              try {
+                getFileConfig(file).set(path, option);
+                saveData();
+                return;
+              } catch (NullPointerException ignored){ }
+            }
+          }
+        }
+      }
       saveData();
     }
 

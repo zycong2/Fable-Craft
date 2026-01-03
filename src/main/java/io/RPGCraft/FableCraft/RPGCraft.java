@@ -268,7 +268,6 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
-  @Deprecated
   public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }

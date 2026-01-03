@@ -91,8 +91,8 @@ public class mobs implements CommandInterface, Listener {
             LivingEntity LE = (LivingEntity) entity;
 
             if (getPathInDB("mobDB",name + ".health") != null) {
-                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf((int) getPathInDB("mobDB",name + ".health")));
-                LE.setHealth(Double.valueOf((int) getPathInDB("mobDB",name + ".health")));
+                LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf(getPathInDB("mobDB",name + ".health").toString()));
+                LE.setHealth(Double.valueOf(getPathInDB("mobDB",name + ".health").toString()));
             }
             if (getPathInDB("mobDB",name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) getPathInDB("mobDB", name + ".damage")));}
             if (getPathInDB("mobDB",name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getPathInDB("mobDB",name + ".speed")));}
