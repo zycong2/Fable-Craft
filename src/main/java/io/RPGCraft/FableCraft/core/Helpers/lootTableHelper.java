@@ -115,13 +115,13 @@ public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
         for (String s : itemList){
             String[] values = s.split(":");
             if (Material.getMaterial(values[0]) != null){ //if it is  a normal item
-                for (int i = 0; i < Integer.valueOf(values[3]); i++) { //always chooses the max number?
+                for (int i = 0; i < Integer.parseInt(values[3]); i++) { //always chooses the max number?
                   items.add(ItemStack.of(Material.getMaterial(values[0])));
                 }
             } else {
-              for(YamlConfiguration file : DBFileConfiguration.get("ItemDB")) {
+              for(YamlConfiguration file : DBFileConfiguration.get("itemDB")) {
                 if (file.getConfigurationSection("").getKeys(false).contains(values[0])) {
-                  for (int i = 0; i < Integer.valueOf(values[3]); i++) { //again always max?
+                  for (int i = 0; i < Integer.parseInt(values[3]); i++) { //again always max?
                     items.add(yamlManager.getInstance().getItem(values[0]));
                   }
                 }
