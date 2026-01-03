@@ -94,7 +94,11 @@ public class mobs implements CommandInterface, Listener {
                 LE.getAttribute(Attribute.MAX_HEALTH).setBaseValue(Double.valueOf(getPathInDB("mobDB",name + ".health").toString()));
                 LE.setHealth(Double.valueOf(getPathInDB("mobDB",name + ".health").toString()));
             }
-            if (getPathInDB("mobDB",name + ".damage") != null) { LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) getPathInDB("mobDB", name + ".damage")));}
+            if (LE.getAttribute(Attribute.ATTACK_DAMAGE) != null) { //passive mobs don't deal damage yk
+              if (getPathInDB("mobDB", name + ".damage") != null) {
+                LE.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(Double.valueOf((int) getPathInDB("mobDB", name + ".damage")));
+              }
+            }
             if (getPathInDB("mobDB",name + ".speed") != null) { LE.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(Double.valueOf((int) getPathInDB("mobDB",name + ".speed")));}
 
 
