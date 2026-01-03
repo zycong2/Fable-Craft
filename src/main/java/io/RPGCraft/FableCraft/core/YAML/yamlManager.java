@@ -168,23 +168,15 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.itemeditor.custommodel.info", "&rEnter an Integer value for the custom model data. 0 to remove");
               getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.success", "&aYou successfully change the crafting permission of this item!");
               getFileConfig("messages").addDefault("messages.itemeditor.craftingperm.info", "&rEnter the permission you want to set for this item (Enter remove to remove this). &cExample: &fcraft.wooden_sword");
-              getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully set the lore of this item");
-              getFileConfig("messages").addDefault("messages.itemeditor.lore.create", "&aSuccessfully made a new line.");
-              getFileConfig("messages").addDefault("messages.itemeditor.lore.null", "&rUnkown line :D");
-              getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rType in the line you want to change");
-              getFileConfig("messages").addDefault("messages.itemeditor.lore.info2", "&rEnter the change");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.success", "&aYou successfully changed the lore of this item");
+              getFileConfig("messages").addDefault("messages.itemeditor.lore.info", "&rTo change the lore please enter one of the commands<newline>" +
+                                                                                                      "#ADD <line> - add a new lore line<newline>" +
+                                                                                                      "#SET <index> <line> - set a existing line or new one I forgot to put a check<newline>" +
+                                                                                                      "#REMOVE <index> - remove a line of lore<newline>");
               getFileConfig("messages").addDefault("messages.itemeditor.general.noSpace", "&cYou cannot have space in your message!");
               getFileConfig("messages").addDefault("messages.itemeditor.general.fail", "&cYou failed to edit this item!");
-              getFileConfig("messages").addDefault("messages.itemeditor.defense.success", "&aYou successfully set the defense value!");
-              getFileConfig("messages").addDefault("messages.itemeditor.defense.info", "&rEnter the defense value (as an integer)");
-              getFileConfig("messages").addDefault("messages.itemeditor.damage.success", "&aYou successfully set the damage value!");
-              getFileConfig("messages").addDefault("messages.itemeditor.damage.info", "&rEnter the damage value (as an integer)");
-              getFileConfig("messages").addDefault("messages.itemeditor.mana.success", "&aYou successfully set the mana cost or bonus!");
-              getFileConfig("messages").addDefault("messages.itemeditor.mana.info", "&rEnter the mana value (as an integer)");
-              getFileConfig("messages").addDefault("messages.itemeditor.health.success", "&aYou successfully set the health stat!");
-              getFileConfig("messages").addDefault("messages.itemeditor.health.info", "&rEnter the health value (as an integer)");
-              getFileConfig("messages").addDefault("messages.itemeditor.durability.success", "&aYou successfully set the durability!");
-              getFileConfig("messages").addDefault("messages.itemeditor.durability.info", "&rEnter the durability (as an integer)");
+              getFileConfig("messages").addDefault("messages.itemeditor.stats.success", "&aYou successfully set the stats value!");
+              getFileConfig("messages").addDefault("messages.itemeditor.stats.info", "&rEnter the stat value");
               getFileConfig("messages").addDefault("messages.itemeditor.createItem", "&rPlease send the id/name of the item");
               getFileConfig("messages").addDefault("messages.itemeditor.type.success", "&aYou successfully set the new item type!");
               getFileConfig("messages").addDefault("messages.itemeditor.type.info", "&rEnter the new item type of the item in the chat.");
@@ -358,7 +350,7 @@ public class yamlManager {
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
-              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/pm %player%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/dmi %target%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
               getFileConfig("format").options().copyDefaults(true);
             }
           }

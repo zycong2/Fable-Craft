@@ -41,7 +41,7 @@ public class PlayerStats implements Listener {
         try {
             Connection connection = DatabaseManager.getDBConnection("player-info");
             if(connection == null){
-                getPlugin().getComponentLogger().error(MM("&4&oUnable to load " + p.getName() + "'s data because connection is null"));
+                getPlugin().getComponentLogger().error(MM("Unable to load " + p.getName() + "'s data because connection is null"));
                 return;
             }
             Gson gson = new Gson();
@@ -50,15 +50,15 @@ public class PlayerStats implements Listener {
             String json = resultSet.getString("data");
             if(json == null){
                 getPlayerStats(p);
-                getPlugin().getComponentLogger().error(MM("&4&oUnable to load " + p.getName() + "'s data because value is null"));
+                getPlugin().getComponentLogger().error(MM("Unable to load " + p.getName() + "'s data because value is null"));
                 return;
             }
             StatsMemory statsMemory = gson.fromJson(json, StatsMemory.class);
             statsMemoryMap.putIfAbsent(p.getUniqueId(), statsMemory);
-            getPlugin().getComponentLogger().info(MM("&a&oSuccessfully loaded player's stats data"));
+            getPlugin().getComponentLogger().info(MM("Successfully loaded player's stats data"));
         }catch (Exception ex){
             ex.printStackTrace();
-            getPlugin().getComponentLogger().error(MM("&4&oUnable to load " + p.getName() + "'s data"));
+            getPlugin().getComponentLogger().error(MM("Unable to load " + p.getName() + "'s data"));
         }
     }
 
@@ -69,16 +69,16 @@ public class PlayerStats implements Listener {
             Connection connection = DatabaseManager.getDBConnection("player-info");
             String json = new Gson().toJson(getPlayerStats(p));
             if(json == null){
-                getPlugin().getComponentLogger().error(MM("&4&oUnable to save " + p.getName() + "'s data because value is null"));
+                getPlugin().getComponentLogger().error(MM("Unable to save " + p.getName() + "'s data because value is null"));
             }
             PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO player_stats (uuid, data) VALUES (?, ?)");
             statement.setString(1, p.getUniqueId().toString());
             statement.setString(2, json);
             statement.execute();
-            getPlugin().getComponentLogger().info(MM("&a&oSuccessfully saved player's stats data"));
+            getPlugin().getComponentLogger().info(MM("Successfully saved player's stats data"));
         }catch (Exception ex){
             ex.printStackTrace();
-            getPlugin().getComponentLogger().error(MM("&4&iUnable to save " + p.getName() + "'s data"));
+            getPlugin().getComponentLogger().error(MM("Unable to save " + p.getName() + "'s data"));
         }
     }
 }

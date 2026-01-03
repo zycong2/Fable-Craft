@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
+import static org.bukkit.Bukkit.getServer;
 
 public class GUI implements InventoryHolder {
 

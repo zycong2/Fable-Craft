@@ -39,8 +39,7 @@ public class MessageCommand {
 
           executor.sendMessage(MM("&c[!] Please specify the message to send to " + player.getName()));
           return Command.SINGLE_SUCCESS;
-        }))
-
+        })
       .then(Commands.argument("message", StringArgumentType.greedyString())
         .executes(ctx -> {
           Entity entity = getExecutor(ctx);
@@ -48,12 +47,14 @@ public class MessageCommand {
 
           String message = plaintext(MM(ctx.getArgument("message", String.class)));
 
+          if(entity.getUniqueId().equals(player.getUniqueId())) {entity.sendMessage(MM("&c[!] You can't send a message to yourself"));return Command.SINGLE_SUCCESS;}
+
           entity.sendMessage(MM(String.format("&c[&a%1s &2-> &a%2s&c] &f%3s", entity.getName(), player.getName(), message)));
           player.sendMessage(MM(String.format("&c[&a%2s &2-> &a%1s&c] &f%3s", entity.getName(), player.getName(), message)));
 
           return Command.SINGLE_SUCCESS;
         })
-      )
+      ))
       .build();
 
 

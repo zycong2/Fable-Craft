@@ -12,6 +12,7 @@ import static org.bukkit.Bukkit.getServer;
 public class DatabaseManager {
 
     public static List<String> databasesName = new ArrayList<>();
+    private static Connection connection;
 
     public static void createDBFile(String fileName) throws IOException {
         File database = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), fileName + ".db");
@@ -27,8 +28,12 @@ public class DatabaseManager {
             getServer().getLogger().log(Level.WARNING, "Database file does not exist");
             return null;
         }
+        if(connection != null){
+            return connection;
+        }
         String url = "jdbc:sqlite:" + database.getAbsolutePath();
         Connection connection = DriverManager.getConnection(url);
+        DatabaseManager.connection = connection;
         return connection;
     }
 

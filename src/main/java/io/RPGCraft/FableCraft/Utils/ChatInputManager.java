@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.Utils;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,32 +11,36 @@ import org.bukkit.event.Listener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
+import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 
 public class ChatInputManager implements Listener {
 
-    private static Map<UUID, CompletableFuture<Component>> waiting = new HashMap<>();
+    private static final Map<UUID, BiConsumer<Player, Component>> awaitingInput = new HashMap<>();
 
-    public static CompletableFuture<Component> getNextMessage(Player player, Long waitingTime){
-        CompletableFuture<Component> future = new CompletableFuture<>();
-        future.orTimeout(waitingTime, TimeUnit.SECONDS)
-                .exceptionally(ex -> {player.sendMessage(MM("&cTimed out!"));waiting.remove(player.getUniqueId(), future);return  MM("NULL");});
-        waiting.putIfAbsent(player.getUniqueId(), future);
-        return future;
-    }
+  public static void waitForNextMessage(Player player, BiConsumer<Player, Component> callback) {
+    awaitingInput.put(player.getUniqueId(), callback);
+  }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+
+  @EventHandler(priority = EventPriority.LOWEST)
     void asyncChatEvent(AsyncChatEvent e){
-        Player player = e.getPlayer();
-        if(waiting.containsKey(player.getUniqueId())){
-            e.setCancelled(true);
-            CompletableFuture<Component> future = waiting.get(player.getUniqueId());
-            waiting.remove(player.getUniqueId(), future);
-            future.supplyAsync(e::message);
-        }
+    Player player = e.getPlayer();
+    UUID uuid = player.getUniqueId();
+
+      if (!awaitingInput.containsKey(uuid)) return;
+
+      e.setCancelled(true); // Prevent normal chat
+
+      BiConsumer<Player, Component> callback = awaitingInput.remove(uuid);
+      if(callback == null) return;
+      Component message = e.message();
+
+      // Switch back to main thread
+      Bukkit.getScheduler().runTask(getPlugin(), () -> {
+        callback.accept(player, message);
+      });
     }
 
 }

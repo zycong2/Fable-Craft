@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static org.bukkit.Bukkit.getServer;
+
 public class itemDB implements CommandInterface {
 
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -17,8 +19,8 @@ public class itemDB implements CommandInterface {
         if (!p.hasPermission("FableCraft.itemDB")) {
             p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
-            MainGUI.itemDBMenu(p);
-            MainGUI.itemDB.open(p);
+          getServer().getLogger().info("I've ran the itemDB Command");
+            MainGUI.itemDBMenu(p).open(p);
         }
         return true;
     }

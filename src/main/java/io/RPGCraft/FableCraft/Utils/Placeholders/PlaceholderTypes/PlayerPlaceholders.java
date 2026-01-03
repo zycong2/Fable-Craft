@@ -63,7 +63,7 @@ public class PlayerPlaceholders {
   public static String currentMana(Entity e) {
     if (e instanceof Player) {
       Player p = (Player) e;
-      return p.getMetadata("currentMana").getFirst().asString();
+      return String.valueOf(Math.round(p.getMetadata("currentMana").getFirst().asDouble()*100)/100);
     }else{
       return Colorize("The mob is not a living entity");
     }

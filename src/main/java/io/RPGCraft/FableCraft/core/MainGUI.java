@@ -6,6 +6,7 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,15 +27,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.Utils.GUI.GUIItem.ItemStackToGUIItem;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
+import static org.bukkit.Bukkit.getServer;
 
 public class MainGUI implements Listener {
   GUI menu; // Player profile GUI
@@ -67,23 +69,35 @@ public class MainGUI implements Listener {
 
 
   // Build the itemDB menu UI (used in GUI navigation)
-  public static void itemDBMenu(Player player) {
+  public static GUI itemDBMenu(Player player) {
     GUI menu = new GUI("&eItemDB", GUI.Rows.FIVE);
     List<ItemStack> items = yamlManager.getInstance().getCustomItems();
 
     if (items.size() <= 36) {
       for (int i = 0; i < items.size(); ++i) {
-        menu.setItem(i, items.get(i));
+        GUIItem item = ItemStackToGUIItem(items.get(i));
+        item = item.clickEvent(ce -> {
+          GUI editor = makeItemEditor(ce.clickedItem());
+          String itemKey = getItemKey(ce.clickedItem().toItemStack());
+          Player p = ce.player();
+
+          p.closeInventory();
+          editor.open(p);
+          p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
+          setPlayerPDC("ItemEditorUsing", p, "GUI");
+        });
+        menu.setItem(i, item);
       }
     } else {
       int page = player.hasMetadata("itemDBPage") ? player.getMetadata("itemDBPage").getFirst().asInt() : 0;
       for (int i = 0; i <= 36 && i + 36 * page < items.size(); ++i) {
-        GUIItem item = ItemStackToGUIItem(items.get(i + 36 * page))
-          .clickEvent(ce -> {
+        GUIItem item = ItemStackToGUIItem(items.get(i + 36 * page));
+          item = item.clickEvent(ce -> {
             GUI editor = makeItemEditor(ce.clickedItem());
             String itemKey = getItemKey(ce.clickedItem().toItemStack());
             Player p = ce.player();
 
+            p.closeInventory();
             editor.open(p);
             p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
             setPlayerPDC("ItemEditorUsing", p, "GUI");
@@ -95,21 +109,24 @@ public class MainGUI implements Listener {
     // Add pagination arrows
     GUIItem nextArrow = new GUIItem(Material.ARROW)
       .name("&aNext")
+      .lore("&aTest Lore")
       .clickEvent(ce -> {
         Player p = ce.player();
         int page = p.getMetadata("itemDBPage").isEmpty() ? 0 : p.getMetadata("itemDBPage").getFirst().asInt();
-        if (page >= 1) page--;
+        if (!(page >= 1)) return;
+        page--;
         p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
-        itemDB.open(p);
+        itemDBMenu(p).open(p);
       });
     GUIItem backArrow = new GUIItem(Material.ARROW)
       .name("&aBack")
       .clickEvent(ce -> {
         Player p = ce.player();
         int page = p.getMetadata("itemDBPage").isEmpty() ? 0 : p.getMetadata("itemDBPage").getFirst().asInt();
-        if (items.size() >= page * 36) page++;
+        if (!(items.size() >= page * 36)) return;
+        page++;
         p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
-        itemDB.open(p);
+        itemDBMenu(p).open(p);
       });
 
     menu.setItem(39, backArrow);
@@ -125,17 +142,13 @@ public class MainGUI implements Listener {
       });
 
     menu.setItem(44, newItem);
-    itemDB = menu;
+    return menu;
   }
 
   // Handle itemDB and editor inventory clicks
   @EventHandler
   void onInventoryClick(InventoryClickEvent event) {
     Player p = (Player) event.getWhoClicked();
-
-    // In-item editor GUI options
-    if (getPlayerPDC("ItemEditorUsing", p).equals("GUI")) {
-      event.setCancelled(true);
       int slot = event.getRawSlot();
 
       switch (slot) {
@@ -144,7 +157,6 @@ public class MainGUI implements Listener {
           setPlayerPDC("ItemEditorUsing", p, "notUsing");
         }
       }
-    }
   }
 
   public static void gottenItemID(Player p, String id){

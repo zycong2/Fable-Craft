@@ -8,17 +8,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Consumer;
 
+import static org.bukkit.Bukkit.getServer;
+
 public class GUIListener implements Listener {
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     void onInventoryClick(InventoryClickEvent e){
-        if(e.getInventory() instanceof GUI eventGUI) {
+        if(e.getInventory().getHolder() instanceof GUI eventGUI) {
             e.setCancelled(!eventGUI.getCanBeModified());
             Player player = (Player) e.getWhoClicked();
             int slot = e.getSlot();
             if (eventGUI.getItemMap().containsKey(slot)) {
                 GUIItem guiItem = eventGUI.getItemMap().get(slot);
                 Consumer<GUIItem.ClickContext> clickEvent = guiItem.clickEvent();
+                if(clickEvent == null) return;
                 clickEvent.accept(new GUIItem.ClickContext(
                         player,
                         e.getClick(),

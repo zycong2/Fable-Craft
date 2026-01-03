@@ -2,8 +2,12 @@ package io.RPGCraft.FableCraft.Utils.GUI;
 
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.CustomModelData;
+import io.papermc.paper.datacomponent.item.ItemEnchantments;
 import io.papermc.paper.datacomponent.item.ItemLore;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -34,12 +38,10 @@ public class GUIItem {
     public GUIItem(){}
 
     public ItemStack toItemStack(){
-
-      ItemStack item = new ItemStack(this.material);
+      ItemStack item = ItemStack.of(this.material);
       item.setItemMeta(this.meta);
       ItemMeta meta = item.getItemMeta();
       ItemLore lore = ItemLore.lore(MM(this.lore));
-      item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
       try {
         item.setData(DataComponentTypes.LORE, lore);
         enchantments.forEach(e -> {
@@ -50,6 +52,7 @@ public class GUIItem {
       item.setItemMeta(meta);
       for(Map.Entry<DataComponentType, Object> data : this.data.entrySet()){
         if(data.getKey() instanceof DataComponentType.Valued<?> valued) {
+          if(data.getValue() == null) continue;
           applyComponent(item, valued, data.getValue());
         } else if (data.getKey() instanceof DataComponentType.NonValued nonValued) {
           applyComponent(item, nonValued);
@@ -80,10 +83,14 @@ public class GUIItem {
   }
 
   public String name() {
-    return name;
+    return data(DataComponentTypes.CUSTOM_NAME);
   }
   public GUIItem name(String name) {
-    this.name = name;
+    data(DataComponentTypes.CUSTOM_NAME, MM(name));
+    return this;
+  }
+  public GUIItem name(Component name) {
+    data(DataComponentTypes.CUSTOM_NAME, name);
     return this;
   }
 
@@ -95,33 +102,38 @@ public class GUIItem {
     return this;
   }
 
-  public List<String> lore() {
-    return lore;
+  public ItemLore lore() {
+    return data(DataComponentTypes.LORE);
+  }
+  public GUIItem lore(ItemLore lore) {
+      data(DataComponentTypes.LORE, lore);
+      return this;
   }
   public GUIItem lore(List<String> lore) {
-    this.lore = lore;
+    ItemLore l = ItemLore.lore().lines(MM(lore)).build();
+    data(DataComponentTypes.LORE, l);
     return this;
   }
   public GUIItem lore(String... lore) {
-    List<String> process = Arrays.stream(lore).toList();
-    this.lore = process;
+    ItemLore l = ItemLore.lore().lines(MM(Arrays.stream(lore).toList())).build();
+    data(DataComponentTypes.LORE, l);
     return this;
   }
 
-  public List<Enchants> enchantments() {
-    return enchantments;
+  public ItemEnchantments enchantments() {
+    return data(DataComponentTypes.ENCHANTMENTS);
   }
-  public GUIItem enchantments(List<Enchants> enchantments) {
-    this.enchantments = enchantments;
-    return this;
+  public GUIItem enchantments(ItemEnchantments enchantments) {
+      data(DataComponentTypes.ENCHANTMENTS, enchantments);
+      return this;
   }
 
-  public Integer customModelData() {
-    return customModelData;
+  public CustomModelData customModelData() {
+    return data(DataComponentTypes.CUSTOM_MODEL_DATA);
   }
-  public GUIItem customModelData(Integer customModelData) {
-    this.customModelData = customModelData;
-    return this;
+  public GUIItem customModelData(CustomModelData CMD) {
+      data(DataComponentTypes.CUSTOM_MODEL_DATA, CMD);
+      return this;
   }
 
   public Consumer<ClickContext> clickEvent() {
@@ -142,13 +154,22 @@ public class GUIItem {
 
   /**
    * Settings data will take priority over other meaning
-   * that's if you use the other method for enchantments/name
+   * if you use the other method for enchantments/name
    * it WILL be overridden by the data you input here
    *
    * @param data the valued DataComponentType for the data
    * @param value the value of the data. what are you stupid?
    */
   public <T> GUIItem data(DataComponentType.Valued data, T value) {this.data.put(data, value);return this;}
+
+  /**
+   * Retrieving the value of the data from the DataMap
+   * This will return a generic because I don't fucking know
+   * what it returns duh that's literally why generic exist
+   *
+   * @param data the valued DataComponentType for the data
+   */
+  public <T> T data(DataComponentType.Valued data) {return (T) this.data.get(data);}
 
   /**
    * Settings data will take priority over other meaning
@@ -170,21 +191,19 @@ public class GUIItem {
    */
   @SuppressWarnings({"deprecation"})
   public static GUIItem ItemStackToGUIItem(ItemStack item){
-        List<Enchants> list = new ArrayList<>();
-        item.getEnchantments().forEach(
-                (enchantment, integer) -> {
-                    list.add(new Enchants().setEnchantment(enchantment).setLevel(integer));
-                }
-        );
-        GUIItem output = new GUIItem(item.getType());
+    ItemEnchantments enchant = item.getData(DataComponentTypes.ENCHANTMENTS);
+    GUIItem output = new GUIItem(item.getType());
     ItemMeta meta = item.getItemMeta();
     if(meta != null) {
           output.material(item.getType() != null ? item.getType() : Material.DIRT)
-            .name(meta.getDisplayName())
-            .lore(meta.getLore())
+            .name(item.getData(DataComponentTypes.CUSTOM_NAME))
+            .lore(item.getData(DataComponentTypes.LORE))
+            .customModelData(item.getData(DataComponentTypes.CUSTOM_MODEL_DATA))
             .meta(meta)
-            .enchantments(list);
-        }
+            .enchantments(enchant);
+        }else{
+      getServer().getLogger().warning("Meta is null!!!!!!");
+    }
         item.getDataTypes().forEach(dt -> {
           if(dt instanceof DataComponentType.Valued<?> vct) {
             Object data = item.getData(vct);
@@ -205,21 +224,16 @@ public class GUIItem {
    */
   @SuppressWarnings({"deprecation"})
   public static GUIItem IStoGUIItem(ItemStack item){
-        List<Enchants> list = new ArrayList<>();
-        item.getEnchantments().forEach(
-                (enchantment, integer) -> {
-                    list.add(new Enchants().setEnchantment(enchantment).setLevel(integer));
-                }
-        );
+    ItemEnchantments enchant = item.getData(DataComponentTypes.ENCHANTMENTS);
         GUIItem output = new GUIItem(item.getType());
     ItemMeta meta = item.getItemMeta();
     if(meta != null) {
           output.material(item.getType() != null ? item.getType() : Material.DIRT)
-            .name(meta.getDisplayName())
-            .lore(meta.getLore())
-            .customModelData(meta.getCustomModelData())
+            .name(item.getData(DataComponentTypes.CUSTOM_NAME))
+            .lore(item.getData(DataComponentTypes.LORE))
+            .customModelData(item.getData(DataComponentTypes.CUSTOM_MODEL_DATA))
             .meta(meta)
-            .enchantments(list);
+            .enchantments(enchant);
         }
         item.getDataTypes().forEach(dt -> {
           if(dt instanceof DataComponentType.Valued<?> vct) {
