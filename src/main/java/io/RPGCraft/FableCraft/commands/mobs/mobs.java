@@ -124,8 +124,8 @@ public class mobs implements CommandInterface, Listener {
         }
     }
     public static void reloadSpawns(){
+        RPGCraft.spawns = new java.util.ArrayList<>(List.of());
         List<Object> mobsObject = getAllNodesInDB("mobDB", "");
-        Bukkit.getLogger().info(mobsObject.toString());
         List<String> mobs = new java.util.ArrayList<>(List.of());
         for (Object o : mobsObject) {mobs.addAll(List.of(o.toString().replace("[", "").replace("]", "").replace(" ", "").split(",")));}
         for (String s : mobs){
