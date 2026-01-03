@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft;
 
-import com.mojang.brigadier.Command;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -17,19 +16,15 @@ import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
 import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
-import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
-import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
-import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
+import io.RPGCraft.FableCraft.listeners.buildingBreaking;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
-import io.papermc.paper.command.brigadier.BasicCommand;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -38,9 +33,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -52,11 +45,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.jspecify.annotations.Nullable;
 
 import java.sql.Connection;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
@@ -119,7 +110,8 @@ public final class RPGCraft extends JavaPlugin {
       new PlayerStats(),
       new ChatInputManager(),
       new GUIListener(),
-      new mobsEditor()
+      new mobsEditor(),
+      new buildingBreaking()
     );
 
     try{
@@ -149,7 +141,11 @@ public final class RPGCraft extends JavaPlugin {
             double amount = stats.statDouble("Regeneration");
             currentHealth += (double) 20.0F / maxHealth * amount;
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
-            p.setHealth((double) 20.0F / maxHealth * currentHealth);
+            if ((double) 20.0F / maxHealth * currentHealth > 0){
+              p.setHealth((double) 20.0F / maxHealth * currentHealth);
+            } else {
+              p.setHealth(0);
+            }
           } else if (currentHealth > maxHealth) {
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), maxHealth));
           }
@@ -203,6 +199,7 @@ public final class RPGCraft extends JavaPlugin {
     } else {
       Bukkit.getLogger().info("Saved data.");
     }
+    buildingBreaking.restorePendingBlocks();
   }
 
   public static ItemStack createGuiItem(Material material, String name, String... lore) {

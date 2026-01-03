@@ -30,7 +30,7 @@ public class reload implements CommandInterface {
     RPGCraft.fileConfigurationList.clear();
 
 
-    if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
+    if (!yamlManager.getInstance().loadData()) {
       Bukkit.getLogger().severe("Failed to load config!");
     }
     if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}

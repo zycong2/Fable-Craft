@@ -243,6 +243,10 @@ public class yamlManager {
               getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
               getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
               getFileConfig("config").addDefault("actionbar.enabled", true);
+              getFileConfig("config").addDefault("placing.enabled", true);
+              getFileConfig("config").addDefault("placing.removeTime", 60);
+              getFileConfig("config").addDefault("breaking.enabled", true);
+              getFileConfig("config").addDefault("breaking.removeTime", 60);
               getFileConfig("config").options().copyDefaults(true);
               getFileConfig("config").options().parseComments(true);
             }
