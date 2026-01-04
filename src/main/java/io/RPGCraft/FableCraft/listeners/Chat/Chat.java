@@ -52,11 +52,10 @@ public class Chat implements Listener {
 
       String format = config.getString("chat");
       format = setPlaceholders(format, false, (Entity) player);
-      Component output = MM(setPlaceholders(format, false, e));
 
       //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 
-      return output;
+      return MM(setPlaceholders(format, false, e));
     });
   }
 }

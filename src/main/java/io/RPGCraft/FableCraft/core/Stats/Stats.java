@@ -2,7 +2,6 @@ package io.RPGCraft.FableCraft.core.Stats;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -36,10 +35,10 @@ public class Stats implements Listener {
   @EventHandler
   void onArmorChange(PlayerArmorChangeEvent event) {
     Player p = event.getPlayer();
+    StatsMemory stats = getPlayerStats(p);
     if (!event.getOldItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, event.getOldItem()) != null && getPlayerPDC(s, p) != null) {
-          StatsMemory stats = getPlayerStats(p);
           stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, event.getOldItem())));
           /*setPlayerPDC(s, p,
             String.valueOf
@@ -52,14 +51,13 @@ public class Stats implements Listener {
     if (!event.getNewItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, event.getNewItem()) != null && getPlayerPDC(s, p) != null) {
-          StatsMemory stats = getPlayerStats(p);
           stats.stat(s, stats.statDouble(s) + Double.parseDouble(getItemPDC(s, event.getNewItem())));
           //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem()))));
         }
       }
     }
 
-    stats.checkCurrentStats(p);
+    io.RPGCraft.FableCraft.commands.Stats.checkCurrentStats(p);
   }
 
   @EventHandler
@@ -87,7 +85,7 @@ public class Stats implements Listener {
         }
       }
     }
-    stats.checkCurrentStats(p);
+    io.RPGCraft.FableCraft.commands.Stats.checkCurrentStats(p);
   }
 
     @EventHandler(priority = EventPriority.LOWEST)

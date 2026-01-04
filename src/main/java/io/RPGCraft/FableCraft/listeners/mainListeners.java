@@ -1,23 +1,16 @@
 package io.RPGCraft.FableCraft.listeners;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.commands.stats;
-import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.commands.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
-import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -29,11 +22,9 @@ import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
-import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
@@ -86,7 +77,7 @@ public class mainListeners implements Listener {
       }
     }
 
-    stats.checkCurrentStats(p);
+    Stats.checkCurrentStats(p);
   }
 
   // When player quits, remove any gear-based stats and notify players
@@ -117,7 +108,7 @@ public class mainListeners implements Listener {
       }
     }
 
-    stats.checkCurrentStats(p);
+    Stats.checkCurrentStats(p);
 
     // Update metadata backup
     for (String s : RPGCraft.itemStats) {

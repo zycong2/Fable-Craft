@@ -17,7 +17,7 @@ import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
 import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
-import io.RPGCraft.FableCraft.core.Stats.Stats;
+import io.RPGCraft.FableCraft.core.Stats.stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
@@ -106,7 +106,7 @@ public final class RPGCraft extends JavaPlugin {
       new Chat(),
       new TypeHandler(),
       new questEvents(),
-      new Stats(),
+      new stats(),
       new PlayerStats(),
       new ChatInputManager(),
       new GUIListener(),
@@ -265,6 +265,7 @@ public final class RPGCraft extends JavaPlugin {
     return output;
   }
 
+  @Deprecated
   public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }

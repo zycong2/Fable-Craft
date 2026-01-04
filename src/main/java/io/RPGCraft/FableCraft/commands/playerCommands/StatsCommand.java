@@ -7,7 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
-import io.RPGCraft.FableCraft.core.Stats.Stats;
+import io.RPGCraft.FableCraft.core.Stats.stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -48,7 +48,7 @@ public class StatsCommand {
         .requires(sender -> sender.getExecutor().isOp())
         .then(io.papermc.paper.command.brigadier.Commands.argument("stats", StringArgumentType.word())
           .suggests((ctx, build) -> {
-            new Stats().getValidStats().stream()
+            new stats().getValidStats().stream()
               .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(build.getRemainingLowerCase()))
               .forEach(build::suggest);
             return build.buildFuture();
@@ -67,7 +67,7 @@ public class StatsCommand {
                 return Command.SINGLE_SUCCESS;
               }else {
                 Player player = (Player) entity;
-                if (new Stats().getValidStats().contains(stat)) {
+                if (new stats().getValidStats().contains(stat)) {
                   PlayerStats.getPlayerStats(player).stat(stat, value);
                   sendMessage(player, "&aSuccessfully set your " + stat + " stat");
                   return Command.SINGLE_SUCCESS;
@@ -91,7 +91,7 @@ public class StatsCommand {
               Player player = getPlayer(ctx);
               String stat = ctx.getArgument("stats", String.class);
               Double value = ctx.getArgument("value", Double.class);
-              if(new Stats().getValidStats().contains(stat) || player != null){
+              if(new stats().getValidStats().contains(stat) || player != null){
                 PlayerStats.getPlayerStats(player).stat(stat, value);
                 sendMessage(entity, "&aSuccessfully set " + player + "'s " + stat + " stat");
                 return Command.SINGLE_SUCCESS;

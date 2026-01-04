@@ -1,6 +1,9 @@
 package io.RPGCraft.FableCraft.core.Stats.Levels.Combat;
 
+import io.RPGCraft.FableCraft.Utils.GUI.GUI;
+import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,10 +18,12 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
-public class StatsUpgrade implements CommandExecutor, Listener {
+public class StatsUpgrade implements CommandExecutor {
 
 
   @Override
@@ -26,63 +31,49 @@ public class StatsUpgrade implements CommandExecutor, Listener {
 
     if(commandSender instanceof Player p){
       int points = Integer.parseInt(getPlayerPDC("statsPoints", p));
-      Inventory statsMenu = Bukkit.createInventory(null, 3*9, Colorize("<#C467F8>Evolution Of The Soul</#6917F6>"));
-      statsMenu.setItem(11, ItemEditor.createButton(
-        Colorize("<#F86667>Stregth</#DA1717>"),
-        Material.IRON_SWORD,
-        Colorize("&fUpgrade your damage!"),
-        Colorize("&7 "),
-        Colorize("&fYou have &e" + points + " &fpoints to spend!")
-      ));
-      statsMenu.setItem(13, ItemEditor.createButton(
-        Colorize("<#F86667>Health</#DA1717>"),
-        Material.IRON_CHESTPLATE,
-        Colorize("&fUpgrade your health!"),Colorize("&7" ),Colorize("&fYou have &e" + points + " &fpoints to spend!")
-      ));
-      statsMenu.setItem(15, ItemEditor.createButton(
-        Colorize("<#98C7FE>Mana</#2FBBED>"),
-        Material.EXPERIENCE_BOTTLE,
-        Colorize("&fUpgrade your max mana!!"),Colorize("&7 "),Colorize("&fYou have &e" + points + " &fpoints to spend!")
-      ));
-      statsMenu.setItem(26, ItemEditor.createButton(
-        Colorize("<#F86667>Close</#DA1717>"),
-        Material.BARRIER,
-        Colorize("&cClose the menu!")
-      ));
-      p.openInventory(statsMenu);
+      StatsMemory stats = getPlayerStats(p);
+      GUI statsMenu = new GUI("<#C467F8>Evolution Of The Soul</#6917F6>", GUI.Rows.THREE);
+      GUIItem strength = new GUIItem(Material.IRON_SWORD)
+        .name("&cStrength")
+          .lore("&fGain 1 additional damage.", "<newline>", "&fYou have &e" + points + " &fpoints to spend!")
+        .clickEvent(ce -> {
+          if (hasStatsPoints(p)) {
+            removeOneStatsPoint(p);
+            Double oldDamage = stats.statDouble("Damage");
+            stats.stat("Damage", oldDamage + 1);
+          }
+        });
+      statsMenu.setItem(11, strength);
+      GUIItem health = new GUIItem(Material.GOLDEN_APPLE)
+        .name("&cHealth")
+        .lore("&fGain 1 additional heart", "<newline>", "&fYou have &e" + points + " &fpoints to spend!")
+        .clickEvent(ce -> {
+          if (hasStatsPoints(p)) {
+            removeOneStatsPoint(p);
+            Double oldHealth = stats.statDouble("Health");
+            stats.stat("Health", oldHealth + 2);
+          }
+        });
+      statsMenu.setItem(13, health);
+      GUIItem mana = new GUIItem(Material.EXPERIENCE_BOTTLE)
+        .name("&bMana")
+        .lore("&fGain 1 additional mana!", "<newline>", "&fYou have &e" + points + " &fpoints to spend!")
+        .clickEvent(ce -> {
+          if (hasStatsPoints(p)) {
+            removeOneStatsPoint(p);
+            Double oldMana = stats.statDouble("Mana");
+            stats.stat("Mana", oldMana + 1);
+          }
+        });
+      statsMenu.setItem(15, mana);
+      GUIItem close = new GUIItem(Material.BARRIER)
+        .name("&cClose")
+          .clickEvent(ce -> p.closeInventory());
+      statsMenu.setItem(26, close);
+      statsMenu.open(p);
     }
 
     return false;
-  }
-
-  @EventHandler
-  void onInventoryClick(InventoryClickEvent e) {
-    if (e.getView().getTitle().equals(Colorize("<#C467F8>Evolution Of The Soul</#6917F6>"))) {
-      e.setCancelled(true);
-      if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR) return;
-      Player p = (Player) e.getWhoClicked();
-      if (e.getCurrentItem().getType() == Material.IRON_SWORD) {
-        if (hasStatsPoints(p)) {
-          removeOneStatsPoint(p);
-          Integer oldDamage = Integer.parseInt(PDCHelper.getPlayerPDC("Damage", p));
-          PDCHelper.setPlayerPDC("Damage", p, String.valueOf((oldDamage + 1)));
-        }
-      } else if (e.getCurrentItem().getType() == Material.IRON_CHESTPLATE) {
-        if (hasStatsPoints(p)) {
-          removeOneStatsPoint(p);
-          Integer oldHealth = Integer.parseInt(PDCHelper.getPlayerPDC("Health", p));
-          PDCHelper.setPlayerPDC("Health", p, String.valueOf((oldHealth + 1)));
-        }
-      } else if (e.getCurrentItem().getType() == Material.EXPERIENCE_BOTTLE) {
-        if (hasStatsPoints(p)) {
-          removeOneStatsPoint(p);
-          Integer oldMana = Integer.parseInt(PDCHelper.getPlayerPDC("Mana", p));
-          PDCHelper.setPlayerPDC("Mana", p, String.valueOf((oldMana + 1)));
-        }
-      } else if (e.getCurrentItem().getType() == Material.BARRIER) {
-        p.closeInventory();
-      }
-    }
   }
 
   private void removeOneStatsPoint(Player p) {
@@ -105,5 +96,4 @@ public class StatsUpgrade implements CommandExecutor, Listener {
   private boolean hasStatsPoints(Player p, int points) {
     return Integer.parseInt(getPlayerPDC("statsPoints", p)) >= points;
   }
-
 }
