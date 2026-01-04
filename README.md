@@ -76,7 +76,7 @@ and the need to install only one single plugin
       - ingredients: \
         This sets what the shape of the recipe should represent in a list from with the following format: [Letter that represent the item in the shape]:[the item type]
     - unshaped: \
-      Unshaped recipes are easier to set up, it only requires the ingredients option where you type a list of all the items to make the recipe.
+      Unshaped recipes are easier to set up, it only requires the ingredients option where you type a list of all the items to make the recipe with a : then the amount of that item you want added.
   - Color: \
     This option is a leather armor exclusive and sets the color of the leather armor in a rpg format.
   - Tile: \

@@ -1,8 +1,8 @@
 name: RPGCraft
 version: '1.4'
 main: io.RPGCraft.FableCraft.RPGCraft
-api-version: '1.21.10'
-authors: [ zycong, Tonnam_101, Timserned]
+api-version: '1.21.4'
+authors: [ zycong, Tonnam_101]
 description: RPG style plugin.
 license: MIT
 

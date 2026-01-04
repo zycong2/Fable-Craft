@@ -682,7 +682,11 @@ public class yamlManager {
       ShapelessRecipe shapeless = new ShapelessRecipe(key, item);
       for (String ingredient : file.getStringList(name + ".recipe.ingredients")) {
         String[] parts = ingredient.split(":");
-        shapeless.addIngredient(Integer.parseInt(parts[1]), Material.getMaterial(parts[0]));
+        if (parts.length == 2) {
+          shapeless.addIngredient(Integer.parseInt(parts[1]), Material.getMaterial(parts[0]));
+        } else{
+          shapeless.addIngredient(1, Material.getMaterial(parts[0]));
+        }
       }
       Bukkit.addRecipe(shapeless);
     }
