@@ -15,8 +15,10 @@
 - Fix clickEvent would not work using the GUI class
 - Fix /itemDB not opening GUI or clickEvent does not work
 - A whole lot of bug fixes
-- Added 1 new commands
+- Added 3 new commands
   - /message
+  - /broadcast
+  - /discord
 - Added a database to store player's data
 
 ---
@@ -85,3 +87,4 @@ and the need to install only one single plugin
     This option is also a book exclusive option that sets the author or the book.
   
 ### Mobs:
+
