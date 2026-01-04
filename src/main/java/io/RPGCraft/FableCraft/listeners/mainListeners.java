@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.commands.Stats;
+import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -77,7 +77,7 @@ public class mainListeners implements Listener {
       }
     }
 
-    Stats.checkCurrentStats(p);
+    stats.checkCurrentStats(p);
   }
 
   // When player quits, remove any gear-based stats and notify players
@@ -108,7 +108,7 @@ public class mainListeners implements Listener {
       }
     }
 
-    Stats.checkCurrentStats(p);
+    stats.checkCurrentStats(p);
 
     // Update metadata backup
     for (String s : RPGCraft.itemStats) {

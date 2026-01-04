@@ -17,7 +17,7 @@ import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
 import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
-import io.RPGCraft.FableCraft.core.Stats.stats;
+import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
@@ -57,7 +57,6 @@ public final class RPGCraft extends JavaPlugin {
 
   public static boolean IsLuckperms = false;
   public static boolean IsCitizen = false;
-  public static boolean IsSkript = false;
   public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
 
@@ -106,7 +105,7 @@ public final class RPGCraft extends JavaPlugin {
       new Chat(),
       new TypeHandler(),
       new questEvents(),
-      new stats(),
+      new Stats(),
       new PlayerStats(),
       new ChatInputManager(),
       new GUIListener(),
@@ -169,9 +168,6 @@ public final class RPGCraft extends JavaPlugin {
         }
         if (doesPluginExist("Citizens")) {
           IsCitizen = true;
-        }
-        if (doesPluginExist("Skript")) {
-          IsSkript = true;
         }
         if (doesPluginExist("Vault")) {
           IsVault = true;

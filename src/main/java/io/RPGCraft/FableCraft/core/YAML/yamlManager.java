@@ -355,6 +355,9 @@ public class yamlManager {
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
               getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/dmi %target%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("skill.foraging.max_level", "100");
+              getFileConfig("format").addDefault("skill.foraging.reward.general", "[health:+2]");
+              getFileConfig("format").addDefault("skill.foraging.reward.5", "100");
               getFileConfig("format").options().copyDefaults(true);
             }
           }

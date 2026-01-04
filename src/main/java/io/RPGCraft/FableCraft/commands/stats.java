@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
-public class Stats implements CommandInterface {
+public class stats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
@@ -32,7 +32,7 @@ public class Stats implements CommandInterface {
         for(String skill : skills) {
             PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlGetter.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
         }
-        Stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
+        stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
         p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
         return true;
     }

@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.core.Stats;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -57,7 +58,7 @@ public class Stats implements Listener {
       }
     }
 
-    io.RPGCraft.FableCraft.commands.Stats.checkCurrentStats(p);
+    io.RPGCraft.FableCraft.commands.stats.checkCurrentStats(p);
   }
 
   @EventHandler
@@ -85,7 +86,7 @@ public class Stats implements Listener {
         }
       }
     }
-    io.RPGCraft.FableCraft.commands.Stats.checkCurrentStats(p);
+    stats.checkCurrentStats(p);
   }
 
     @EventHandler(priority = EventPriority.LOWEST)
