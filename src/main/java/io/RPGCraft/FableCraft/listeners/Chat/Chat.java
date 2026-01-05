@@ -21,8 +21,7 @@ import io.RPGCraft.FableCraft.core.autoMod;
 
 import java.util.regex.Pattern;
 
-import static io.RPGCraft.FableCraft.RPGCraft.FormatForMiniMessage;
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
+import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
 import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
@@ -33,7 +32,7 @@ public class Chat implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void AsyncChat(AsyncChatEvent e){
-    if (VaultUtils.getChat() != null) return;
+    //if (VaultUtils.getChat() != null) return;
     if (e.isCancelled()) return;
     Player p = e.getPlayer();
     if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return;}
@@ -51,7 +50,7 @@ public class Chat implements Listener {
     e.renderer((player, playerName, message, viewer) -> {
 
       String format = config.getString("chat");
-      format = setPlaceholders(format, false, (Entity) player);
+      format = setPlaceholders(format, false, (Entity) player).replace("null", "");
 
       //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 

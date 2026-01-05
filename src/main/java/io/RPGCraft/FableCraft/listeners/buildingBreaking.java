@@ -19,29 +19,29 @@ public class buildingBreaking implements Listener {
   void blockBreak(BlockBreakEvent e) {
     if (Boolean.parseBoolean(yamlGetter.getConfig("breaking.enabled").toString())) {
       Player p = e.getPlayer();
-      Block blo = e.getBlock();
-      Location loc = blo.getLocation();
-      Material originalType = blo.getType();
-      BlockData originalData = blo.getBlockData().clone();
-
-      Map<String, Object> blockData = new HashMap<>();
-      blockData.put("action", "break");
-      blockData.put("world", loc.getWorld().getName());
-      blockData.put("x", loc.getBlockX());
-      blockData.put("y", loc.getBlockY());
-      blockData.put("z", loc.getBlockZ());
-      blockData.put("type", originalType.toString());
-      blockData.put("data", originalData.getAsString());
-      blockData.put("expireTime",
-        System.currentTimeMillis() +
-          (Integer.parseInt(yamlGetter.getConfig("breaking.removeTime").toString()) * 1000L)
-      );
-
-      neededToPlace.add(blo);
-
-      addBlockToPersistentStorage(blockData);
-
       if (!p.getGameMode().equals(GameMode.CREATIVE)) {
+        Block blo = e.getBlock();
+        Location loc = blo.getLocation();
+        Material originalType = blo.getType();
+        BlockData originalData = blo.getBlockData().clone();
+
+        Map<String, Object> blockData = new HashMap<>();
+        blockData.put("action", "break");
+        blockData.put("world", loc.getWorld().getName());
+        blockData.put("x", loc.getBlockX());
+        blockData.put("y", loc.getBlockY());
+        blockData.put("z", loc.getBlockZ());
+        blockData.put("type", originalType.toString());
+        blockData.put("data", originalData.getAsString());
+        blockData.put("expireTime",
+          System.currentTimeMillis() +
+            (Integer.parseInt(yamlGetter.getConfig("breaking.removeTime").toString()) * 1000L)
+        );
+
+        neededToPlace.add(blo);
+
+        addBlockToPersistentStorage(blockData);
+
         int delayTicks = Integer.parseInt(yamlGetter.getConfig("breaking.removeTime").toString()) * 20;
 
         Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
@@ -60,29 +60,29 @@ public class buildingBreaking implements Listener {
   void blockPlace(BlockPlaceEvent e) {
     if (Boolean.parseBoolean(yamlGetter.getConfig("placing.enabled").toString())) {
       Player p = e.getPlayer();
-      Block blo = e.getBlock();
-      Location loc = blo.getLocation();
-      Material placedType = blo.getType();
-      BlockData placedData = blo.getBlockData().clone();
-
-      Map<String, Object> blockData = new HashMap<>();
-      blockData.put("action", "place");
-      blockData.put("world", loc.getWorld().getName());
-      blockData.put("x", loc.getBlockX());
-      blockData.put("y", loc.getBlockY());
-      blockData.put("z", loc.getBlockZ());
-      blockData.put("type", placedType.toString());
-      blockData.put("data", placedData.getAsString());
-      blockData.put("expireTime",
-        System.currentTimeMillis() +
-          (Integer.parseInt(yamlGetter.getConfig("placing.removeTime").toString()) * 1000L)
-      );
-
-      placedBlocks.add(blo);
-
-      addBlockToPersistentStorage(blockData);
-
       if (!p.getGameMode().equals(GameMode.CREATIVE)) {
+        Block blo = e.getBlock();
+        Location loc = blo.getLocation();
+        Material placedType = blo.getType();
+        BlockData placedData = blo.getBlockData().clone();
+
+        Map<String, Object> blockData = new HashMap<>();
+        blockData.put("action", "place");
+        blockData.put("world", loc.getWorld().getName());
+        blockData.put("x", loc.getBlockX());
+        blockData.put("y", loc.getBlockY());
+        blockData.put("z", loc.getBlockZ());
+        blockData.put("type", placedType.toString());
+        blockData.put("data", placedData.getAsString());
+        blockData.put("expireTime",
+          System.currentTimeMillis() +
+            (Integer.parseInt(yamlGetter.getConfig("placing.removeTime").toString()) * 1000L)
+        );
+
+        placedBlocks.add(blo);
+
+        addBlockToPersistentStorage(blockData);
+
         int delayTicks = Integer.parseInt(yamlGetter.getConfig("placing.removeTime").toString()) * 20;
 
         Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {

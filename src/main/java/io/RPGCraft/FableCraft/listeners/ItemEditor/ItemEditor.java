@@ -10,6 +10,7 @@ import io.RPGCraft.FableCraft.listeners.Chat.Chat;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -42,7 +43,8 @@ public class ItemEditor {
     item = item.clickEvent(ce ->{
       Player player = ce.player();
 
-      ItemStack i = yamlManager.getItem(player.getMetadata("SelectedItemKey").getFirst().asString());
+      List<String> a = List.of(player.getMetadata("SelectedItemKey").getFirst().asString().split("/"));
+      ItemStack i = yamlManager.getItem(a.get(0));
       player.getInventory().addItem(i);
     });
 

@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
@@ -34,9 +36,42 @@ public class mainListeners implements Listener {
 
   public static Inventory itemDB; // The item database GUI (static so it can be shared)
 
+  private void replaceItemAtSlot(PlayerInventory inventory, int slot) {
+    ItemStack item = inventory.getItem(slot);
+
+    if (item == null || item.isEmpty() ){ return; }
+    Object customItem = PDCHelper.getItemPDC("customItemName", item);
+    if (customItem != null) {
+      if (!item.equals(yamlManager.getItem(PDCHelper.getItemPDC("customItemName", item)))) {
+        ItemStack i = yamlManager.getItem(PDCHelper.getItemPDC("customItemName", item));
+        i.setAmount(item.getAmount());
+        inventory.setItem(slot, i);
+      }
+    } else{
+      inventory.setItem(slot, ItemStack.of(Material.AIR));
+    }
+  }
+
+
   // When a player joins, initialize their data and show join messages
   @EventHandler
   void onJoin(PlayerJoinEvent event) {
+    if (!event.getPlayer().hasPermission("rpgcraft.build")) {
+      PlayerInventory inventory = event.getPlayer().getInventory();
+      for (int slot = 0; slot < 36; slot++) {
+        replaceItemAtSlot(inventory, slot);
+      }
+
+      // Armor slots
+      replaceItemAtSlot(inventory, 36); // Boots
+      replaceItemAtSlot(inventory, 37); // Leggings
+      replaceItemAtSlot(inventory, 38); // Chestplate
+      replaceItemAtSlot(inventory, 39); // Helmet
+
+      // Offhand (40)
+      replaceItemAtSlot(inventory, 40);
+    }
+
     Player p = event.getPlayer();
 
     for (Player pla : Bukkit.getServer().getOnlinePlayers()) {

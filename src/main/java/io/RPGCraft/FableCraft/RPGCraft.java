@@ -22,6 +22,7 @@ import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
+import io.RPGCraft.FableCraft.listeners.abilities;
 import io.RPGCraft.FableCraft.listeners.buildingBreaking;
 import io.RPGCraft.FableCraft.listeners.mainListeners;
 import io.RPGCraft.FableCraft.listeners.skills;
@@ -30,7 +31,9 @@ import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -65,7 +68,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
-  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
@@ -110,7 +113,8 @@ public final class RPGCraft extends JavaPlugin {
       new ChatInputManager(),
       new GUIListener(),
       new mobsEditor(),
-      new buildingBreaking()
+      new buildingBreaking(),
+      new abilities()
     );
 
     try{
@@ -271,7 +275,10 @@ public final class RPGCraft extends JavaPlugin {
   }
 
   public static Component MM(String input){
-    return MiniMessage.miniMessage().deserialize(FormatForMiniMessage(input));
+    Component component =  LegacyComponentSerializer.legacyAmpersand().deserialize(input);
+    String componentString = MiniMessage.miniMessage().serialize(component);
+    String replace = componentString.replace("\\", "").replace("</white>", "");
+    return MiniMessage.miniMessage().deserialize(replace);
   }
   public static List<Component> MM(Collection<String> input) {
     return input.stream().map(RPGCraft::MM).toList();

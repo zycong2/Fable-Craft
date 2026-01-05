@@ -354,7 +354,7 @@ public class yamlManager {
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
-              getFileConfig("format").addDefault("chat", "%rankPrefix% <click:suggest_command:/dm %target%><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> &a⏵ &r%messageChat%");
+              getFileConfig("format").addDefault("chat", "%rankPrefix% <reset><click:suggest_command:/dm a><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> <green>⏵</green> <reset>%messageChat%");
               getFileConfig("format").addDefault("skill.foraging.max_level", "100");
               getFileConfig("format").addDefault("skill.foraging.reward.general", "[health:+2]");
               getFileConfig("format").addDefault("skill.foraging.reward.5", "[health:+5]]");
@@ -581,7 +581,7 @@ public class yamlManager {
       PDCHelper.setItemPDC(parts[0], item, parts[1]);
     }
 
-    return item;
+    return PDCHelper.setItemPDC("customItemName", item, name);
   }
 
   private static int applyStats(String name, YamlConfiguration itemFile, List<String> lore, List<String> PDC) {
