@@ -3,12 +3,8 @@ package io.RPGCraft.FableCraft.listeners.Chat;
 // The mainlisteners class is messy enough alright?
 // finding 1 line of code is like finding a needle in the sea
 
-import io.RPGCraft.FableCraft.Utils.VaultUtils;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
@@ -17,14 +13,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import io.RPGCraft.FableCraft.core.autoMod;
-
 import java.util.regex.Pattern;
 
-import static io.RPGCraft.FableCraft.RPGCraft.*;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.YAML.Placeholder.setPlaceholders;
-import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getFileConfig;
 
 public class Chat implements Listener {
 
@@ -35,7 +27,6 @@ public class Chat implements Listener {
     //if (VaultUtils.getChat() != null) return;
     if (e.isCancelled()) return;
     Player p = e.getPlayer();
-    if (!(getPlayerPDC("ItemEditorUsing", p).equals("notUsing") || getPlayerPDC("ItemEditorUsing", p).equals("GUI"))) {return;}
 
     FileConfiguration config = yamlManager.getInstance().getFileConfig("format");
     if (config == null) {
@@ -50,7 +41,7 @@ public class Chat implements Listener {
     e.renderer((player, playerName, message, viewer) -> {
 
       String format = config.getString("chat");
-      format = setPlaceholders(format, false, (Entity) player).replace("null", "");
+      format = setPlaceholders(format, false, player).replace("null", "");
 
       //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 

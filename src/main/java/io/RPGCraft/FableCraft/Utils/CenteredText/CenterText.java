@@ -1,10 +1,5 @@
 package io.RPGCraft.FableCraft.Utils.CenteredText;
 
-import net.kyori.adventure.text.Component;
-
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
-
 public class CenterText {
   private final static int CENTER_PX = 154;
 
@@ -19,7 +14,7 @@ public class CenterText {
       if(c == '&'){
         previousCode = true;
         continue;
-      }else if(previousCode == true){
+      }else if(previousCode){
         previousCode = false;
         if(c == 'l' || c == 'L'){
           isBold = true;

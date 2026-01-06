@@ -1,8 +1,5 @@
 package io.RPGCraft.FableCraft.core.Helpers;
 
-import java.util.List;
-import java.util.Random;
-
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
@@ -23,8 +20,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Random;
+
 import static io.RPGCraft.FableCraft.RPGCraft.DBFileConfiguration;
-import static io.RPGCraft.FableCraft.RPGCraft.ItemDB;
 
 
 public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{

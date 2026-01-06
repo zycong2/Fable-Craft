@@ -2,13 +2,10 @@ package io.RPGCraft.FableCraft.Utils.GUI;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.function.Consumer;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class GUIListener implements Listener {
 

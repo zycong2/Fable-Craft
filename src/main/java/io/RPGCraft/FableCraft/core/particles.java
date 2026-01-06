@@ -2,9 +2,7 @@ package io.RPGCraft.FableCraft.core;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 public class particles {
 

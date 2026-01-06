@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getItemPDC;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
@@ -39,7 +38,7 @@ public class Stats implements Listener {
     StatsMemory stats = getPlayerStats(p);
     if (!event.getOldItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getOldItem()) != null && getPlayerPDC(s, p) != null) {
+        if (getItemPDC(s, event.getOldItem()) != null && stats.stat(s) != null) {
           stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, event.getOldItem())));
           /*setPlayerPDC(s, p,
             String.valueOf
@@ -51,7 +50,7 @@ public class Stats implements Listener {
 
     if (!event.getNewItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getNewItem()) != null && getPlayerPDC(s, p) != null) {
+        if (getItemPDC(s, event.getNewItem()) != null && stats.stat(s) != null) {
           stats.stat(s, stats.statDouble(s) + Double.parseDouble(getItemPDC(s, event.getNewItem())));
           //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem()))));
         }
@@ -66,12 +65,12 @@ public class Stats implements Listener {
     Player p = event.getPlayer();
     ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
     ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
+    StatsMemory playerStats = getPlayerStats(p);
 
     if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
-          StatsMemory stats = getPlayerStats(p);
-          stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, oldItem)));
+        if (getItemPDC(s, oldItem) != null && playerStats.stat(s) != null) {
+          playerStats.stat(s, playerStats.statDouble(s) - Double.parseDouble(getItemPDC(s, oldItem)));
           //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
         }
       }
@@ -79,9 +78,8 @@ public class Stats implements Listener {
 
     if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
-          StatsMemory stats = getPlayerStats(p);
-          stats.stat(s, stats.statDouble(s) + Double.parseDouble(getItemPDC(s, newItem)));
+        if (getItemPDC(s, newItem) != null && playerStats.stat(s) != null) {
+          playerStats.stat(s, playerStats.statDouble(s) + Double.parseDouble(getItemPDC(s, newItem)));
           //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
         }
       }

@@ -6,32 +6,22 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.RPGCraft.FableCraft.listeners.Chat.Chat;
-import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getItemPDC;
 import static org.bukkit.Bukkit.getServer;
 
 public class ItemEditor {
@@ -189,11 +179,10 @@ public class ItemEditor {
     return key + "/" + id;
   }
 
-  @EventHandler
+  /*@EventHandler
   void ChatEvent(AsyncChatEvent e) {
     Player p = e.getPlayer();
     Component message = e.message();
-    String state = getPlayerPDC("ItemEditorUsing", p);
     File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/ItemDB", "Default.yml");
 
     if (state.equals("notUsing") || state.equals("GUI")) return;
@@ -203,7 +192,7 @@ public class ItemEditor {
       //case "Chat-durability" -> withItemKey(p, key -> updateStat(p, key, "Durability", message));
       //case "chat-createItem" -> createItem(p, message, YamlConfiguration.loadConfiguration(file));
       //case "Chat-id" -> MainGUI.gottenItemID(p, message);
-  }
+  }*/
 
   private static void withItemKey(Player p, Consumer<String> action) {
     String key = p.getMetadata("SelectedItemKey").getFirst().asString();
@@ -326,7 +315,6 @@ public class ItemEditor {
     file.set(id + ".ItemID", id);
     file.set(id + ".itemType", yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase());
     p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
-    setPlayerPDC("ItemEditorUsing", p, "notUsing");
   }
 
   private static int parseInt(String s, int fallback) {

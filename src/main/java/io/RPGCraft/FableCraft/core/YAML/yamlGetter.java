@@ -6,18 +6,20 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 
 public class yamlGetter {
-  public static List<Object> getNodes(String file, String path) {
-    Set<String> nodes = yamlManager.getInstance().getFileConfig(file).getConfigurationSection(path).getKeys(false);
-    return new ArrayList<>(nodes);
+  public static Collection<String> getNodes(String file, String path) {
+    return Objects.requireNonNull(yamlManager.getInstance()
+        .getFileConfig(file))
+      .getConfigurationSection(path)
+      .getKeys(false);
   }
 
   public static Object getConfig(String path, Player target, boolean round) {

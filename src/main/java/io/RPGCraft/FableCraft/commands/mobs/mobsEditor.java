@@ -27,10 +27,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
-import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
+import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.createButton;
 
 public class mobsEditor implements Listener {
   public static Inventory mobDB;

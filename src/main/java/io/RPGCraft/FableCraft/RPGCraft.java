@@ -10,17 +10,17 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
-import io.RPGCraft.FableCraft.commands.*;
+import io.RPGCraft.FableCraft.commands.buildHelper;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
 import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
+import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
 import io.RPGCraft.FableCraft.listeners.abilities;
 import io.RPGCraft.FableCraft.listeners.buildingBreaking;
@@ -33,7 +33,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -52,7 +51,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.sql.Connection;
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.Utils.VaultUtils.*;
+import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupChat;
+import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupEconomy;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public final class RPGCraft extends JavaPlugin {

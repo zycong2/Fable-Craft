@@ -6,37 +6,27 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import io.papermc.paper.datacomponent.DataComponentTypes;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
-import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
-
-import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 import static io.RPGCraft.FableCraft.Utils.GUI.GUIItem.ItemStackToGUIItem;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
-import static org.bukkit.Bukkit.getServer;
 
 public class MainGUI implements Listener {
   GUI menu; // Player profile GUI
@@ -84,7 +74,6 @@ public class MainGUI implements Listener {
           p.closeInventory();
           editor.open(p);
           p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
-          setPlayerPDC("ItemEditorUsing", p, "GUI");
         });
         menu.setItem(i, item);
       }
@@ -100,7 +89,6 @@ public class MainGUI implements Listener {
             p.closeInventory();
             editor.open(p);
             p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
-            setPlayerPDC("ItemEditorUsing", p, "GUI");
           });
         menu.setItem(i, item);
       }
@@ -136,7 +124,6 @@ public class MainGUI implements Listener {
       .name("&aCreate a new item")
       .clickEvent(ce -> {
         Player p = ce.player();
-        setPlayerPDC("ItemEditorUsing", p, "Chat-id");
         p.closeInventory();
         p.sendMessage(yamlGetter.getMessage("messages.itemeditor.createItem", p, true));
       });
@@ -145,26 +132,11 @@ public class MainGUI implements Listener {
     return menu;
   }
 
-  // Handle itemDB and editor inventory clicks
-  @EventHandler
-  void onInventoryClick(InventoryClickEvent event) {
-    Player p = (Player) event.getWhoClicked();
-      int slot = event.getRawSlot();
-
-      switch (slot) {
-        case 35 -> {
-          p.closeInventory();
-          setPlayerPDC("ItemEditorUsing", p, "notUsing");
-        }
-      }
-  }
-
   public static void gottenItemID(Player p, String id){
     File file = new File(getPlugin().getDataFolder().getAbsolutePath() + "/ItemDB", "Default.yml");
     ItemEditor.createItem(p, id, YamlConfiguration.loadConfiguration(file));
 
     p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), id));
-    setPlayerPDC("ItemEditorUsing", p, "GUI");
     reopenEditorLater(p, id);
   }
 

@@ -15,18 +15,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
@@ -85,21 +86,12 @@ public class mainListeners implements Listener {
     event.setJoinMessage("");
 
     // Init basic PDC values
-    setPlayerPDC("ItemEditorUsing", p, "notUsing");
     setPlayerPDC("MobsEditorUsing", p, "notUsing");
 
 
     // Set default values for stats points
     if (getPlayerPDC("statsPoints", p) == null) {
       setPlayerPDC("statsPoints", p, String.valueOf(0));
-    }
-
-    // Set default stat values if missing
-    String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
-    for(String skill : skills) {
-      if (getPlayerPDC(skill, p) == null) {
-        setPlayerPDC(skill, p, String.valueOf(yamlGetter.getConfig("stats." + skill + ".default", p, true)));
-      }
     }
 
     // Setup current stats (metadata and PDC)
@@ -120,7 +112,6 @@ public class mainListeners implements Listener {
   void onQuit(PlayerQuitEvent event) {
     Player p = event.getPlayer();
 
-    setPlayerPDC("ItemEditorUsing", p, "notUsing");
     setPlayerPDC("MobsEditorUsing", p, "notUsing");
     for (Player pla : Bukkit.getServer().getOnlinePlayers()) {
       pla.sendMessage(yamlGetter.getMessage("messages.quitMessage", p, true));
@@ -134,11 +125,12 @@ public class mainListeners implements Listener {
     if (p.getEquipment().getLeggings() != null && !p.getEquipment().getLeggings().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getLeggings());
     if (p.getEquipment().getBoots() != null && !p.getEquipment().getBoots().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getBoots());
 
+    StatsMemory playerStats = getPlayerStats(p);
+
     for (ItemStack item : gear) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, item) != null && getPlayerPDC(s, p) != null) {
-          StatsMemory stats = getPlayerStats(p);
-          stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, item)));
+        if (getItemPDC(s, item) != null && playerStats.stat(s) != null) {
+          playerStats.stat(s, playerStats.statDouble(s) - Double.parseDouble(getItemPDC(s, item)));
         }
       }
     }

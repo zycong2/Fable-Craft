@@ -9,8 +9,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-
 public class BanUtils {
   public static boolean tempBanPlayer(CommandSender sender, String targetName, String duration, String reason) {
     // Parse the duration string (e.g., "1d2h30m")

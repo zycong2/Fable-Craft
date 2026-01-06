@@ -1,7 +1,5 @@
 package io.RPGCraft.FableCraft.commands;
 
-import java.util.List;
-
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
@@ -14,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
