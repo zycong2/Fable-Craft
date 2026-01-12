@@ -199,7 +199,7 @@ public class ItemEditor {
     String[] keys = key.split("/");
     getServer().getLogger().info("Key 1: " + keys[0] + " key 2: " + keys[1]);
     if (Objects.equals(key, "Not Found")) {
-      p.sendMessage(Colorize("&cError: No item selected!"));
+      p.sendMessage("&cError: No item selected!");
     } else {
       action.accept(key);
     }
@@ -306,7 +306,7 @@ public class ItemEditor {
     String[] keys = key.split("/");
     YamlConfiguration file = ItemDB.get(keys[1]);
      file.set(keys[0] + ".recipe.permission", plaintext(perm));
-    p.sendMessage(Colorize("&aCrafting permission set!"));
+    p.sendMessage("&aCrafting permission set!");
   }
 
   public static void createItem(Player p, String id, YamlConfiguration file) {
@@ -314,7 +314,7 @@ public class ItemEditor {
 
     file.set(id + ".ItemID", id);
     file.set(id + ".itemType", yamlManager.getInstance().getOption("config", "items.defaultItem").toString().toUpperCase());
-    p.sendMessage(Colorize("&fItem created! (only the ID for now, edit it to be useful)"));
+    p.sendMessage("&fItem created! (only the ID for now, edit it to be useful)");
   }
 
   private static int parseInt(String s, int fallback) {

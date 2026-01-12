@@ -19,12 +19,19 @@ import java.util.UUID;
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 
-public class PlayerStats implements Listener {
+public class PlayerInfo implements Listener {
 
     public static Map<UUID, StatsMemory> statsMemoryMap = new HashMap<>();
+    public static Map<UUID, SkillsMemory> skillsMemoryMap = new HashMap<>();
 
+    @Deprecated
     public static StatsMemory getPlayerStats(Player player) {
         return statsMemoryMap.computeIfAbsent(player.getUniqueId(), id -> new StatsMemory(id));
+    }
+
+    @Deprecated
+    public static SkillsMemory getPlayerSkills(Player player) {
+        return skillsMemoryMap.computeIfAbsent(player.getUniqueId(), id -> new SkillsMemory(id));
     }
 
     public static void resetStats(Player player){
@@ -34,8 +41,9 @@ public class PlayerStats implements Listener {
     @EventHandler
     void onJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
-        if(!p.hasPlayedBefore() || statsMemoryMap.containsKey(p)){
-            getPlayerStats(p);
+        if(!p.hasPlayedBefore()){
+            p.getStatsMemory();
+            p.getSkillsMemory();
             return;
         }
         try {
@@ -45,16 +53,24 @@ public class PlayerStats implements Listener {
                 return;
             }
             Gson gson = new Gson();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT data FROM player_stats WHERE uuid = '" + p.getUniqueId() + "'");
-            String json = resultSet.getString("data");
-            if(json == null){
-                getPlayerStats(p);
+            Statement stats = connection.createStatement();
+            ResultSet getData = stats.executeQuery("SELECT data, skills FROM player_stats WHERE uuid = '" + p.getUniqueId() + "'");
+            String dataJSON = getData.getString("data");
+            if(dataJSON == null){
+                p.getStatsMemory();
                 getPlugin().getComponentLogger().error(MM("Unable to load " + p.getName() + "'s data because value is null"));
                 return;
             }
-            StatsMemory statsMemory = gson.fromJson(json, StatsMemory.class);
-            statsMemoryMap.putIfAbsent(p.getUniqueId(), statsMemory);
+            StatsMemory statsMemory = gson.fromJson(dataJSON, StatsMemory.class);
+            statsMemoryMap.put(p.getUniqueId(), statsMemory);
+            String skillsJSON = getData.getString("skills");
+            if(skillsJSON == null){
+                p.getStatsMemory();
+                getPlugin().getComponentLogger().error(MM("Unable to load " + p.getName() + "'s data because value is null"));
+                return;
+            }
+            SkillsMemory skillsMemory = gson.fromJson(dataJSON, SkillsMemory.class);
+            skillsMemoryMap.put(p.getUniqueId(), skillsMemory);
             getPlugin().getComponentLogger().info(MM("Successfully loaded player's stats data"));
         }catch (Exception ex){
             ex.printStackTrace();
@@ -67,13 +83,18 @@ public class PlayerStats implements Listener {
         Player p = e.getPlayer();
         try {
             Connection connection = DatabaseManager.getDBConnection("player-info");
-            String json = new Gson().toJson(getPlayerStats(p));
-            if(json == null){
-                getPlugin().getComponentLogger().error(MM("Unable to save " + p.getName() + "'s data because value is null"));
+            String statsJSON = new Gson().toJson(p.getStatsMemory());
+            String skillsJSON = new Gson().toJson(p.getSkillsMemory());
+            if(statsJSON == null){
+                getPlugin().getComponentLogger().error(MM("Unable to save " + p.getName() + "'s stats because value is null"));
             }
-            PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO player_stats (uuid, data) VALUES (?, ?)");
+            if(skillsJSON == null){
+                getPlugin().getComponentLogger().error(MM("Unable to save " + p.getName() + "'s skills because value is null"));
+            }
+            PreparedStatement statement = connection.prepareStatement("INSERT OR REPLACE INTO player_stats (uuid, data, skills) VALUES (?, ?, ?)");
             statement.setString(1, p.getUniqueId().toString());
-            statement.setString(2, json);
+            statement.setString(2, statsJSON);
+            statement.setString(3, skillsJSON);
             statement.execute();
             getPlugin().getComponentLogger().info(MM("Successfully saved player's stats data"));
         }catch (Exception ex){

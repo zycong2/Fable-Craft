@@ -14,10 +14,11 @@ import io.RPGCraft.FableCraft.commands.buildHelper;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.playerCommands.MessageCommand;
+import io.RPGCraft.FableCraft.commands.playerCommands.MiscCommand;
 import io.RPGCraft.FableCraft.commands.playerCommands.StatsCommand;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
-import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
+import io.RPGCraft.FableCraft.core.Stats.PlayerInfo;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -53,7 +54,6 @@ import java.util.*;
 
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupChat;
 import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupEconomy;
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public final class RPGCraft extends JavaPlugin {
   private static RPGCraft instance;
@@ -85,6 +85,7 @@ public final class RPGCraft extends JavaPlugin {
     LifecycleEventManager<Plugin> lifecycle = this.getLifecycleManager();
     lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
       MessageCommand.commands(event);
+      MiscCommand.commands(event);
     });
     StatsCommand.commands().forEach(c -> {lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(c));});
     //registerCommand("message", List.of("msg", "m", "privatemessage", "pm", "directmessage", "dm"), MessageCommand);
@@ -94,7 +95,7 @@ public final class RPGCraft extends JavaPlugin {
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
 
-    new PlaceholdersRegistry();
+    new PlaceholdersRegistry().init();
 
     this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
     this.getCommand("RPGCraft").setExecutor(new CommandManager());
@@ -109,7 +110,7 @@ public final class RPGCraft extends JavaPlugin {
       new TypeHandler(),
       new questEvents(),
       new Stats(),
-      new PlayerStats(),
+      new PlayerInfo(),
       new ChatInputManager(),
       new GUIListener(),
       new mobsEditor(),
@@ -122,7 +123,8 @@ public final class RPGCraft extends JavaPlugin {
       Connection c1 = DatabaseManager.getDBConnection("player-info");
       DatabaseManager.createTable(c1, "player_stats",
         "uuid TEXT PRIMARY KEY, " +
-          "data TEXT");
+          "data TEXT," +
+        "skills TEXT");
       getServer().getLogger().info("&aSuccessfully created/loaded the Player Stats's Data");
       getServer().getLogger().info("&aSuccessfully created/loaded the Plugin's Database files");
     }catch (Exception e){
@@ -135,7 +137,7 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         try {
-          StatsMemory stats = getPlayerStats(p);
+          StatsMemory stats = p.getStatsMemory();
           double maxHealth = stats.statDouble("Health");
           double maxMana = stats.statDouble("Mana");
           double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
@@ -211,6 +213,7 @@ public final class RPGCraft extends JavaPlugin {
     return item;
   }
 
+  @Deprecated
   public static ItemStack createGuiHead(Player p, String name, String... lore) {
     ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
     ItemMeta meta = item.getItemMeta();
@@ -239,46 +242,15 @@ public final class RPGCraft extends JavaPlugin {
     }
   }
 
-  public static String FormatForMiniMessage(String input){
-    String output = input.replace("&0", "<black>").replace("&1", "<dark_blue>")
-      .replace("&2", "<dark_green>").replace("&3", "<dark_aqua>")
-      .replace("&4", "<dark_red>").replace("&5", "<dark_purple>")
-      .replace("&6", "<gold>").replace("&7", "<gray>")
-      .replace("&8", "<dark_gray>").replace("&9", "<blue>")
-      .replace("&a", "<green>").replace("&b", "<aqua>")
-      .replace("&c", "<red>").replace("&d", "<light_purple>")
-      .replace("&e", "<yellow>").replace("&f", "<white>")
-      .replace("&l", "<bold>").replace("&m", "<strikethrough>")
-      .replace("&n", "<underline>").replace("&o", "<italic>")
-      .replace("&r", "<reset>")
-      .replace("§0", "<black>").replace("§1", "<dark_blue>")
-      .replace("§2", "<dark_green>").replace("§3", "<dark_aqua>")
-      .replace("§4", "<dark_red>").replace("§5", "<dark_purple>")
-      .replace("§6", "<gold>").replace("§7", "<gray>")
-      .replace("§8", "<dark_gray>").replace("§9", "<blue>")
-      .replace("§a", "<green>").replace("§b", "<aqua>")
-      .replace("§c", "<red>").replace("§d", "<light_purple>")
-      .replace("§e", "<yellow>").replace("§f", "<white>")
-      .replace("§l", "<bold>").replace("§m", "<strikethrough>")
-      .replace("§n", "<underline>").replace("§o", "<italic>")
-      .replace("§r", "<reset>");
-    return output;
-  }
-
-  @Deprecated
   public static String Colorize(String input) {
     return ColorUtils.colorize(input, '&');
   }
-  @Deprecated
   public static List<String> Colorize(List<String> input) {
     return input.stream().map(RPGCraft::Colorize).toList();
   }
 
   public static Component MM(String input){
-    Component component =  LegacyComponentSerializer.legacyAmpersand().deserialize(input);
-    String componentString = MiniMessage.miniMessage().serialize(component);
-    String replace = componentString.replace("\\", "").replace("</white>", "");
-    return MiniMessage.miniMessage().deserialize(replace);
+    return MiniMessage.miniMessage().deserialize(deMM(LegacyComponentSerializer.legacyAmpersand().deserialize(input)).replace("\\", "").replace("</white>", ""));
   }
   public static List<Component> MM(Collection<String> input) {
     return input.stream().map(RPGCraft::MM).toList();

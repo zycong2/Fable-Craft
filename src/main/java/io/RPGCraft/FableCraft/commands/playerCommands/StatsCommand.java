@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.RPGCraft.FableCraft.core.Stats.PlayerStats;
+import io.RPGCraft.FableCraft.core.Stats.PlayerInfo;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -38,7 +38,7 @@ public class StatsCommand {
           })
           .executes(ctx -> {
             final Player player = getPlayer(ctx);
-            PlayerStats.resetStats(player);
+            PlayerInfo.resetStats(player);
             return Command.SINGLE_SUCCESS;
           })
         ).build(),
@@ -68,7 +68,7 @@ public class StatsCommand {
               }else {
                 Player player = (Player) entity;
                 if (new Stats().getValidStats().contains(stat)) {
-                  PlayerStats.getPlayerStats(player).stat(stat, value);
+                  player.getStatsMemory().stat(stat, value);
                   sendMessage(player, "&aSuccessfully set your " + stat + " stat");
                   return Command.SINGLE_SUCCESS;
                 } else {
@@ -92,7 +92,7 @@ public class StatsCommand {
               String stat = ctx.getArgument("stats", String.class);
               Double value = ctx.getArgument("value", Double.class);
               if(new Stats().getValidStats().contains(stat) || player != null){
-                PlayerStats.getPlayerStats(player).stat(stat, value);
+                player.getStatsMemory().stat(stat, value);
                 sendMessage(entity, "&aSuccessfully set " + player + "'s " + stat + " stat");
                 return Command.SINGLE_SUCCESS;
               }else{
@@ -109,7 +109,7 @@ public class StatsCommand {
         .executes(ctx -> {
           Entity executor = getExecutor(ctx);
           if(executor instanceof Player p){
-            StatsMemory stat = PlayerStats.getPlayerStats(p);
+            StatsMemory stat = p.getStatsMemory();
             sendMessage(p, stat.toString());
             return Command.SINGLE_SUCCESS;
           }
@@ -124,7 +124,7 @@ public class StatsCommand {
         .executes(ctx -> {
           Entity executor = getExecutor(ctx);
           if(executor instanceof Player p){
-            StatsMemory stat = PlayerStats.getPlayerStats(p);
+            StatsMemory stat = p.getStatsMemory();
             stat.updateAttributeStats();
             sendMessage(executor, "&aSuccessfully updated stats");
             return Command.SINGLE_SUCCESS;

@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collections;
 import java.util.List;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
@@ -80,7 +79,7 @@ public class questManager {
             case "talk":
               if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines) {
                 for (Object s2 : lines) {
-                  p.sendMessage(Colorize((String) s2));
+                  p.sendMessage(s2.toString());
                   /*FableCraft.wait(40, );*/
                 }
                 break;

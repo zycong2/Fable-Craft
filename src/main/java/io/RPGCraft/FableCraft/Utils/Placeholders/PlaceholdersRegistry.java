@@ -3,49 +3,37 @@ package io.RPGCraft.FableCraft.Utils.Placeholders;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes.ChatPlaceholders;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderTypes.PlayerPlaceholders;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderUtils.Placeholder;
-import io.papermc.paper.event.player.AsyncChatEvent;
 import lombok.Getter;
-import org.bukkit.entity.Entity;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PlaceholdersRegistry {
   @Getter
   private static final Map<String, Method> placeholders = new HashMap<>();
 
-  @Getter
-  private static final Map<String, Method> chateventPlaceholders = new HashMap<>();
-
-  public PlaceholdersRegistry() {
-    registerPlaceholders(PlayerPlaceholders.class, placeholders);
-    registerPlaceholders(ChatPlaceholders.class, chateventPlaceholders);
+  public void init(){
+    registerPlaceholders(placeholders, PlayerPlaceholders.class, ChatPlaceholders.class);
   }
 
-  public static <T> void registerPlaceholders(Class<?> c, Map<String, Method> map) {
-    for (Method m : c.getDeclaredMethods()) {
-      if (m.isAnnotationPresent(Placeholder.class)) {
+  public static <T> void registerPlaceholders(Map<String, Method> map, Class<?>... c) {
+    Arrays.stream(c).forEach(cl -> {
+      Method[] methods = cl.getDeclaredMethods();
+      Arrays.stream(methods).forEach(m -> {
         Placeholder ann = m.getAnnotation(Placeholder.class);
+        // Old: %name% "%([A-Za-z0-9]+)%"
+        // New: %name;paraname:value;% "%([A-Za-z0-9]+);((?:[A-Za-z]+:[A-Za-z0-9]+;)+)%"
         map.put("%" + ann.name() + "%", m);
-      }
-    }
+      });
+    });
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> String parseDynamic(String input, T context) {
-    if (context instanceof Entity) {
-      return parse(input, placeholders, (Entity) context);
-    } else if (context instanceof AsyncChatEvent) {
-      return parse(input, chateventPlaceholders, (AsyncChatEvent) context);
-    }
-    return input;
+      return parse(input, context);
   }
 
-  private static <T> String parse(String text, Map<String, Method> map, T context) {
-    for (Map.Entry<String, Method> entry : map.entrySet()) {
+  private static <T> String parse(String text, T context) {
+    for (Map.Entry<String, Method> entry : PlaceholdersRegistry.getPlaceholders().entrySet()) {
       String placeholder = entry.getKey();
       if (!text.contains(placeholder)) continue;
 

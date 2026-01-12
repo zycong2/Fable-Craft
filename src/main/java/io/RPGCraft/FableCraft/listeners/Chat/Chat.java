@@ -7,7 +7,6 @@ import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,6 +44,9 @@ public class Chat implements Listener {
 
       //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 
+      if(p.hasPermission("Chat.color")) {
+
+      }
       return MM(setPlaceholders(format, false, e));
     });
   }

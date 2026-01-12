@@ -26,6 +26,7 @@
     <protocolLibs.version>5.4.0</protocolLibs.version>
     <placeholderAPI.version>2.11.6</placeholderAPI.version>
     <lombok.version>1.18.42</lombok.version>
+    <manifold.version>2025.1.31</manifold.version>
 
     <!-- Build -->
     <maven.compiler.version>3.13.0</maven.compiler.version>
@@ -141,6 +142,18 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Manifold -->
+    <dependency>
+      <groupId>systems.manifold</groupId>
+      <artifactId>manifold-ext-rt</artifactId>
+      <version>${manifold.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>systems.manifold</groupId>
+      <artifactId>manifold-params-rt</artifactId>
+      <version>${manifold.version}</version>
+    </dependency>
+
   </dependencies>
 
   <!-- ================= BUILD ================= -->
@@ -157,15 +170,6 @@
     <plugins>
 
       <!-- Java 21 Compiler -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.version}</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
 
       <!-- Maven Shade Plugin -->
       <plugin>

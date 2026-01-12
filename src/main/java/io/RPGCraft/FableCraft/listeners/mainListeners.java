@@ -29,7 +29,6 @@ import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 // This class handles a wide range of player-related events in the RPG plugin.
 // It manages joining, quitting, interacting with items, GUI menus, stats, combat, and inventory behavior.
@@ -125,7 +124,7 @@ public class mainListeners implements Listener {
     if (p.getEquipment().getLeggings() != null && !p.getEquipment().getLeggings().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getLeggings());
     if (p.getEquipment().getBoots() != null && !p.getEquipment().getBoots().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getBoots());
 
-    StatsMemory playerStats = getPlayerStats(p);
+    StatsMemory playerStats = p.getStatsMemory();
 
     for (ItemStack item : gear) {
       for (String s : RPGCraft.itemStats) {
@@ -188,7 +187,7 @@ public class mainListeners implements Listener {
   @EventHandler
   void onRespawn(PlayerRespawnEvent event) {
     Player player = event.getPlayer();
-    StatsMemory stats = getPlayerStats(player);
+    StatsMemory stats = player.getStatsMemory();
     player.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
     player.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
   }

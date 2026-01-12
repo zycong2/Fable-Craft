@@ -16,17 +16,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-
 public class CommandManager implements CommandExecutor, TabCompleter {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (args.length == 0){
-      p.sendMessage(Colorize(yamlManager.getInstance().getOption("messages", "messages.error.noValidArgument").toString()));
+      p.sendMessage(yamlManager.getInstance().getOption("messages", "messages.error.noValidArgument").toString());
       return true;
     } if (!p.hasPermission("TheHordes.Command")){
-      p.sendMessage(Colorize(yamlManager.getInstance().getOption("messages", "messages.error.noPermission").toString()));
+      p.sendMessage(yamlManager.getInstance().getOption("messages", "messages.error.noPermission").toString());
       return true;
     }
 

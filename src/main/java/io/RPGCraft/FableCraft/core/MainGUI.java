@@ -7,6 +7,8 @@ import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.minecraft.world.item.component.TooltipDisplay;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -25,7 +27,6 @@ import java.util.Objects;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 import static io.RPGCraft.FableCraft.Utils.GUI.GUIItem.ItemStackToGUIItem;
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
 public class MainGUI implements Listener {
@@ -43,9 +44,16 @@ public class MainGUI implements Listener {
     if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) &&
       Objects.equals(event.getItem(), menuItem.toItemStack())) {
       GUI menu = new GUI(name + "'s Menu", GUI.Rows.FIVE);
+      // Filling up empty slots with gray glass pane
+      for(int i = 0; i < 54;i++){
+        GUIItem guiItem = new GUIItem(Material.GRAY_STAINED_GLASS_PANE);
+        TooltipDisplay tooltipDisplay = new TooltipDisplay(true, null);
+        guiItem.data(DataComponentTypes.TOOLTIP_DISPLAY, tooltipDisplay);
+        menu.setItem(i, guiItem);
+      }
       String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
       String[] formattedSkills = new String[skills.length];
-      StatsMemory stats = getPlayerStats(event.getPlayer());
+      StatsMemory stats = event.getPlayer().getStatsMemory();
 
       for (int i = 0; i < skills.length; ++i) {
         String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
@@ -53,6 +61,13 @@ public class MainGUI implements Listener {
       }
 
       menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));
+
+      GUIItem close = new GUIItem(Material.BARRIER)
+        .name("&cClose Menu")
+          .clickEvent(ce -> ce.player().closeInventory());
+
+      menu.setItem(40, close);
+
       menu.open(event.getPlayer());
     }
   }

@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static org.bukkit.Bukkit.getServer;
 
 
 public class yamlManager {
@@ -222,8 +223,9 @@ public class yamlManager {
               getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
               getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lEPIC");
               getFileConfig("config").setComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
-              getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-");
-              getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-");
+              getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
+              getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
+              // STATS
               getFileConfig("config").addDefault("stats.Health.default", 100);
               getFileConfig("config").addDefault("stats.Health.char", "&c❤");
               getFileConfig("config").addDefault("stats.Regeneration.default", 1);
@@ -240,6 +242,12 @@ public class yamlManager {
               getFileConfig("config").addDefault("stats.MovementSpeed.char", "&b\uD83E\uDEB6");
               getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
               getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
+              // SKILLS
+              getFileConfig("config").addDefault("skills.general.default", 0);
+              getFileConfig("config").addDefault("skills.Combat.default", 0);
+              getFileConfig("config").addDefault("skills.Mining.default", 0);
+              getFileConfig("config").addDefault("skills.Foraging.default", 0);
+              // MISC
               getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
               getFileConfig("config").addDefault("actionbar.enabled", true);
               getFileConfig("config").addDefault("placing.enabled", true);
@@ -354,9 +362,9 @@ public class yamlManager {
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {
               getFileConfig("format").addDefault("chat", "%rankPrefix% <reset><click:suggest_command:/dm a><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> <green>⏵</green> <reset>%messageChat%");
-              getFileConfig("format").addDefault("skill.foraging.max_level", "100");
-              getFileConfig("format").addDefault("skill.foraging.reward.general", "[health:+2]");
-              getFileConfig("format").addDefault("skill.foraging.reward.5", "[health:+5]]");
+              getFileConfig("format").addDefault("skill.foraging.max_level", 100);
+              getFileConfig("format").addDefault("skill.foraging.reward.all", List.of("health:2"));
+              getFileConfig("format").addDefault("skill.foraging.reward.5", List.of("health:5"));
               getFileConfig("format").options().copyDefaults(true);
             }
           }
@@ -520,7 +528,7 @@ public class yamlManager {
     }
 
   public static ItemStack getItem(String name) {
-    Logger logger = Bukkit.getLogger();
+    Logger logger = getServer().getLogger();
     List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
 
     YamlConfiguration itemFile = itemDB.stream()

@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
-
 public class stats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
@@ -39,7 +37,7 @@ public class stats implements CommandInterface {
 
 
     public static void checkCurrentStats(Player p){
-      StatsMemory stats = getPlayerStats(p);
+      StatsMemory stats = p.getStatsMemory();
       if (p.getMetadata("currentHealth").getFirst() != null) {
           if (p.getMetadata("currentHealth").getFirst().asDouble() > stats.statDouble("Health")) {
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));

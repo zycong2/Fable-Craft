@@ -23,7 +23,6 @@ import java.util.Objects;
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getItemPDC;
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Stats implements Listener {
@@ -35,7 +34,7 @@ public class Stats implements Listener {
   @EventHandler
   void onArmorChange(PlayerArmorChangeEvent event) {
     Player p = event.getPlayer();
-    StatsMemory stats = getPlayerStats(p);
+    StatsMemory stats = p.getStatsMemory();
     if (!event.getOldItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
         if (getItemPDC(s, event.getOldItem()) != null && stats.stat(s) != null) {
@@ -65,7 +64,7 @@ public class Stats implements Listener {
     Player p = event.getPlayer();
     ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
     ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
-    StatsMemory playerStats = getPlayerStats(p);
+    StatsMemory playerStats = p.getStatsMemory();
 
     if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
@@ -90,7 +89,7 @@ public class Stats implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerAttack(EntityDamageByEntityEvent event){
         if (event.getDamager() instanceof Player player){
-          StatsMemory stats = getPlayerStats(player);
+          StatsMemory stats = player.getStatsMemory();
           Double strength = stats.getAtttackDamage();
           event.setDamage(strength);
         }
@@ -99,7 +98,7 @@ public class Stats implements Listener {
   @EventHandler
   void onPlayerDamage(EntityDamageEvent e){
     if(e.getEntity() instanceof Player player) {
-      StatsMemory stats = getPlayerStats(player);
+      StatsMemory stats = player.getStatsMemory();
       Double defense = stats.getDefense();
       double damage = e.getDamage();
       Double finalDamage = damage - ((defense/(defense+100))*damage);
@@ -112,7 +111,7 @@ public class Stats implements Listener {
     if(isCitizensNPC(event.getEntity())){return;}
     double damage = event.getDamage();
     if (event.getEntity() instanceof Player p) {
-      StatsMemory stats = getPlayerStats(p);
+      StatsMemory stats = p.getStatsMemory();
       double maxHealth = stats.statDouble("Health");
       double health = p.getMetadata("currentHealth").getFirst().asDouble();
       double defense = stats.statDouble("Defense");
@@ -123,7 +122,7 @@ public class Stats implements Listener {
       event.setDamage((double) Math.round(scaledHealth * 100) /100);
     } else if (event instanceof EntityDamageByEntityEvent entityEvent
               && entityEvent.getDamager() instanceof Player p) {
-      StatsMemory stats = getPlayerStats(p);
+      StatsMemory stats = p.getStatsMemory();
       event.setDamage(damage + stats.statDouble("AttackDamage"));
       if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
         event.getEntity().customName(MM(

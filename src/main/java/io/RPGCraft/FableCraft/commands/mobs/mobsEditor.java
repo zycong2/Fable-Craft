@@ -165,7 +165,7 @@ public class mobsEditor implements Listener {
   private void withMobKey(Player p, Consumer<String> action) {
     String key = getPlayerPDC("SelectedMobKey", p);
     if (key == null) {
-      p.sendMessage(Colorize("&cError: No item selected!"));
+      p.sendMessage("&cError: No item selected!");
     } else {
       action.accept(key);
     }
@@ -287,7 +287,7 @@ public class mobsEditor implements Listener {
         String itemKey = getMobKey(event.getCurrentItem());
 
         if (itemKey == null) {
-          p.sendMessage(Colorize("&cCouldn't find the item in the database"));
+          p.sendMessage("&cCouldn't find the item in the database");
           Bukkit.getLogger().info(PDCHelper.getItemPDC("MobID", event.getCurrentItem()));
           return;
         }
@@ -338,7 +338,7 @@ public class mobsEditor implements Listener {
         case 34 -> {
           String mobKey = getPlayerPDC("SelectedMobKey", p);
           if (mobKey == null) {
-            p.sendMessage(Colorize("&cError: No mob selected!"));
+            p.sendMessage("&cError: No mob selected!");
             return;
           }
           yamlManager.getInstance().setOption("mobDB",mobKey, null);

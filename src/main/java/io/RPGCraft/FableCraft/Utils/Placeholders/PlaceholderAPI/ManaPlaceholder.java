@@ -6,8 +6,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
-
 public class ManaPlaceholder extends PlaceholderExpansion {
   @Override
   public @NotNull String getIdentifier() {
@@ -28,7 +26,7 @@ public class ManaPlaceholder extends PlaceholderExpansion {
   public String onRequest(OfflinePlayer player, @NotNull String params) {
     if(player.isOnline()){
       Player p = (Player) player;
-      StatsMemory stats = getPlayerStats(p);
+      StatsMemory stats = p.getStatsMemory();
       if (params.equalsIgnoreCase("current")) {
         return p.getMetadata("currentMana").getFirst().asString();
       }else if (params.equalsIgnoreCase("max")) {

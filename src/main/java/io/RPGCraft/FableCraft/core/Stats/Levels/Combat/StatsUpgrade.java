@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
-import static io.RPGCraft.FableCraft.core.Stats.PlayerStats.getPlayerStats;
 
 public class StatsUpgrade implements CommandExecutor {
 
@@ -22,7 +21,7 @@ public class StatsUpgrade implements CommandExecutor {
 
     if(commandSender instanceof Player p){
       int points = Integer.parseInt(getPlayerPDC("statsPoints", p));
-      StatsMemory stats = getPlayerStats(p);
+      StatsMemory stats = p.getStatsMemory();
       GUI statsMenu = new GUI("<#C467F8>Evolution Of The Soul</#6917F6>", GUI.Rows.THREE);
       GUIItem strength = new GUIItem(Material.IRON_SWORD)
         .name("&cStrength")

@@ -12,7 +12,7 @@ public class StatsMemory {
 
     private final UUID uuid;
 
-    private double Health = Double.valueOf(yamlGetter.getConfig("stats.Health.default").toString());
+    private double Health = Double.valueOf((yamlGetter.getConfig("stats.Health.default")).toString());
     private double AttackDamage = Double.valueOf(yamlGetter.getConfig("stats.AttackDamage.default").toString());
     private double Regeneration = Double.valueOf(yamlGetter.getConfig("stats.Regeneration.default").toString());
     private double ManaRegeneration = Double.valueOf(yamlGetter.getConfig("stats.ManaRegeneration.default").toString());
