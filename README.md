@@ -33,9 +33,12 @@ and the need to install only one single plugin
 
 - Custom items system (with GUI editor)
 - Custom mob system (with GUI editor)
+  - Edit almost everything custom abiities, health etc
 - Custom quest system (requires citizens)
 - Custom Stats
+  - Custom health defence etc.
 - Custom loot tables
+  - Compatible with quest rewards mob drops and can use items out of the itemDB
 
 
 ## Features Overview
@@ -87,4 +90,5 @@ and the need to install only one single plugin
     This option is also a book exclusive option that sets the author or the book.
   
 ### Mobs:
+
 
