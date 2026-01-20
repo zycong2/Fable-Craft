@@ -6,7 +6,10 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderUtils.Placeholder;
 import lombok.Getter;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlaceholdersRegistry {
   @Getter
@@ -28,12 +31,8 @@ public class PlaceholdersRegistry {
     });
   }
 
-  public static <T> String parseDynamic(String input, T context) {
-      return parse(input, context);
-  }
-
-  private static <T> String parse(String text, T context) {
-    for (Map.Entry<String, Method> entry : PlaceholdersRegistry.getPlaceholders().entrySet()) {
+  public static <T> String parse(String text, T context) {
+    for (Map.Entry<String, Method> entry : PlaceholdersRegistry.placeholders.entrySet()) {
       String placeholder = entry.getKey();
       if (!text.contains(placeholder)) continue;
 

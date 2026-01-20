@@ -94,7 +94,7 @@ public class mainListeners implements Listener {
     }
 
     // Setup current stats (metadata and PDC)
-    for (String s : RPGCraft.itemStats) {
+    for (String s : List.of("Health", "Mana")) {
       if (getPlayerPDC("current" + s, p) == null) {
         p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
         //setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));

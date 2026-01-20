@@ -20,8 +20,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "currentHealth")
   public static String currentHealth(Entity e) {
-    if (e instanceof Player) {
-      Player p = (Player) e;
+    if (e instanceof Player p) {
       return String.valueOf(Math.round(p.getMetadata("currentHealth").getFirst().asDouble()*100)/100);
     }else{
       return Colorize("The mob is not a living entity");
@@ -30,8 +29,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "entitycurrentHealth")
   public static String entitycurrentHealth(Entity e) {
-    if (e instanceof LivingEntity) {
-      LivingEntity le = (LivingEntity) e;
+    if (e instanceof LivingEntity le) {
       return String.valueOf(le.getHealth());
     }else{
       return Colorize("The mob is not a living entity");
@@ -40,8 +38,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "maxHealth")
   public static String maxHealth(Entity e) {
-    if (e instanceof Player) {
-      Player p = (Player) e;
+    if (e instanceof Player p) {
       return p.getStatsMemory().stat("Health").toString();
     }else{
       return Colorize("The mob is not a living entity");
@@ -50,8 +47,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "entitymaxHealth")
   public static String entityMaxHealth(Entity e) {
-    if (e instanceof LivingEntity) {
-      LivingEntity le = (LivingEntity) e;
+    if (e instanceof LivingEntity le) {
       return String.valueOf(le.getMaxHealth());
     }else{
       return Colorize("The mob is not a living entity");
@@ -60,8 +56,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "currentMana")
   public static String currentMana(Entity e) {
-    if (e instanceof Player) {
-      Player p = (Player) e;
+    if (e instanceof Player p) {
       return String.valueOf(Math.round(p.getMetadata("currentMana").getFirst().asDouble()*100)/100);
     }else{
       return Colorize("The mob is not a living entity");
@@ -70,8 +65,7 @@ public class PlayerPlaceholders {
 
   @Placeholder(name = "maxMana")
   public static String maxMana(Entity e) {
-    if (e instanceof Player) {
-      Player p = (Player) e;
+    if (e instanceof Player p) {
       return p.getStatsMemory().stat("Mana").toString();
     }else{
       return Colorize("The mob is not a living entity");

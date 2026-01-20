@@ -8,7 +8,7 @@
   <groupId>io.RPGCraft</groupId>
   <artifactId>FableCraft</artifactId>
   <name>FableCraft</name>
-  <version>1.4</version>
+  <version>1.4-dev-6d67843</version>
   <packaging>jar</packaging>
 
   <!-- ================= PROPERTIES ================= -->
@@ -204,6 +204,37 @@
           </execution>
         </executions>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>21</source>
+                <target>21</target>
+              <encoding>UTF-8</encoding>
+              <compilerArgs>
+                <!-- Configure manifold plugin-->
+                <arg>-Xplugin:Manifold</arg>
+              </compilerArgs>
+              <!-- Add the processor path for the plugin -->
+              <annotationProcessorPaths>
+                <path>
+                  <groupId>systems.manifold</groupId>
+                  <artifactId>manifold-ext</artifactId>
+                  <version>${manifold.version}</version>
+                </path>
+                <path>
+                  <groupId>systems.manifold</groupId>
+                  <artifactId>manifold-params</artifactId>
+                  <version>${manifold.version}</version>
+                </path>
+                <path>
+                  <groupId>org.projectlombok</groupId>
+                  <artifactId>lombok</artifactId>
+                  <version>1.18.42</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+        </plugin>
 
     </plugins>
   </build>

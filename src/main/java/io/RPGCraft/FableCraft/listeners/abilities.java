@@ -35,6 +35,7 @@ public class abilities implements Listener {
 
   void checkAbilities(Player p, String event, LivingEntity victim){
     for (ItemStack item : p.getInventory().getContents()) {
+      if(item == null) return;
       Object customItem = PDCHelper.getItemPDC("customItemName", item);
       if (customItem == null) {
         continue;

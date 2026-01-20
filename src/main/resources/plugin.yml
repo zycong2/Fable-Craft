@@ -1,5 +1,5 @@
 name: RPGCraft
-version: '1.4-b2dc95e'
+version: '1.4-dev-6d67843'
 main: io.RPGCraft.FableCraft.RPGCraft
 api-version: '1.21.4'
 authors: [ zycong, Tonnam_101]

@@ -31,7 +31,7 @@ public class PlayerInfo implements Listener {
 
     @Deprecated
     public static SkillsMemory getPlayerSkills(Player player) {
-        return skillsMemoryMap.computeIfAbsent(player.getUniqueId(), id -> new SkillsMemory(id));
+        return skillsMemoryMap.computeIfAbsent(player.getUniqueId(), SkillsMemory::new);
     }
 
     public static void resetStats(Player player){
@@ -41,11 +41,8 @@ public class PlayerInfo implements Listener {
     @EventHandler
     void onJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
-        if(!p.hasPlayedBefore()){
-            p.getStatsMemory();
-            p.getSkillsMemory();
-            return;
-        }
+        p.getStatsMemory();
+        p.getSkillsMemory();
         try {
             Connection connection = DatabaseManager.getDBConnection("player-info");
             if(connection == null){

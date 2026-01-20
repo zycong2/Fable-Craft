@@ -21,17 +21,20 @@ public class stats implements CommandInterface {
         if (!p.hasPermission("FableCraft.resetStats")) {
             p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
-        }if (args.length == 0 || Bukkit.getPlayer(args[0]) == null){
+        }
+        Player player = Bukkit.getPlayer(args[0]);
+        if (args.length == 0 || player == null){
             p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
 
         String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
+        StatsMemory statsMem = player.getStatsMemory();
         for(String skill : skills) {
-            PDCHelper.setPlayerPDC(skill, Bukkit.getPlayer(args[0]), String.valueOf(yamlGetter.getConfig("stats." + skill + ".default", Bukkit.getPlayer(args[0]), true)));
+          statsMem.stat(skill, Double.valueOf(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString()));
         }
-        stats.checkCurrentStats(Bukkit.getPlayer(args[0]));
-        p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", Bukkit.getPlayer(args[0]), true));
+        stats.checkCurrentStats(player);
+        p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", player, true));
         return true;
     }
 

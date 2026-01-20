@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class autoMod {
     if (PDCHelper.getPlayerPDC("warnings", p) != null) {
       warnings = Integer.parseInt(PDCHelper.getPlayerPDC("warnings", p));
     }
-    List<Object> amountWarnings = yamlGetter.getNodes("config", "autoMod.punishments");
+    List<Object> amountWarnings = Collections.singletonList(yamlGetter.getNodes("config", "autoMod.punishments"));
     for (Object o : amountWarnings){
       if (warnings == Integer.parseInt(o.toString())){
         String type = yamlManager.getInstance().getOption("config", "autoMod.punishments." + o + ".type").toString();
