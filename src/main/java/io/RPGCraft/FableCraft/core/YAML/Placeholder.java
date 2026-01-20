@@ -7,7 +7,7 @@ import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.par
 import static io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry.round;
 
 public class Placeholder {
-  public static @NotNull <T> String setPlaceholders(String s, boolean round = false, T... context){
+  public static @NotNull <T> String setPlaceholders(String s, boolean round, T... context){
     String parsed = "";
     for(T c : context) {
       parsed = parse(s, c);
