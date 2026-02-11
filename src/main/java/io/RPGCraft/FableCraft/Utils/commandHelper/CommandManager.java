@@ -29,7 +29,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     }
 
 
-    Reflections reflections = new Reflections("io.RPGCraft.FableCraft.commands");
+    Reflections reflections = new Reflections("io.RPGCraft.FableCraft");
 
     Set<Class<? extends CommandInterface>> classes = reflections.getSubTypesOf(CommandInterface.class);
 
