@@ -29,6 +29,8 @@ import static io.RPGCraft.FableCraft.RPGCraft.DBFileConfiguration;
 
 
 public class lootTableHelper implements Listener, CommandInterface{
+    HashMap<Location, HashMap<Player, Inventory>> generatedChests = new HashMap<>();
+  
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
@@ -81,12 +83,40 @@ public class lootTableHelper implements Listener, CommandInterface{
             if (event.getClickedBlock().getType() == Material.CHEST){
                 if (PDCHelper.getBlockPDC("lootTable", event.getClickedBlock()) != null){
                     event.setCancelled(true);
-                    p.openInventory(lootTableHelper.getLootTable(p, PDCHelper.getBlockPDC("lootTable", event.getClickedBlock())));
+                    if (!chestGenerated(event.getClickedBlock().getLocation())){
+                      Inventory inv = lootTableHelper.getLootTable(p, PDCHelper.getBlockPDC("lootTable", event.getClickedBlock()));
+                      HashMap<Player, Inventory> tempHash = new HashMap<>();
+                      tempHash.put(p, inv)
+                      generatedChests.put(event.getClickedBlock().getLocation(), tempHash);
+                      p.openInventory(inv);
+                      p.setMetadata("chestLootOpen", new FixedMetadataValue(RPGCraft.getPlugin(), event.getClickedBlock().getLocation().toString()));
+                    } else{
+                      HashMap data = generatedChests.get(event.getClickedBlock().getLocation());
+                      Inventory inv = data.get(p);
+                      p.openInventory(inv);
+                      p.setMetadata("chestLootOpen", new FixedMetadataValue(RPGCraft.getPlugin(), trevent.getClickedBlock().getLocation().toString()));
+                    }
                 }
             }
         }
     }
-
+    public static boolean chestGenerated(Location loc){
+      if (generatedChests.get(loc) == null){
+        return false;
+      }
+      return true;
+    }
+    @EventHandler
+    void onInvClose(InventoryCloseEvent event){
+      Player p = event.getPlayer();
+      if (p.hasMetaData("chestLootOpen")){
+        p.removeMetadata("chestLootOpen", RPGCraft.getPlugin());
+        Location loc = Location.of(p.getMetaData("chestLootOpen").getFirst().asString());
+        Inventory toSaveInv = event.getInventory();
+        HashMap data = generatedChests.get(loc);
+        data.replace(p, toSaveInv);
+      }
+    }
     
     public static Inventory getLootTable(Player p, String lootTableName) {
         Inventory inv = Bukkit.createInventory(p, 27);
