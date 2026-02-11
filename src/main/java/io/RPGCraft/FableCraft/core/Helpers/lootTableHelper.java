@@ -20,13 +20,15 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
+
 import java.util.List;
 import java.util.Random;
 
 import static io.RPGCraft.FableCraft.RPGCraft.DBFileConfiguration;
 
 
-public class lootTableHelper implements Listener, CommandExecutor, TabCompleter{
+public class lootTableHelper implements Listener, CommandInterface{
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
