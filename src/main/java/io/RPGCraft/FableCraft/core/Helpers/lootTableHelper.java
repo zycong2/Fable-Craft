@@ -1,8 +1,10 @@
 package io.RPGCraft.FableCraft.core.Helpers;
 
+import io.RPGCraft.FableCraft.Utils.LocationUtil;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -14,21 +16,27 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import static io.RPGCraft.FableCraft.RPGCraft.DBFileConfiguration;
+import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 
 
 public class lootTableHelper implements Listener, CommandInterface{
+    static HashMap<Location, HashMap<Player, Inventory>> generatedChests = new HashMap<>();
+  
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
@@ -81,12 +89,40 @@ public class lootTableHelper implements Listener, CommandInterface{
             if (event.getClickedBlock().getType() == Material.CHEST){
                 if (PDCHelper.getBlockPDC("lootTable", event.getClickedBlock()) != null){
                     event.setCancelled(true);
-                    p.openInventory(lootTableHelper.getLootTable(p, PDCHelper.getBlockPDC("lootTable", event.getClickedBlock())));
+                    if (!chestGenerated(event.getClickedBlock().getLocation())){
+                      Inventory inv = lootTableHelper.getLootTable(p, PDCHelper.getBlockPDC("lootTable", event.getClickedBlock()));
+                      HashMap<Player, Inventory> tempHash = new HashMap<>();
+                      tempHash.put(p, inv);
+                      generatedChests.put(event.getClickedBlock().getLocation(), tempHash);
+                      p.openInventory(inv);
+                      p.setMetadata("chestLootOpen", new FixedMetadataValue(getPlugin(), event.getClickedBlock().getLocation().toString()));
+                    } else{
+                      HashMap data = generatedChests.get(event.getClickedBlock().getLocation());
+                      Inventory inv = (Inventory) data.get(p);
+                      p.openInventory(inv);
+                      p.setMetadata("chestLootOpen", new FixedMetadataValue(getPlugin(), event.getClickedBlock().getLocation().toString()));
+                    }
                 }
             }
         }
     }
-
+    public static boolean chestGenerated(Location loc){
+      if (generatedChests.get(loc) == null){
+        return false;
+      }
+      return true;
+    }
+    @EventHandler
+    void onInvClose(InventoryCloseEvent event){
+      Player p = (Player) event.getPlayer();
+      if (p.hasMetadata("chestLootOpen")){
+        p.removeMetadata("chestLootOpen", getPlugin());
+        Location loc = LocationUtil.stringToLocation(p.getMetadata("chestLootOpen").getFirst().asString());
+        Inventory toSaveInv = event.getInventory();
+        HashMap data = generatedChests.get(loc);
+        data.replace(p, toSaveInv);
+      }
+    }
     
     public static Inventory getLootTable(Player p, String lootTableName) {
         Inventory inv = Bukkit.createInventory(p, 27);
