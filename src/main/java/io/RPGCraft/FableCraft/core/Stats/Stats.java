@@ -22,9 +22,9 @@ import java.util.Objects;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getItemPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 
-@SuppressWarnings("UnstableApiUsage")
+
 public class Stats implements Listener {
 
     public List<String> getValidStats(){
@@ -34,24 +34,21 @@ public class Stats implements Listener {
   @EventHandler
   void onArmorChange(PlayerArmorChangeEvent event) {
     Player p = event.getPlayer();
-    StatsMemory stats = p.getStatsMemory();
     if (!event.getOldItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getOldItem()) != null && stats.stat(s) != null) {
-          stats.stat(s, stats.statDouble(s) - Double.parseDouble(getItemPDC(s, event.getOldItem())));
-          /*setPlayerPDC(s, p,
+        if (getItemPDC(s, event.getOldItem()) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p,
             String.valueOf
               (Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, event.getOldItem())))
-          );*/
+          );
         }
       }
     }
 
     if (!event.getNewItem().equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getNewItem()) != null && stats.stat(s) != null) {
-          stats.stat(s, stats.statDouble(s) + Double.parseDouble(getItemPDC(s, event.getNewItem())));
-          //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem()))));
+        if (getItemPDC(s, event.getNewItem()) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem()))));
         }
       }
     }
@@ -64,22 +61,22 @@ public class Stats implements Listener {
     Player p = event.getPlayer();
     ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
     ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
-    StatsMemory playerStats = p.getStatsMemory();
+    //StatsMemory playerStats = p.getStatsMemory();
 
     if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, oldItem) != null && playerStats.stat(s) != null) {
-          playerStats.stat(s, playerStats.statDouble(s) - Double.parseDouble(getItemPDC(s, oldItem)));
-          //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
+        if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
+          //playerStats.stat(s, playerStats.statDouble(s) - Double.parseDouble(getItemPDC(s, oldItem)));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
         }
       }
     }
 
     if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
       for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, newItem) != null && playerStats.stat(s) != null) {
-          playerStats.stat(s, playerStats.statDouble(s) + Double.parseDouble(getItemPDC(s, newItem)));
-          //setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
+        if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
+          //playerStats.stat(s, playerStats.statDouble(s) + Double.parseDouble(getItemPDC(s, newItem)));
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
         }
       }
     }
@@ -89,8 +86,7 @@ public class Stats implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerAttack(EntityDamageByEntityEvent event){
         if (event.getDamager() instanceof Player player){
-          StatsMemory stats = player.getStatsMemory();
-          Double strength = stats.getAtttackDamage();
+          double strength = Double.parseDouble(getPlayerPDC("AttackDamage", player));
           event.setDamage(strength);
         }
     }
@@ -98,10 +94,11 @@ public class Stats implements Listener {
   @EventHandler
   void onPlayerDamage(EntityDamageEvent e){
     if(e.getEntity() instanceof Player player) {
-      StatsMemory stats = player.getStatsMemory();
-      Double defense = stats.getDefense();
+     /* StatsMemory stats = player.getStatsMemory();
+      Double defense = stats.getDefense();*/
+      double defense = Double.parseDouble(getPlayerPDC("Defense", player));
       double damage = e.getDamage();
-      Double finalDamage = damage - ((defense/(defense+100))*damage);
+      double finalDamage = damage - ((defense/(defense+100))*damage);
       e.setDamage(finalDamage);
     }
   }
@@ -110,21 +107,22 @@ public class Stats implements Listener {
   void onDamage(EntityDamageEvent event) {
     if(isCitizensNPC(event.getEntity())){return;}
     double damage = event.getDamage();
-    if (event.getEntity() instanceof Player p) {
-      StatsMemory stats = p.getStatsMemory();
-      double maxHealth = stats.statDouble("Health");
+    if (event.getEntity() instanceof Player p) { //if player gets damage
+      //StatsMemory stats = p.getStatsMemory();
+      double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
       double health = p.getMetadata("currentHealth").getFirst().asDouble();
-      double defense = stats.statDouble("Defense");
+      double defense = Double.parseDouble(getPlayerPDC("Defense", p));
       double finalDamage = damage - ((defense/(defense+100))*damage);
       health -= finalDamage;
       p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
       double scaledHealth = 20.0 / maxHealth * finalDamage;
       event.setDamage((double) Math.round(scaledHealth * 100) /100);
-    } else if (event instanceof EntityDamageByEntityEvent entityEvent
+    } else if (event instanceof EntityDamageByEntityEvent entityEvent //if player deals damage
               && entityEvent.getDamager() instanceof Player p) {
-      StatsMemory stats = p.getStatsMemory();
-      event.setDamage(damage + stats.statDouble("AttackDamage"));
-      if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
+
+      event.setDamage(damage + Double.parseDouble(getPlayerPDC("AttackDamage", p)));
+
+      if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){ //TODO
         event.getEntity().customName(MM(
           Placeholder.setPlaceholders(
             (String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true,

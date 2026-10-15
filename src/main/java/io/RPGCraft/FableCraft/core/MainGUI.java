@@ -3,7 +3,6 @@ package io.RPGCraft.FableCraft.core;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
-import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
@@ -27,6 +26,7 @@ import java.util.Objects;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
 import static io.RPGCraft.FableCraft.Utils.GUI.GUIItem.ItemStackToGUIItem;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
 public class MainGUI implements Listener {
@@ -53,11 +53,9 @@ public class MainGUI implements Listener {
       }
       String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
       String[] formattedSkills = new String[skills.length];
-      StatsMemory stats = event.getPlayer().getStatsMemory();
-
       for (int i = 0; i < skills.length; ++i) {
         String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-        formattedSkills[i] = Colorize(statLine + " " + stats.stat(skills[i]) + " " + skills[i]);
+        formattedSkills[i] = Colorize(statLine + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
       }
 
       menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));

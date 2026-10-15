@@ -2,7 +2,7 @@ package io.RPGCraft.FableCraft.core.Stats.Levels.Combat;
 
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
-import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
+import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,7 +21,6 @@ public class StatsUpgrade implements CommandExecutor {
 
     if(commandSender instanceof Player p){
       int points = Integer.parseInt(getPlayerPDC("statsPoints", p));
-      StatsMemory stats = p.getStatsMemory();
       GUI statsMenu = new GUI("<#C467F8>Evolution Of The Soul</#6917F6>", GUI.Rows.THREE);
       GUIItem strength = new GUIItem(Material.IRON_SWORD)
         .name("&cStrength")
@@ -29,8 +28,8 @@ public class StatsUpgrade implements CommandExecutor {
         .clickEvent(ce -> {
           if (hasStatsPoints(p)) {
             removeOneStatsPoint(p);
-            Double oldDamage = stats.statDouble("Damage");
-            stats.stat("Damage", oldDamage + 1);
+            double oldDamage = Double.parseDouble(PDCHelper.getPlayerPDC("Damage", p));
+            setPlayerPDC("Damage",p , String.valueOf(oldDamage + 1));
           }
         });
       statsMenu.setItem(11, strength);
@@ -40,8 +39,8 @@ public class StatsUpgrade implements CommandExecutor {
         .clickEvent(ce -> {
           if (hasStatsPoints(p)) {
             removeOneStatsPoint(p);
-            Double oldHealth = stats.statDouble("Health");
-            stats.stat("Health", oldHealth + 2);
+            double oldHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+            setPlayerPDC("Health", p , String.valueOf(oldHealth + 2));
           }
         });
       statsMenu.setItem(13, health);
@@ -51,8 +50,8 @@ public class StatsUpgrade implements CommandExecutor {
         .clickEvent(ce -> {
           if (hasStatsPoints(p)) {
             removeOneStatsPoint(p);
-            Double oldMana = stats.statDouble("Mana");
-            stats.stat("Mana", oldMana + 1);
+            double oldMana = Double.parseDouble(PDCHelper.getPlayerPDC("Mana", p));
+            setPlayerPDC("Mana", p, String.valueOf(oldMana + 1));
           }
         });
       statsMenu.setItem(15, mana);

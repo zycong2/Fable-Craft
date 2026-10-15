@@ -3,7 +3,6 @@ package io.RPGCraft.FableCraft.commands;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
-import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -14,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
 public class stats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -29,9 +31,9 @@ public class stats implements CommandInterface {
         }
 
         String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
-        StatsMemory statsMem = player.getStatsMemory();
+
         for(String skill : skills) {
-          statsMem.stat(skill, Double.valueOf(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString()));
+          setPlayerPDC(skill, p, String.valueOf(Double.valueOf(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
         }
         stats.checkCurrentStats(player);
         p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", player, true));
@@ -40,21 +42,20 @@ public class stats implements CommandInterface {
 
 
     public static void checkCurrentStats(Player p){
-      StatsMemory stats = p.getStatsMemory();
       if (p.getMetadata("currentHealth").getFirst() != null) {
-          if (p.getMetadata("currentHealth").getFirst().asDouble() > stats.statDouble("Health")) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
+          if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(getPlayerPDC("Health", p))) {
+            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", p))));
           }
-        } else {
-          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
-        }
-        if (p.getMetadata("currentMana").getFirst() != null){
-          if (p.getMetadata("currentMana").getFirst().asDouble() > stats.statDouble("Mana")) {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
+      } else {
+          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", p))));
+      }
+      if (p.getMetadata("currentMana").getFirst() != null){
+          if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(getPlayerPDC("Mana", p))) {
+            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", p))));
           }
-        } else {
-          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
-        }
+      } else {
+          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", p))));
+      }
     }
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         List<Player> players = (List<Player>) Bukkit.getOnlinePlayers();
@@ -66,6 +67,6 @@ public class stats implements CommandInterface {
     }
 
     public void setStat(Player p, String stat, Double amount){
-      PDCHelper.setPlayerPDC(stat, p, amount.toString());
+      setPlayerPDC(stat, p, amount.toString());
     }
 }

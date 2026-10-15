@@ -6,9 +6,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import io.RPGCraft.FableCraft.core.Stats.PlayerInfo;
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
-import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -16,11 +16,15 @@ import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSele
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.List;
 import java.util.Locale;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
+import static io.RPGCraft.FableCraft.RPGCraft.itemStats;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
 public class StatsCommand {
 
@@ -38,7 +42,11 @@ public class StatsCommand {
           })
           .executes(ctx -> {
             final Player player = getPlayer(ctx);
-            PlayerInfo.resetStats(player);
+            for (String s : itemStats){
+              if (getPlayerPDC(s, player) == null) {
+                player.setMetadata(s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", player, true).toString()));
+              }
+            }
             return Command.SINGLE_SUCCESS;
           })
         ).build(),
@@ -68,7 +76,7 @@ public class StatsCommand {
               }else {
                 Player player = (Player) entity;
                 if (new Stats().getValidStats().contains(stat)) {
-                  player.getStatsMemory().stat(stat, value);
+                  setPlayerPDC(stat, player, String.valueOf(value));
                   sendMessage(player, "&aSuccessfully set your " + stat + " stat");
                   return Command.SINGLE_SUCCESS;
                 } else {
@@ -92,7 +100,7 @@ public class StatsCommand {
               String stat = ctx.getArgument("stats", String.class);
               Double value = ctx.getArgument("value", Double.class);
               if(new Stats().getValidStats().contains(stat) || player != null){
-                player.getStatsMemory().stat(stat, value);
+                setPlayerPDC(stat, player, String.valueOf(value));
                 sendMessage(entity, "&aSuccessfully set " + player + "'s " + stat + " stat");
                 return Command.SINGLE_SUCCESS;
               }else{
@@ -109,24 +117,9 @@ public class StatsCommand {
         .executes(ctx -> {
           Entity executor = getExecutor(ctx);
           if(executor instanceof Player p){
-            StatsMemory stat = p.getStatsMemory();
-            sendMessage(p, stat.toString());
-            return Command.SINGLE_SUCCESS;
-          }
-          sendMessage(executor, "&cOnly a player can send this command");
-          return Command.SINGLE_SUCCESS;
-        })
-        .build(),
-
-
-      Commands.literal("updateStats")
-        .requires(sender -> sender.getExecutor().isOp())
-        .executes(ctx -> {
-          Entity executor = getExecutor(ctx);
-          if(executor instanceof Player p){
-            StatsMemory stat = p.getStatsMemory();
-            stat.updateAttributeStats();
-            sendMessage(executor, "&aSuccessfully updated stats");
+            for (String s : itemStats) {
+              sendMessage(p, getPlayerPDC(s, p));
+            }
             return Command.SINGLE_SUCCESS;
           }
           sendMessage(executor, "&cOnly a player can send this command");

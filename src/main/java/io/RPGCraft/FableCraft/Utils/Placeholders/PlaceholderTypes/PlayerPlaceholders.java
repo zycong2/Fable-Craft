@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsLuckperms;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static org.bukkit.Bukkit.getServer;
 
 public class PlayerPlaceholders {
@@ -39,7 +40,7 @@ public class PlayerPlaceholders {
   @Placeholder(name = "maxHealth")
   public static String maxHealth(Entity e) {
     if (e instanceof Player p) {
-      return p.getStatsMemory().stat("Health").toString();
+      return getPlayerPDC("Health", p);
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -66,7 +67,7 @@ public class PlayerPlaceholders {
   @Placeholder(name = "maxMana")
   public static String maxMana(Entity e) {
     if (e instanceof Player p) {
-      return p.getStatsMemory().stat("Mana").toString();
+      return getPlayerPDC("Mana", p);
     }else{
       return Colorize("The mob is not a living entity");
     }
@@ -75,7 +76,7 @@ public class PlayerPlaceholders {
   @Placeholder(name = "Defense")
   public static String Defense(Entity e) {
     if (e instanceof Player p) {
-      return p.getStatsMemory().stat("Defense").toString();
+      return getPlayerPDC("Defense", p);
     }else{
       return Colorize("The mob is not a living entity");
     }

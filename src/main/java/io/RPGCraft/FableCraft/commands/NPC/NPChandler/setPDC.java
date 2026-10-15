@@ -56,7 +56,7 @@ public class setPDC implements CommandInterface {
       if (args[0].equals("set")) {
         return List.of("shop", "quest");
       } else {
-        return List.of();
+        return null;
       }
     }
   }

@@ -73,7 +73,7 @@ public class mobs implements CommandInterface, Listener {
             return completion;
 
         }
-        return List.of();
+        return null;
     }
 
     public static LivingEntity getEntity(String name, Location p){

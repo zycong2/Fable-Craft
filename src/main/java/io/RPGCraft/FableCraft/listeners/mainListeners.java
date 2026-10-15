@@ -3,7 +3,6 @@ package io.RPGCraft.FableCraft.listeners;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.commands.stats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
-import io.RPGCraft.FableCraft.core.Stats.StatsMemory;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.itemStats;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 
 // This class handles a wide range of player-related events in the RPG plugin.
@@ -93,6 +93,15 @@ public class mainListeners implements Listener {
       setPlayerPDC("statsPoints", p, String.valueOf(0));
     }
 
+    Bukkit.getLogger().info("Initializing stats for " + p.getName());
+    for (String s : itemStats){
+      if (getPlayerPDC(s, p) == null) {
+        setPlayerPDC(s, p, yamlGetter.getConfig("stats." + s + ".default", p, true).toString());
+        Bukkit.getLogger().info("Reset the " + s + " stat");
+      }
+    }
+    Bukkit.getLogger().info("Done");
+
     // Setup current stats (metadata and PDC)
     for (String s : List.of("Health", "Mana")) {
       if (getPlayerPDC("current" + s, p) == null) {
@@ -103,7 +112,11 @@ public class mainListeners implements Listener {
       }
     }
 
-    stats.checkCurrentStats(p);
+    stats.checkCurrentStats(p);for (String s : itemStats){
+      if (getPlayerPDC(s, p) == null) {
+        p.setMetadata(s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
+      }
+    }
   }
 
   // When player quits, remove any gear-based stats and notify players
@@ -124,12 +137,12 @@ public class mainListeners implements Listener {
     if (p.getEquipment().getLeggings() != null && !p.getEquipment().getLeggings().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getLeggings());
     if (p.getEquipment().getBoots() != null && !p.getEquipment().getBoots().equals(ItemStack.of(Material.AIR))) gear.add(p.getEquipment().getBoots());
 
-    StatsMemory playerStats = p.getStatsMemory();
+
 
     for (ItemStack item : gear) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, item) != null && playerStats.stat(s) != null) {
-          playerStats.stat(s, playerStats.statDouble(s) - Double.parseDouble(getItemPDC(s, item)));
+      for (String s : itemStats) {
+        if (getItemPDC(s, item) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(PDCHelper.getPlayerPDC(s, p)) - Double.parseDouble(PDCHelper.getItemPDC(s, item))));
         }
       }
     }
@@ -137,7 +150,7 @@ public class mainListeners implements Listener {
     stats.checkCurrentStats(p);
 
     // Update metadata backup
-    for (String s : RPGCraft.itemStats) {
+    for (String s : itemStats) {
       if (p.hasMetadata("current" + s)) {
         setPlayerPDC("current" + s, p, String.valueOf(p.getMetadata("current" + s).getFirst().asInt()));
       }
@@ -187,9 +200,9 @@ public class mainListeners implements Listener {
   @EventHandler
   void onRespawn(PlayerRespawnEvent event) {
     Player player = event.getPlayer();
-    StatsMemory stats = player.getStatsMemory();
-    player.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Health")));
-    player.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), stats.statDouble("Mana")));
+
+    player.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", player))));
+    player.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", player))));
   }
 
   // Remind me later

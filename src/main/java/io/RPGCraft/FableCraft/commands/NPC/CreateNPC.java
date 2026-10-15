@@ -65,7 +65,7 @@ public class CreateNPC implements CommandInterface {
         return List.of("shop", "quest", "none");
       }
 
-    return List.of();
+    return null;
 
   }
 }
