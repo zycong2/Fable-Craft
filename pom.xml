@@ -142,7 +142,14 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Manifold -->
+    <!-- Manifold Runtime Engine Core -->
+    <dependency>
+      <groupId>systems.manifold</groupId>
+      <artifactId>manifold-rt</artifactId>
+      <version>${manifold.version}</version>
+    </dependency>
+
+    <!-- Manifold Extensions -->
     <dependency>
       <groupId>systems.manifold</groupId>
       <artifactId>manifold-ext-rt</artifactId>
@@ -169,8 +176,6 @@
 
     <plugins>
 
-      <!-- Java 21 Compiler -->
-
       <!-- Maven Shade Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -183,60 +188,74 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <createDependencyReducedPom>false</createDependencyReducedPom>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>shaded</shadedClassifierName>
+              <!--
+                Changed to false: Ensures your main output file is the fully
+                shaded fat-JAR containing Manifold, rather than a separate file.
+              -->
+              <shadedArtifactAttached>false</shadedArtifactAttached>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>MTA-INF/*.SF</exclude>
+                    <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                   </excludes>
                 </filter>
               </filters>
+              <relocations>
+                <!-- Removed Manifold relocation to prevent dynamic string mismatch -->
+                <relocation>
+                  <pattern>org.reflections</pattern>
+                  <shadedPattern>io.rpgcraft.fablecraft.libs.reflections</shadedPattern>
+                </relocation>
+              </relocations>
               <finalName>${project.name}-${project.version}</finalName>
               <!-- FOR THE LOVE OF GOD THIS IS THE PLUGIN FOLDER -->
-              <outputDirectory>/Users/tonnam/Documents/MAZE/M/M/Test-Servers/1.21.10/plugins</outputDirectory>
+              <outputDirectory>/home/luc/Test-Servers/1.21.10/plugins</outputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-                <source>21</source>
-                <target>21</target>
-              <encoding>UTF-8</encoding>
-              <compilerArgs>
-                <!-- Configure manifold plugin-->
-                <arg>-Xplugin:Manifold</arg>
-              </compilerArgs>
-              <!-- Add the processor path for the plugin -->
-              <annotationProcessorPaths>
-                <path>
-                  <groupId>systems.manifold</groupId>
-                  <artifactId>manifold-ext</artifactId>
-                  <version>${manifold.version}</version>
-                </path>
-                <path>
-                  <groupId>systems.manifold</groupId>
-                  <artifactId>manifold-params</artifactId>
-                  <version>${manifold.version}</version>
-                </path>
-                <path>
-                  <groupId>org.projectlombok</groupId>
-                  <artifactId>lombok</artifactId>
-                  <version>1.18.42</version>
-                </path>
-              </annotationProcessorPaths>
-            </configuration>
-        </plugin>
+
+      <!-- Java Compiler Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.version}</version>
+        <configuration>
+          <source>21</source>
+          <target>21</target>
+          <encoding>UTF-8</encoding>
+          <compilerArgs>
+            <!-- Configure manifold plugin-->
+            <arg>-Xplugin:Manifold</arg>
+          </compilerArgs>
+          <!-- Add the processor path for the plugin -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>systems.manifold</groupId>
+              <artifactId>manifold-ext</artifactId>
+              <version>${manifold.version}</version>
+            </path>
+            <path>
+              <groupId>systems.manifold</groupId>
+              <artifactId>manifold-params</artifactId>
+              <version>${manifold.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
 
     </plugins>
+
   </build>
 
 </project>

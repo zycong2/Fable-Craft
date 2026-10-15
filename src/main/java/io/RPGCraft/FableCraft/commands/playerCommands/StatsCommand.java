@@ -45,7 +45,7 @@ public class StatsCommand {
 
 
       Commands.literal("setStat")
-        .requires(sender -> sender.getExecutor().isOp())
+        .requires(sender -> sender.getExecutor() == null || sender.getExecutor().hasPermission("RPGCraft.setpermission"))
         .then(io.papermc.paper.command.brigadier.Commands.argument("stats", StringArgumentType.word())
           .suggests((ctx, build) -> {
             new Stats().getValidStats().stream()
