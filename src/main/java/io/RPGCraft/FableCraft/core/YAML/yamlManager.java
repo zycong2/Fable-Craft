@@ -226,13 +226,13 @@ public class yamlManager {
               getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
               getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
               // STATS
-              getFileConfig("config").addDefault("stats.Health.default", 100);
+              getFileConfig("config").addDefault("stats.Health.default", 20);
               getFileConfig("config").addDefault("stats.Health.char", "&c❤");
               getFileConfig("config").addDefault("stats.Regeneration.default", 1);
               getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
               getFileConfig("config").addDefault("stats.Defense.default", 0);
               getFileConfig("config").addDefault("stats.Defense.char", "&7\ud83d\udee1");
-              getFileConfig("config").addDefault("stats.Mana.default", 20);
+              getFileConfig("config").addDefault("stats.Mana.default", 5);
               getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
               getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);
               getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
