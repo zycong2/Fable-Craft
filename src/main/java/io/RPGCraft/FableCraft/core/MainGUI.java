@@ -140,7 +140,7 @@ public class MainGUI implements Listener {
         Player p = ce.player();
         p.closeInventory();
         p.sendMessage(yamlGetter.getMessage("messages.itemeditor.createItem", p, true));
-        ChatInputManager.waitForNextMessage(p, (pl, msg) -> createItem(p, msg.toString(), yamlManager.getDefaultDB("itemDB")));
+        ChatInputManager.waitForNextMessage(p, (pl, msg) -> createItem(pl, RPGCraft.deMM(msg), yamlManager.getDefaultDB("itemDB")));
       });
 
     menu.setItem(44, newItem);

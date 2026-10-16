@@ -66,12 +66,12 @@ public class yamlGetter {
 
   public static List<Object> getAllNodesInDB(String DBFolder, String path) {
     if (DBFileConfiguration.get(DBFolder) == null) {
+      Bukkit.getLogger().warning("Config not found this can cause issues!");
       return null;
     }
     List<Object> nodes = new ArrayList<>();
     for (YamlConfiguration yaml : DBFileConfiguration.get(DBFolder)) {
-      List<Object> node = List.of(yaml.getConfigurationSection(path).getKeys(false));
-      nodes.addAll(node);
+      nodes.addAll(yaml.getConfigurationSection(path).getKeys(false));
     }
     return nodes;
   }

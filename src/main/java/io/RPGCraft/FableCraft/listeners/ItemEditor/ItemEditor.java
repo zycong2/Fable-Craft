@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getItemPDC;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getDefaultDB;
 import static org.bukkit.Bukkit.getServer;
 
 public class ItemEditor {
@@ -313,10 +314,13 @@ public class ItemEditor {
 
   public static void createItem(Player p, String id, YamlConfiguration file) {
     if (id == null || id.isBlank()) return;
+    p.sendMessage(((Object)id).toString());
+    p.sendMessage(getDefaultDB("itemDB").toString());
+    p.sendMessage(((Object)yamlManager.getInstance().getOption("config", "items.default.Item").toString().toUpperCase()).toString());
 
     yamlManager.getInstance().setOption(id + ".ItemID", (Object) id, "itemDB");
     yamlManager.getInstance().setOption(id + ".itemType", (Object) yamlManager.getInstance().getOption("config", "items.default.Item").toString().toUpperCase(), "itemDB");
-    p.sendMessage("&fItem created! (only the ID for now, edit it to be useful)");
+    p.sendMessage("Item created! (only the ID for now, edit it to be useful)");
     MainGUI.itemDBMenu(p).open(p);
   }
 

@@ -16,6 +16,7 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import static io.RPGCraft.FableCraft.RPGCraft.*;
+import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getServer;
 
 
@@ -101,7 +103,7 @@ public class yamlManager {
             folder.mkdirs();
           }
 
-          List<YamlConfiguration> list = List.of();
+          List<YamlConfiguration> list;
 
           if(!defaultFile.exists()){
             try{
@@ -113,14 +115,16 @@ public class yamlManager {
               list = List.of(new YamlConfiguration());
             }catch (Exception e){
               Bukkit.getLogger().severe("Could not create data folder '" + s + "'.");
+              e.printStackTrace();
+              list = List.of();
             }
           }
           else {
             list = getAllFilesConfig(folder);
           }
-
           DBFileConfiguration.put(s, list);
         }
+        Bukkit.getLogger().info(DBFileConfiguration.toString());
 
         Bukkit.getLogger().info("");
         for (String s : toReset){
@@ -156,7 +160,6 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.info.perlinCylSuccess", "&aSuccessfully made a perlin cylinder!");
               getFileConfig("messages").addDefault("messages.info.quests.start", "&aNew quest started!");
               getFileConfig("messages").addDefault("messages.info.quests.disband", "&aYou successfully disbanded this quest!");
-              getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
               getFileConfig("messages").addDefault("messages.info.quests.completed", "&aYou successfully completed a quest!");
 
               getFileConfig("messages").addDefault("messages.itemeditor.rename.success", "&aYou successfully renamed this item!");
@@ -428,7 +431,7 @@ public class yamlManager {
     }
 
     public static YamlConfiguration getDefaultDB(String DBFile) {
-        File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), DBFile);
+        /*File file = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), DBFile);
         File Defaultfile = new File(file.getAbsolutePath(), "Default.yml");
         if(!file.exists()){
           file.mkdir();
@@ -437,12 +440,15 @@ public class yamlManager {
           try {
             Defaultfile.createNewFile();
           }catch (IOException e){
-            // Ignored
             Bukkit.getLogger().warning("Fail to get default.yml in DB");
             e.printStackTrace();
+            return null;
           }
         }
         return YamlConfiguration.loadConfiguration(Defaultfile);
+        */
+
+        return DBFileConfiguration.get(DBFile).getFirst();
     }
 
     public List<YamlConfiguration> getAllFilesConfig(File f){
@@ -453,7 +459,7 @@ public class yamlManager {
                     yamls.addAll(getAllFilesConfig(file));
                 } else {
                     YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-                  yamls.add(yaml);
+                    yamls.add(yaml);
                 }
             }
         }
@@ -500,7 +506,9 @@ public class yamlManager {
                 getFileConfig(file).set(path, option);
                 saveData();
                 return;
-              } catch (NullPointerException ignored){ }
+              } catch (NullPointerException er){
+                er.fillInStackTrace();
+              }
             }
           }
         }
@@ -508,12 +516,7 @@ public class yamlManager {
       saveData();
     }
     public void setOption(String path, Object val, String db){
-      try {
-        getDefaultDB(db).set(path, val);
-        saveData();
-        return;
-      }
-      catch (NullPointerException ignored){ }
+      getDefaultDB(db).set(path, val);
       saveData();
     }
 
@@ -540,23 +543,22 @@ public class yamlManager {
     }
 
   public static ItemStack getItem(String name) {
-    Logger logger = getServer().getLogger();
     List<YamlConfiguration> itemDB = DBFileConfiguration.get("itemDB");
 
     YamlConfiguration itemFile = itemDB.stream()
-      .filter(yaml -> yaml.contains(name + ".ItemID"))
+      .filter(yaml -> yaml.get(name + ".ItemID")!=null)
       .findFirst()
       .orElse(null);
 
     if (itemFile == null) {
-      logger.warning("Item not found in itemDB: " + name);
+      Bukkit.getLogger().warning("Item not found in itemDB: " + name);
       return null;
     }
 
     String itemTypeName = itemFile.getString(name + ".itemType");
     Material material = Material.getMaterial(itemTypeName);
     if (material == null) {
-      logger.severe("Could not find material: " + itemTypeName + " for item " + name);
+      Bukkit.getLogger().severe("Could not find material: " + itemTypeName + " for item " + name);
       return null;
     }
 
@@ -599,8 +601,9 @@ public class yamlManager {
       String[] parts = pdcString.split(";", 2);
       PDCHelper.setItemPDC(parts[0], item, parts[1]);
     }
-
-    return PDCHelper.setItemPDC("customItemName", item, name);
+    PDCHelper.setItemPDC("customItemName", item, name);
+    Bukkit.getLogger().info("works");
+    return item;
   }
 
   private static int applyStats(String name, YamlConfiguration itemFile, List<String> lore, List<String> PDC) {

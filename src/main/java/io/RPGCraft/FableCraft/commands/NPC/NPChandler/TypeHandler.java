@@ -17,9 +17,7 @@ public class TypeHandler implements Listener {
     public void OnNPCRightClick(PlayerInteractEntityEvent e) {
         Player p = e.getPlayer();
         Entity gotClickedEntity = e.getRightClicked();
-        Bukkit.getLogger().info("clicked");
         if(isCitizensNPC(gotClickedEntity)) {
-            Bukkit.getLogger().info("isNPC");
             boolean isEditing = p.hasPermission("rpgcraft.edit") && p.isSneaking();
             String type = getNPCPDC("NPCType", gotClickedEntity).toString();
             if (type != null) {
@@ -27,7 +25,6 @@ public class TypeHandler implements Listener {
                 case "shop":
                   break;
                 case "quest":
-                  Bukkit.getLogger().info("questNPC");
                   talkedNPC(p, gotClickedEntity.getName());
                   break;
                 default:

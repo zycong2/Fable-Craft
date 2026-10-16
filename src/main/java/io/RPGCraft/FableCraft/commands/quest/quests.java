@@ -3,6 +3,7 @@ package io.RPGCraft.FableCraft.commands.quest;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,8 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.startQuest;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
 public class quests implements CommandInterface, Listener {
   @Override
@@ -37,6 +40,11 @@ public class quests implements CommandInterface, Listener {
         } else {
           p.sendMessage(yamlGetter.getMessage("messages.error.questNotStarted", null, true));
         }
+      case "resetAllPlayersQuests":
+        for (Player pla : Bukkit.getOnlinePlayers()){
+          setPlayerPDC("quests", pla, "");
+        }
+        p.sendMessage(MM("&aEvery player's quest has been reset!"));
     }
 
     return true;
@@ -46,7 +54,11 @@ public class quests implements CommandInterface, Listener {
   public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
     if (args.length == 1) {
-      return List.of("startNew", "disband");
+      if (p.hasPermission("RPGCraft.resetQuests")){
+        return List.of("startNew", "disband", "resetAllPlayersQuests");
+      }else {
+        return List.of("startNew", "disband");
+      }
     } else if (args.length == 2){
       if (args[1].equalsIgnoreCase("startNew")){
         List<String> arguments = List.of();

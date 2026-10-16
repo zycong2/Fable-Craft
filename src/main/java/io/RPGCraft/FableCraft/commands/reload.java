@@ -22,7 +22,7 @@ public class reload implements CommandInterface {
       p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
     }
-    yamlManager.getInstance().getFileConfig("data").set("customMobs", RPGCraft.customMobs);
+    yamlManager.getFileConfig("data").set("customMobs", RPGCraft.customMobs);
 
     RPGCraft.fileConfigurationList.clear();
 
