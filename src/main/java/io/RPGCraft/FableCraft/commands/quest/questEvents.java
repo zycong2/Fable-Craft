@@ -22,8 +22,7 @@ public class questEvents implements Listener {
     Player killer = entity.getKiller();
     if (killer != null){
       String quests = getPlayerPDC("quests", killer); //;quest1
-      if (getPlayerPDC("quests", killer) == null) { return; }
-      if (quests.isEmpty()) { return; }
+      if (getPlayerPDC("quests", killer) == null || quests.isEmpty()) { return; }
       List<String> questsList = List.of(quests.split(";")); // "", "quest1"
       for (String quest : questsList) {
         if (quest.isEmpty()) {

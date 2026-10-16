@@ -507,6 +507,15 @@ public class yamlManager {
       }
       saveData();
     }
+    public void setOption(String path, Object val, String db){
+      try {
+        getDefaultDB(db).set(path, val);
+        saveData();
+        return;
+      }
+      catch (NullPointerException ignored){ }
+      saveData();
+    }
 
     public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 

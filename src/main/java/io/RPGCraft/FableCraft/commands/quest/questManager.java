@@ -1,5 +1,6 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
+import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
@@ -80,7 +81,7 @@ public class questManager {
               if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s + "talk") instanceof List lines) {
                 for (Object s2 : lines) {
                   p.sendMessage(s2.toString());
-                  /*FableCraft.wait(40, );*/
+                  //RPGCraft.wait(40);
                 }
                 break;
               }
@@ -108,8 +109,7 @@ public class questManager {
   }
   static void tryNewQuest(List<String> activeQuests, Player p, String NPC){
     for (Object quest : getAllNodesInDB("quests","")) {
-
-      if (activeQuests.contains(quest)){ continue; }
+      if (activeQuests.contains(quest.toString())){ continue; }
       String replace = quest.toString().replace("[", "").replace("]", "");
       if (yamlGetter.getPathInDB("quests", replace + ".npcStarter").toString().equalsIgnoreCase(NPC)){
         startQuest(p, replace);

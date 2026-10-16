@@ -99,13 +99,13 @@ public class mobsEditor implements Listener {
   }
 
   private void setMobLootTable(Player p, String key, String message) {
-    yamlManager.getInstance().setOption("mobDB",key + ".lootTable", message);
+    yamlManager.getInstance().setOption(key + ".lootTable", (Object) message, "mobDB");
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.lootTable.success", p, true));
     reopenMobEditorLater(p, key);
   }
 
   private void createMob(Player p, String message) {
-    yamlManager.getInstance().setOption("mobDB",message + ".type", "COW");
+    yamlManager.getInstance().setOption(message + ".type", (Object) "COW", "mobDB");
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.create.success", p, true));
     reopenMobEditorLater(p, message);
   }
@@ -151,13 +151,13 @@ public class mobsEditor implements Listener {
       return;
     }
 
-    yamlManager.getInstance().setOption("mobDB", key + ".type", message.toUpperCase());
+    yamlManager.getInstance().setOption(key + ".type", (Object) message.toUpperCase(), "mobDB");
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.type.success", p, true));
     reopenMobEditorLater(p, key);
   }
 
   private void renameMob(Player p, String key, String message) {
-    yamlManager.getInstance().setOption("mobDB",key + ".customName.name", message);
+    yamlManager.getInstance().setOption(key + ".customName.name", (Object) message, "mobDB");
     p.sendMessage(yamlGetter.getMessage("messages.mobEditor.customName.rename.success", p, true));
     reopenMobEditorLater(p, key);
   }
@@ -341,7 +341,7 @@ public class mobsEditor implements Listener {
             p.sendMessage("&cError: No mob selected!");
             return;
           }
-          yamlManager.getInstance().setOption("mobDB",mobKey, null);
+          yamlManager.getInstance().setOption(mobKey, (Object) null, "mobDB");
           try { yamlManager.getInstance().getFileConfig("mobDB").save("mobDB.yml"); } catch (IOException ignored) {}
           p.sendMessage(yamlGetter.getMessage("messages.itemeditor.delete.success", p, true));
         }

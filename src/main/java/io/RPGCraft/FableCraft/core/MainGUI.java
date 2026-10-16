@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.core;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
@@ -139,6 +140,7 @@ public class MainGUI implements Listener {
         Player p = ce.player();
         p.closeInventory();
         p.sendMessage(yamlGetter.getMessage("messages.itemeditor.createItem", p, true));
+        ChatInputManager.waitForNextMessage(p, (pl, msg) -> createItem(p, msg.toString(), yamlManager.getDefaultDB("itemDB")));
       });
 
     menu.setItem(44, newItem);

@@ -43,8 +43,27 @@ public class quests implements CommandInterface, Listener {
   }
 
   @Override
-  public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-    return List.of("startNew", "disband");
+  public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+    Player p = (Player) commandSender;
+    if (args.length == 1) {
+      return List.of("startNew", "disband");
+    } else if (args.length == 2){
+      if (args[1].equalsIgnoreCase("startNew")){
+        List<String> arguments = List.of();
+        for (Object o : yamlGetter.getAllNodesInDB("quests", "")){
+          if (o instanceof String st) { arguments.add(st); }
+        }
+        return arguments;
+      } else if (args[1].equalsIgnoreCase("disband")){
+        String quests = getPlayerPDC("quests", p);
+        return List.of(quests.split(";"));
+      }
+      else {
+        return List.of();
+      }
+    }else{
+      return List.of();
+    }
   }
 
 }
