@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
+import static io.RPGCraft.FableCraft.Utils.money.ShopManager.openedShop;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.talkedNPC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getNPCPDC;
 
@@ -23,6 +24,7 @@ public class TypeHandler implements Listener {
             if (type != null) {
               switch (type) {
                 case "shop":
+                  openedShop(p, gotClickedEntity.getName());
                   break;
                 case "quest":
                   talkedNPC(p, gotClickedEntity.getName());

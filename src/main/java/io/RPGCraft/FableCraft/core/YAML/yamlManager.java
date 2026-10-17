@@ -388,6 +388,70 @@ public class yamlManager {
               getFileConfig("format").options().copyDefaults(true);
             }
           }
+          case ("shops"): {
+            YamlConfiguration shopConfig = getDefaultDB("shops");
+              shopConfig.addDefault("blacksmith.npc-name", "Blacksmith");
+              shopConfig.addDefault("blacksmith.title", "&8Blacksmith Shop");
+              shopConfig.addDefault("blacksmith.rows", 3);
+
+            // Custom item: buy and sell enabled
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.custom-item", "woodenSword");
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.amount", 1);
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.buy-enabled", true);
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.buy-price", 100);
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.sell-enabled", true);
+            shopConfig.addDefault(
+              "blacksmith.items.wooden_sword.sell-price", 25);
+
+            // Vanilla item: buy only
+            shopConfig.addDefault(
+              "blacksmith.items.diamond.material", "DIAMOND");
+            shopConfig.addDefault(
+              "blacksmith.items.diamond.amount", 1);
+            shopConfig.addDefault(
+              "blacksmith.items.diamond.buy-enabled", true);
+            shopConfig.addDefault(
+              "blacksmith.items.diamond.buy-price", 250);
+            shopConfig.addDefault(
+              "blacksmith.items.diamond.sell-enabled", false);
+
+            // Vanilla item: sell only
+            shopConfig.addDefault(
+              "blacksmith.items.iron_ingot.material", "IRON_INGOT");
+            shopConfig.addDefault(
+              "blacksmith.items.iron_ingot.amount", 1);
+            shopConfig.addDefault(
+              "blacksmith.items.iron_ingot.buy-enabled", false);
+            shopConfig.addDefault(
+              "blacksmith.items.iron_ingot.sell-enabled", true);
+            shopConfig.addDefault(
+              "blacksmith.items.iron_ingot.sell-price", 10);
+
+            // Second shop
+            shopConfig.addDefault(
+              "weapon_vendor.npc-name", "Weapon Vendor");
+            shopConfig.addDefault(
+              "weapon_vendor.title", "&8Weapon Vendor");
+
+            shopConfig.addDefault(
+              "weapon_vendor.items.sword.custom-item", "woodenSword");
+            shopConfig.addDefault(
+              "weapon_vendor.items.sword.amount", 1);
+            shopConfig.addDefault(
+              "weapon_vendor.items.sword.buy-enabled", true);
+            shopConfig.addDefault(
+              "weapon_vendor.items.sword.buy-price", 150);
+            shopConfig.addDefault(
+              "weapon_vendor.items.sword.sell-enabled", false);
+
+            shopConfig.options().copyDefaults(true);
+            break;
+          }
         }
 
         saveData();

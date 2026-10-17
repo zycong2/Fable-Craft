@@ -12,6 +12,7 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlacehold
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
+import io.RPGCraft.FableCraft.Utils.money.ShopManager;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
@@ -69,7 +70,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
-  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
@@ -223,7 +224,7 @@ public final class RPGCraft extends JavaPlugin {
         }
       }, EventValues.TIME_NOW);
 
-
+    ShopManager.register();
 
 
 
