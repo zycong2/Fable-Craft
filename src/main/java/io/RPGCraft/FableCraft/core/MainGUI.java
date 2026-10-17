@@ -4,6 +4,7 @@ import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
+import io.RPGCraft.FableCraft.Utils.GUI.SkillMenu;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
@@ -61,6 +62,14 @@ public class MainGUI implements Listener {
       }
 
       menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));
+      GUIItem skillsButton = new GUIItem(Material.ENCHANTED_BOOK)
+        .name("&aSkills")
+        .lore("&7View your skills and progression")
+        .clickEvent(ce ->
+          SkillMenu.openSkillsMenu(ce.player(), 0)
+        );
+
+      menu.setItem(22, skillsButton);
 
       GUIItem close = new GUIItem(Material.BARRIER)
         .name("&cClose Menu")

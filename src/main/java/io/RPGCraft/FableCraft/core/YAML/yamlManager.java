@@ -452,6 +452,221 @@ public class yamlManager {
             shopConfig.options().copyDefaults(true);
             break;
           }
+
+          case ("skills"): {
+            YamlConfiguration skills = getDefaultDB("skills");
+
+            // FISHING
+            skills.addDefault("fishing.name", "&bFishing");
+            skills.addDefault("fishing.icon", "FISHING_ROD");
+            skills.addDefault("fishing.max-level", 100);
+            skills.addDefault("fishing.description", List.of(
+              "&7Master the art of fishing.",
+              "&7Earn levels by catching fish."
+            ));
+
+            skills.addDefault("fishing.rewards.1.Health", 1);
+            skills.addDefault("fishing.rewards.1.Mana", 1);
+            skills.addDefault("fishing.rewards.5.Regeneration", 1);
+            skills.addDefault("fishing.rewards.10.ManaRegeneration", 1);
+            skills.addDefault("fishing.rewards.25.Health", 5);
+            skills.addDefault("fishing.rewards.25.Defense", 2);
+            skills.addDefault("fishing.rewards.50.AttackDamage", 2);
+            skills.addDefault("fishing.rewards.100.Health", 10);
+            skills.addDefault("fishing.rewards.100.Mana", 10);
+
+            // FORAGING
+            skills.addDefault("foraging.name", "&aForaging");
+            skills.addDefault("foraging.icon", "IRON_AXE");
+            skills.addDefault("foraging.max-level", 100);
+            skills.addDefault("foraging.description", List.of(
+              "&7Gather wood and natural resources.",
+              "&7Become an expert gatherer."
+            ));
+
+            skills.addDefault("foraging.rewards.1.Health", 1);
+            skills.addDefault("foraging.rewards.5.MovementSpeed", 0.01);
+            skills.addDefault("foraging.rewards.10.AttackDamage", 1);
+            skills.addDefault("foraging.rewards.25.Health", 5);
+            skills.addDefault("foraging.rewards.25.Defense", 2);
+            skills.addDefault("foraging.rewards.50.MovementSpeed", 0.02);
+            skills.addDefault("foraging.rewards.100.Health", 10);
+            skills.addDefault("foraging.rewards.100.AttackDamage", 3);
+
+            // COMBAT
+            skills.addDefault("combat.name", "&cCombat");
+            skills.addDefault("combat.icon", "IRON_SWORD");
+            skills.addDefault("combat.max-level", 100);
+            skills.addDefault("combat.description", List.of(
+              "&7Fight enemies to gain experience.",
+              "&7Become a stronger warrior."
+            ));
+
+            skills.addDefault("combat.rewards.1.AttackDamage", 1);
+            skills.addDefault("combat.rewards.1.Health", 1);
+            skills.addDefault("combat.rewards.5.Defense", 1);
+            skills.addDefault("combat.rewards.10.AttackDamage", 2);
+            skills.addDefault("combat.rewards.25.Health", 5);
+            skills.addDefault("combat.rewards.25.Regeneration", 1);
+            skills.addDefault("combat.rewards.50.AttackDamage", 5);
+            skills.addDefault("combat.rewards.50.Defense", 3);
+            skills.addDefault("combat.rewards.100.Health", 20);
+            skills.addDefault("combat.rewards.100.AttackDamage", 10);
+
+            // MINING
+            skills.addDefault("mining.name", "&7Mining");
+            skills.addDefault("mining.icon", "IRON_PICKAXE");
+            skills.addDefault("mining.max-level", 100);
+            skills.addDefault("mining.description", List.of(
+              "&7Mine ores and valuable materials.",
+              "&7Improve your mining abilities."
+            ));
+
+            skills.addDefault("mining.rewards.1.Health", 1);
+            skills.addDefault("mining.rewards.5.Defense", 1);
+            skills.addDefault("mining.rewards.10.Mana", 2);
+            skills.addDefault("mining.rewards.25.Health", 5);
+            skills.addDefault("mining.rewards.25.Defense", 2);
+            skills.addDefault("mining.rewards.50.ManaRegeneration", 2);
+            skills.addDefault("mining.rewards.100.Health", 10);
+            skills.addDefault("mining.rewards.100.Defense", 5);
+
+// XP progression
+            skills.addDefault("progression.base-xp", 100.0);
+            skills.addDefault("progression.xp-per-level", 25.0);
+            skills.addDefault("progression.xp-multiplier", 1.0);
+
+// Boss bar
+            skills.addDefault("display.bossbar.enabled", true);
+            skills.addDefault("display.bossbar.color", "GREEN");
+            skills.addDefault("display.bossbar.style", "PROGRESS");
+            skills.addDefault("display.bossbar.duration-ticks", 80L);
+            skills.addDefault(
+              "display.bossbar.title",
+              "&a%skill% &7Lv. %level% &8| &f%xp%/%required% XP"
+            );
+
+// Level-up title
+            skills.addDefault("display.levelup.enabled", true);
+            skills.addDefault("display.levelup.title", "&6&lLEVEL UP!");
+            skills.addDefault(
+              "display.levelup.subtitle",
+              "&e%skill% &7is now level &a%level%"
+            );
+            skills.addDefault("display.levelup.fade-in-ticks", 10L);
+            skills.addDefault("display.levelup.stay-ticks", 40L);
+            skills.addDefault("display.levelup.fade-out-ticks", 10L);
+
+// Level-up sound
+            skills.addDefault("display.levelup.sound.enabled", true);
+            skills.addDefault(
+              "display.levelup.sound.type",
+              "ENTITY_PLAYER_LEVELUP"
+            );
+            skills.addDefault("display.levelup.sound.volume", 1.0);
+            skills.addDefault("display.levelup.sound.pitch", 1.0);
+
+// Level-up chat message
+            skills.addDefault("display.levelup.chat.enabled", true);
+            skills.addDefault(
+              "display.levelup.chat.message",
+              "&a%skill% reached level %level%!"
+            );
+            // FARMING
+            skills.addDefault("farming.name", "&aFarming");
+            skills.addDefault("farming.icon", "DIAMOND_HOE");
+            skills.addDefault("farming.max-level", 100);
+            skills.addDefault("farming.description", List.of(
+              "&7Harvest crops to gain experience.",
+              "&7Become a master farmer."
+            ));
+
+            skills.addDefault("farming.rewards.1.Health", 1);
+            skills.addDefault("farming.rewards.5.Regeneration", 1);
+            skills.addDefault("farming.rewards.10.Mana", 2);
+            skills.addDefault("farming.rewards.25.Health", 5);
+            skills.addDefault("farming.rewards.25.Defense", 2);
+            skills.addDefault("farming.rewards.50.Regeneration", 2);
+            skills.addDefault("farming.rewards.100.Health", 10);
+
+// FARMING XP: XP awarded for fully grown crops.
+            skills.addDefault("xp-gains.farming.crops.WHEAT", 2.0);
+            skills.addDefault("xp-gains.farming.crops.CARROTS", 2.0);
+            skills.addDefault("xp-gains.farming.crops.POTATOES", 2.0);
+            skills.addDefault("xp-gains.farming.crops.BEETROOTS", 3.0);
+            skills.addDefault("xp-gains.farming.crops.NETHER_WART", 4.0);
+            skills.addDefault("xp-gains.farming.crops.COCOA", 3.0);
+            skills.addDefault("xp-gains.farming.crops.MELON", 5.0);
+            skills.addDefault("xp-gains.farming.crops.PUMPKIN", 5.0);
+            skills.addDefault("xp-gains.farming.crops.SWEET_BERRY_BUSH", 2.0);
+
+// COMBAT XP: XP awarded for killing vanilla mobs.
+            skills.addDefault("xp-gains.combat.vanilla.ZOMBIE", 5.0);
+            skills.addDefault("xp-gains.combat.vanilla.SKELETON", 5.0);
+            skills.addDefault("xp-gains.combat.vanilla.SPIDER", 4.0);
+            skills.addDefault("xp-gains.combat.vanilla.CREEPER", 6.0);
+            skills.addDefault("xp-gains.combat.vanilla.ENDERMAN", 10.0);
+            skills.addDefault("xp-gains.combat.vanilla.BLAZE", 12.0);
+            skills.addDefault("xp-gains.combat.vanilla.WITHER_SKELETON", 15.0);
+            skills.addDefault("xp-gains.combat.vanilla.ENDER_DRAGON", 500.0);
+            skills.addDefault("xp-gains.combat.vanilla.WITHER", 250.0);
+
+// CUSTOM MOB XP: Keys are the IDs used in your mobDB.
+// These IDs are case-sensitive in the current event handler.
+            skills.addDefault("xp-gains.combat.custom-mobs.spider", 25.0);
+
+// Additional examples for custom mobs:
+            skills.addDefault("xp-gains.combat.custom-mobs.goblin", 15.0);
+            skills.addDefault("xp-gains.combat.custom-mobs.boss", 100.0);
+            // FISHING XP
+            skills.addDefault("xp-gains.fishing.items.COD", 3.0);
+            skills.addDefault("xp-gains.fishing.items.SALMON", 5.0);
+            skills.addDefault("xp-gains.fishing.items.TROPICAL_FISH", 8.0);
+            skills.addDefault("xp-gains.fishing.items.PUFFERFISH", 8.0);
+            skills.addDefault("xp-gains.fishing.items.ENCHANTED_BOOK", 15.0);
+            skills.addDefault("xp-gains.fishing.items.NAME_TAG", 10.0);
+            skills.addDefault("xp-gains.fishing.items.NAUTILUS_SHELL", 12.0);
+
+// FORAGING XP
+            skills.addDefault("xp-gains.foraging.blocks.OAK_LOG", 2.0);
+            skills.addDefault("xp-gains.foraging.blocks.SPRUCE_LOG", 2.0);
+            skills.addDefault("xp-gains.foraging.blocks.BIRCH_LOG", 2.0);
+            skills.addDefault("xp-gains.foraging.blocks.JUNGLE_LOG", 3.0);
+            skills.addDefault("xp-gains.foraging.blocks.ACACIA_LOG", 3.0);
+            skills.addDefault("xp-gains.foraging.blocks.DARK_OAK_LOG", 3.0);
+            skills.addDefault("xp-gains.foraging.blocks.MANGROVE_LOG", 4.0);
+            skills.addDefault("xp-gains.foraging.blocks.CHERRY_LOG", 4.0);
+            skills.addDefault("xp-gains.foraging.blocks.CRIMSON_STEM", 4.0);
+            skills.addDefault("xp-gains.foraging.blocks.WARPED_STEM", 4.0);
+
+// MINING XP
+            skills.addDefault("xp-gains.mining.blocks.COAL_ORE", 2.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_COAL_ORE", 3.0);
+            skills.addDefault("xp-gains.mining.blocks.COPPER_ORE", 3.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_COPPER_ORE", 4.0);
+            skills.addDefault("xp-gains.mining.blocks.IRON_ORE", 4.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_IRON_ORE", 5.0);
+            skills.addDefault("xp-gains.mining.blocks.GOLD_ORE", 5.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_GOLD_ORE", 6.0);
+            skills.addDefault("xp-gains.mining.blocks.REDSTONE_ORE", 4.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_REDSTONE_ORE", 5.0);
+            skills.addDefault("xp-gains.mining.blocks.LAPIS_ORE", 5.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_LAPIS_ORE", 6.0);
+            skills.addDefault("xp-gains.mining.blocks.DIAMOND_ORE", 10.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_DIAMOND_ORE", 12.0);
+            skills.addDefault("xp-gains.mining.blocks.EMERALD_ORE", 12.0);
+            skills.addDefault("xp-gains.mining.blocks.DEEPSLATE_EMERALD_ORE", 14.0);
+            skills.addDefault("xp-gains.mining.blocks.NETHER_GOLD_ORE", 4.0);
+            skills.addDefault("xp-gains.mining.blocks.NETHER_QUARTZ_ORE", 3.0);
+            skills.addDefault("xp-gains.mining.blocks.ANCIENT_DEBRIS", 20.0);
+
+
+
+            skills.options().copyDefaults(true);
+            break;
+
+          }
+
         }
 
         saveData();

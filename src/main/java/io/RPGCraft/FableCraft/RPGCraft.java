@@ -11,6 +11,7 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUIListener;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
+import io.RPGCraft.FableCraft.Utils.SkillProgression;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
 import io.RPGCraft.FableCraft.Utils.money.ShopManager;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
@@ -109,7 +110,8 @@ public final class RPGCraft extends JavaPlugin {
       new mobsEditor(),
       new buildingBreaking(),
       new abilities(),
-      new MainGUI()
+      new MainGUI(),
+      new SkillProgression()
     );
 
     try{
