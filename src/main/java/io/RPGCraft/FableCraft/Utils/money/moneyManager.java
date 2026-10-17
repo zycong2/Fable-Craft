@@ -8,7 +8,8 @@ import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 public class moneyManager {
   public static void setMoney(Player p, int amount){
     setPlayerPDC("money", p, String.valueOf(amount));
-  } public static int getMoney(Player p){
+  }
+  public static int getMoney(Player p){
     String money = getPlayerPDC("money", p);
     if (money != null) {
       return Integer.parseInt(money);

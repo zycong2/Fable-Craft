@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.IsLuckperms;
+import static io.RPGCraft.FableCraft.Utils.money.moneyManager.getMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static org.bukkit.Bukkit.getServer;
 
@@ -94,6 +95,14 @@ public class PlayerPlaceholders {
       return prefix;
     }else{
       return Colorize("The mob is not a living entity");
+    }
+  }
+  @Placeholder(name = "money")
+  public static String money(Entity e){
+    if (e instanceof Player p){
+      return String.valueOf(getMoney(p));
+    } else{
+      return Colorize("The mob is not a player");
     }
   }
 

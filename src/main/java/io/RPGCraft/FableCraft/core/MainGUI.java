@@ -9,6 +9,7 @@ import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.minecraft.world.item.component.TooltipDisplay;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -24,9 +25,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.getPlugin;
+import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static io.RPGCraft.FableCraft.Utils.GUI.GUIItem.ItemStackToGUIItem;
+import static io.RPGCraft.FableCraft.Utils.money.moneyManager.getMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.*;
 
@@ -38,25 +39,25 @@ public class MainGUI implements Listener {
   // Right-click with Nether Star to open profile menu
   @EventHandler
   void onInteraction(PlayerInteractEvent event) {
+
     String name = event.getPlayer().getName();
     GUIItem menuItem = new GUIItem()
       .material(Material.NETHER_STAR)
       .name("&6RPG Menu");
-    if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) &&
-      Objects.equals(event.getItem(), menuItem.toItemStack())) {
+    Bukkit.getLogger().info(event.getPlayer().getInventory().getItemInMainHand() + "         " + menuItem.toItemStack());
+
+
+    if (event.getPlayer().getInventory().getItemInMainHand().equals(menuItem.toItemStack())) {
+
+
       GUI menu = new GUI(name + "'s Menu", GUI.Rows.FIVE);
-      // Filling up empty slots with gray glass pane
-      for(int i = 0; i < 54;i++){
-        GUIItem guiItem = new GUIItem(Material.GRAY_STAINED_GLASS_PANE);
-        TooltipDisplay tooltipDisplay = new TooltipDisplay(true, null);
-        guiItem.data(DataComponentTypes.TOOLTIP_DISPLAY, tooltipDisplay);
-        menu.setItem(i, guiItem);
-      }
-      String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
-      String[] formattedSkills = new String[skills.length];
-      for (int i = 0; i < skills.length; ++i) {
-        String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills[i] + ".char", event.getPlayer(), true));
-        formattedSkills[i] = Colorize(statLine + " " + getPlayerPDC(skills[i], event.getPlayer()) + " " + skills[i]);
+
+      List<String> skills = itemStats;
+      String[] formattedSkills = new String[skills.size() + 1];
+      formattedSkills[0] = Colorize("&fMoney: " + getMoney(event.getPlayer()));
+      for (int i = 1; i < skills.size(); ++i) {
+        String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills.get(i)+ ".char", event.getPlayer(), true));
+        formattedSkills[i+1] = Colorize(statLine + " " + getPlayerPDC(skills.get(i), event.getPlayer()) + " " + skills.get(i));
       }
 
       menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));

@@ -19,6 +19,9 @@ public class resetPDC implements CommandInterface {
     if (!p.hasPermission("FableCraft.resetPDC")) {
       p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
+    }if (args.length == 0){
+      p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+      return true;
     }
 
     PersistentDataContainer container = p.getPersistentDataContainer();

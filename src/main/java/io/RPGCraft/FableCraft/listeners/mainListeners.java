@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.Utils.money.moneyManager;
 import io.RPGCraft.FableCraft.commands.resetStats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
@@ -15,10 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -121,6 +120,12 @@ public class mainListeners implements Listener {
     }
 
     moneyManager.getMoney(p);
+    GUIItem menuItem = new GUIItem()
+      .material(Material.NETHER_STAR)
+      .name("&6RPG Menu");
+    p.getInventory().setHeldItemSlot(8);
+    p.getInventory().setItemInMainHand(menuItem.toItemStack());
+    p.getInventory().setHeldItemSlot(0);
   }
 
   // When player quits, remove any gear-based stats and notify players
@@ -172,33 +177,6 @@ public class mainListeners implements Listener {
     }
   }
 
-  /**
-   *
-   * Moved to Stats.java
-   *
-   */
-
-  /* Modify damage taken/dealt based on stats
-  @EventHandler
-  void onDamage(EntityDamageEvent event) {
-    if(isCitizensNPC(event.getEntity())){return;}
-    if (event.getEntityType().equals(EntityType.PLAYER)) {
-      Player p = (Player)event.getEntity();
-      double maxPlayerHealth = Double.parseDouble(getPlayerPDC("Health", p));
-      double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-      double playerDefense = Double.parseDouble(getPlayerPDC("Defense", p));
-      double damage = event.getDamage() - playerDefense * (double)10.0F;
-      currentHealth -= damage;
-      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
-      double scaledHealth = (double)20.0F / maxPlayerHealth * damage;
-      event.setDamage(Math.abs(scaledHealth));
-    } else if (event instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Player p) {
-      event.setDamage(event.getDamage() + Double.valueOf(getPlayerPDC("Damage", p)));
-      if (PDCHelper.getEntityPDC("type", event.getEntity()) != null){
-        event.getEntity().customName(MM(Placeholder.setPlaceholders((String) Objects.requireNonNull(yamlManager.getInstance().getFileConfig("mobDB").get(PDCHelper.getEntityPDC("type", event.getEntity()) + ".customName.name")), true, event.getEntity())));
-      }
-    }
-  }*/
 
   // Reset health metadata on respawn
   @EventHandler
@@ -246,81 +224,22 @@ public class mainListeners implements Listener {
     }
   }
 
-  /**
-   *
-   * Moved to Stats.java
-   *
-   */
-
-  /*// Adjust stats on armor change
   @EventHandler
-  void onArmorChange(PlayerArmorChangeEvent event) {
-    Player p = event.getPlayer();
-    if (!event.getOldItem().equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getOldItem()) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, event.getOldItem()))));
-        }
-      }
+  void itemMove(InventoryClickEvent event){
+    GUIItem menuItem = new GUIItem()
+      .material(Material.NETHER_STAR)
+      .name("&6RPG Menu");
+    if (event.getCurrentItem().equals(menuItem.toItemStack())){
+      event.setCancelled(true);
     }
-
-    if (!event.getNewItem().equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, event.getNewItem()) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, event.getNewItem()))));
-        }
-      }
-    }
-
-    stats.checkCurrentStats(p);
-  }
-
-  // Adjust stats on hotbar item switch
-  @EventHandler
-  void onHoldChange(PlayerItemHeldEvent event) {
-    Player p = event.getPlayer();
-    ItemStack oldItem = p.getInventory().getItem(event.getPreviousSlot());
-    ItemStack newItem = p.getInventory().getItem(event.getNewSlot());
-
-    if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
-        }
-      }
-    }
-
-    if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
-        }
-      }
-    }
-    stats.checkCurrentStats(p);
   }
   @EventHandler
-  void onInventoryMove(PlayerInventorySlotChangeEvent event){
-    Player p = event.getPlayer();
-    ItemStack oldItem = event.getOldItemStack();
-    ItemStack newItem = event.getNewItemStack();
-    if (event.getSlot() != event.getPlayer().getInventory().getHeldItemSlot()) { return; }
-
-    if (oldItem != null && !oldItem.equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, oldItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, oldItem))));
-        }
-      }
+  void itemDrop(PlayerDropItemEvent event){
+    GUIItem menuItem = new GUIItem()
+      .material(Material.NETHER_STAR)
+      .name("&6RPG Menu");
+    if (event.getItemDrop().getItemStack().equals(menuItem.toItemStack())){
+      event.setCancelled(true);
     }
-
-    if (newItem != null && !newItem.equals(ItemStack.of(Material.AIR))) {
-      for (String s : RPGCraft.itemStats) {
-        if (getItemPDC(s, newItem) != null && getPlayerPDC(s, p) != null) {
-          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) + Double.parseDouble(getItemPDC(s, newItem))));
-        }
-      }
-    }
-    stats.checkCurrentStats(p);
-  }*/
+  }
 }

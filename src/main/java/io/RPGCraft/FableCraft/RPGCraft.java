@@ -23,6 +23,7 @@ import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
@@ -106,7 +107,8 @@ public final class RPGCraft extends JavaPlugin {
       new GUIListener(),
       new mobsEditor(),
       new buildingBreaking(),
-      new abilities()
+      new abilities(),
+      new MainGUI()
     );
 
     try{
