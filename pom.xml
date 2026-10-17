@@ -58,6 +58,12 @@
       <url>https://jitpack.io</url>
     </repository>
 
+    <repository>
+      <id>skript-releases</id>
+      <name>Skript Repository</name>
+      <url>https://repo.skriptlang.org/releases</url>
+    </repository>
+
   </repositories>
 
   <!-- ================= DEPENDENCIES ================= -->
@@ -159,6 +165,14 @@
       <groupId>systems.manifold</groupId>
       <artifactId>manifold-params-rt</artifactId>
       <version>${manifold.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.SkriptLang</groupId>
+      <artifactId>Skript</artifactId>
+      <!-- Replace with your target Skript version, e.g., 2.9.1 -->
+      <version>2.17.0</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>

@@ -40,6 +40,7 @@ and the need to install only one single plugin
 - Custom loot tables
   - Compatible with quest rewards mob drops and can use items out of the itemDB
 - Item break and place safety
+- Skript support
 
 
 ## Features Overview
@@ -90,7 +91,14 @@ and the need to install only one single plugin
   - Author:
     This option is also a book exclusive option that sets the author or the book.
   
-### Mobs:
-
-
-
+### Skript support:
+- Added 3 extra events: \
+  - on quest complete: \
+      - Will be called when a quest is completed
+      - Gives event-quest event-player
+  - on quest start: \
+    - Will be called when a quest is started
+    - Gives event-quest event-player
+  - on quest update: \
+    - Will be called when a quest is updated
+    - Gives event-quest event-player and location of next objective (if given in config)

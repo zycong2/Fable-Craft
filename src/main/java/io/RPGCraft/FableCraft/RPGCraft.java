@@ -1,5 +1,9 @@
 package io.RPGCraft.FableCraft;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.util.SimpleEvent;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
@@ -8,6 +12,9 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.DefensePlacehold
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.buildHelper;
@@ -29,6 +36,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -71,7 +79,7 @@ public final class RPGCraft extends JavaPlugin {
 
   public static Plugin getPlugin() { return Bukkit.getServer().getPluginManager().getPlugin("RPGCraft"); }
 
-
+  @Override
   public void onEnable() {
     if (!yamlManager.getInstance().loadData()) { //don't ever put code in the line before this one otherwise you WILL get errors
       Bukkit.getLogger().severe("Failed to load config!");
@@ -158,6 +166,75 @@ public final class RPGCraft extends JavaPlugin {
     }, 20L, 20L);
     //startPinnedMessageTask();
     //startListenPacketPINNED(this);
+
+    //Skript support
+    Skript.registerEvent("quest start", SimpleEvent.class, onQuestStart.class, "quest start");
+
+    EventValues.registerEventValue(onQuestStart.class, Player.class,
+      new Getter<Player, onQuestStart>() {
+        @Override
+        public Player get(onQuestStart event) {
+          return event.getPlayer();
+        }
+      }, EventValues.TIME_NOW);
+
+    EventValues.registerEventValue(onQuestStart.class, String.class,
+      new Getter<String, onQuestStart>() {
+        @Override
+        public String get(onQuestStart event) {
+          return event.getContextString();
+        }
+      }, EventValues.TIME_NOW);
+
+    Skript.registerEvent("quest complete", SimpleEvent.class, onQuestComplete.class, "quest complete");
+
+    EventValues.registerEventValue(onQuestComplete.class, Player.class,
+      new Getter<Player, onQuestComplete>() {
+        @Override
+        public Player get(onQuestComplete event) {
+          return event.getPlayer();
+        }
+      }, EventValues.TIME_NOW);
+
+    EventValues.registerEventValue(onQuestComplete.class, String.class,
+      new Getter<String, onQuestComplete>() {
+        @Override
+        public String get(onQuestComplete event) {
+          return event.getContextString();
+        }
+      }, EventValues.TIME_NOW);
+
+
+    Skript.registerEvent("quest update", SimpleEvent.class, onQuestUpdate.class, "quest update");
+
+    EventValues.registerEventValue(onQuestUpdate.class, Player.class,
+      new Getter<Player, onQuestUpdate>() {
+        @Override
+        public Player get(onQuestUpdate event) {
+          return event.getPlayer();
+        }
+      }, EventValues.TIME_NOW);
+
+    EventValues.registerEventValue(onQuestUpdate.class, String.class,
+      new Getter<String, onQuestUpdate>() {
+        @Override
+        public String get(onQuestUpdate event) {
+          return event.getContextString();
+        }
+      }, EventValues.TIME_NOW);
+
+    EventValues.registerEventValue(onQuestUpdate.class, Location.class,
+      new Getter<Location, onQuestUpdate>() {
+        @Override
+        public Location get(onQuestUpdate event) {
+          return event.getLocation();
+        }
+      }, EventValues.TIME_NOW);
+
+
+
+
+
     RPGCraft.wait(5, new BukkitRunnable() {
       @Override
       public void run() {

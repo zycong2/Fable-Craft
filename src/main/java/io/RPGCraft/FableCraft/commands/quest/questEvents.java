@@ -1,8 +1,10 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
+import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +15,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.commands.quest.questManager.finishedQuest;
+import static io.RPGCraft.FableCraft.commands.quest.questManager.parseLocation;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 
 public class questEvents implements Listener {
@@ -43,6 +46,15 @@ public class questEvents implements Listener {
           if (Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) >= Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value").toString())) {
             PDCHelper.setPlayerPDC(quest + ".step", killer, getPlayerPDC(quest + ".step", killer) + 1);
 
+            Location loc = parseLocation(quest + ".step." + (getPlayerPDC(quest + ".step", killer) + 1) + ".location");
+            if (loc != null){
+              onQuestUpdate e = new onQuestUpdate(killer, quest, loc);
+              Bukkit.getPluginManager().callEvent(e);
+            } else{
+              onQuestUpdate e = new onQuestUpdate(killer, quest, null);
+              Bukkit.getPluginManager().callEvent(e);
+            }
+
             if (Integer.parseInt(getPlayerPDC(quest + ".step", killer)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
               finishedQuest(killer, quest);
             } else {
@@ -67,6 +79,15 @@ public class questEvents implements Listener {
 
       if (event.getItem().getType().toString().equals(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))) {
         PDCHelper.setPlayerPDC(quest + ".progress", p, getPlayerPDC(quest + ".progress", p) + 1);
+        Location loc = parseLocation(quest + ".step." + (getPlayerPDC(quest + ".step", p) + 1) + ".location");
+        if (loc != null){
+          onQuestUpdate e = new onQuestUpdate(p, quest, loc);
+          Bukkit.getPluginManager().callEvent(e);
+        } else{
+          onQuestUpdate e = new onQuestUpdate(p, quest, null);
+          Bukkit.getPluginManager().callEvent(e);
+        }
+
         if (getPlayerPDC(quest + ".progress", p) == yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")) {
           PDCHelper.setPlayerPDC(quest + ".step", p, getPlayerPDC(quest + ".step", p) + 1);
           if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {

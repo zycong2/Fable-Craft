@@ -1,11 +1,15 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
+import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +30,9 @@ public class questManager {
       PDCHelper.setPlayerPDC(quest + ".step", p, "1");
       PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
       p.sendMessage(yamlGetter.getMessage("messages.info.quests.start", p, true));
+
+      onQuestStart event = new onQuestStart(p, quest);
+      Bukkit.getPluginManager().callEvent(event);
     } else {
       p.sendMessage(yamlGetter.getMessage("messages.error.questAlreadyStarted", null, true));
     }
@@ -49,6 +56,8 @@ public class questManager {
         }
       }
     }
+    onQuestComplete event = new onQuestComplete(p, quest);
+    Bukkit.getPluginManager().callEvent(event);
   }
 
   public static void talkedNPC(Player p, String NPC){
@@ -75,6 +84,7 @@ public class questManager {
         Bukkit.getLogger().info(getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions").toString());
         Bukkit.getLogger().info(String.valueOf(yamlGetter.getAllNodesInDB("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions").size()));
         int delay = 0;
+        Location loc = new Location(Bukkit.getWorld("world"), 0, 0, 0);
         for (Object s : getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
 
           Bukkit.getLogger().info(s.toString());
@@ -98,6 +108,9 @@ public class questManager {
                     }
                   }, delay);
                 }
+                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
+                  loc = parseLocation(quest + ".steps." +  (getPlayerPDC(quest + ".step", p)+1) + ".location");
+                }
               }
               break;
 
@@ -109,7 +122,10 @@ public class questManager {
                   Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
                     p.sendMessage(s2.toString());
                   }, delay);
-                  delay += (int)yamlGetter.getConfig("quests.npc.talk.delay");
+                  delay += Integer.parseInt(yamlGetter.getConfig("quests.npc.talk.delay").toString());
+                }
+                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
+                  loc = parseLocation(quest + ".steps." +  (getPlayerPDC(quest + ".step", p)+1) + ".location");
                 }
               }
               break;
@@ -133,12 +149,15 @@ public class questManager {
                     } else {
                       Bukkit.getLogger().info("custom item");
 
-                      for (int i = 0; i <= Integer.parseInt(data.getLast())-1; i++) {
+                      for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
                         Bukkit.getLogger().info(data.getFirst());
                         p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
                       }
                     }
                   }, delay);
+                }
+                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
+                  loc = parseLocation(quest + ".steps." + (getPlayerPDC(quest + ".step", p)+1) + ".location");
                 }
               }
               break;
@@ -152,6 +171,9 @@ public class questManager {
         } else {
           PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
         }
+
+        onQuestUpdate event = new onQuestUpdate(p, quest, loc);
+        Bukkit.getPluginManager().callEvent(event);
       }
     }else {
       tryNewQuest(List.of(), p, NPC);
@@ -166,6 +188,20 @@ public class questManager {
           startQuest(p, replace);
         }
       }
+    }
+  }
+
+  static Location parseLocation(String path){
+    try {
+      Location loc = new Location(
+        Bukkit.getWorld(yamlGetter.getPathInDB("quest", path + ".world").toString()),
+        (Double) yamlGetter.getPathInDB("quest", path + ".x"),
+        (Double) yamlGetter.getPathInDB("quest", path + ".y"),
+        (Double) yamlGetter.getPathInDB("quest", path + ".z")
+      );
+      return loc;
+    } catch (NullPointerException er){
+      return null;
     }
   }
 }

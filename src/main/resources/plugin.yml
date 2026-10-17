@@ -5,6 +5,8 @@ api-version: '1.21.4'
 authors: [ zycong, Tonnam_101]
 description: RPG style plugin.
 license: MIT
+depend: [Skript, Citizens, Vault, LuckPerms]
+
 
 commands:
   RPGCraft:
