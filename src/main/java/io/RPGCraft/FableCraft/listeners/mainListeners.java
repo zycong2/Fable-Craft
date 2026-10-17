@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.money.moneyManager;
 import io.RPGCraft.FableCraft.commands.resetStats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
@@ -118,6 +119,8 @@ public class mainListeners implements Listener {
         p.setMetadata(s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
       }
     }
+
+    moneyManager.getMoney(p);
   }
 
   // When player quits, remove any gear-based stats and notify players

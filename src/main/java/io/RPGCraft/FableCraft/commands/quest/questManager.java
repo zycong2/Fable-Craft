@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collections;
 import java.util.List;
 
+import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
@@ -47,14 +48,30 @@ public class questManager {
       for (ItemStack item : rewards) {
         p.getInventory().addItem(item);
       }
-    } else if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof List rewards){
-      for (Object s : rewards){
-        if (Material.getMaterial(s.toString()) != null){
-          p.getInventory().addItem(ItemStack.of(Material.getMaterial(s.toString())));
-        } else if (yamlManager.getInstance().getItem(s.toString()) != null){
-          p.getInventory().addItem(yamlManager.getInstance().getItem(s.toString()));
-        }
+    }
+    else if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof List rewards){
+      List<String> data = new java.util.ArrayList<>(List.of(rewards.toString().replace("[", "").replace("]", "").split(":")));
+      if (data.size() != 2){
+        data.add(String.valueOf(1));
       }
+        boolean given = false;
+        if (Material.getMaterial(data.getFirst()) != null) {
+          p.getInventory().addItem(ItemStack.of(Material.getMaterial(data.getFirst()), Integer.parseInt(data.getLast())));
+          given = true;
+        } else {
+
+          for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
+            Bukkit.getLogger().info(data.getLast());
+            p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
+            given = true;
+          }
+          if (!given){
+            if (data.getFirst().equalsIgnoreCase("money")){
+              addMoney(p, Integer.parseInt(data.getLast()));
+              p.sendMessage("&aYou have received " + data.getLast() + " money!");
+            }
+          }
+        }
     }
     onQuestComplete event = new onQuestComplete(p, quest);
     Bukkit.getPluginManager().callEvent(event);
@@ -134,16 +151,23 @@ public class questManager {
                   if (data.size() != 2){
                     data.add(String.valueOf(1));
                   }
-
-                  //Bukkit.getLogger().info(Material.getMaterial(data.getFirst()).toString());
                   Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
+                    boolean given = false;
                     if (Material.getMaterial(data.getFirst()) != null) {
                       p.getInventory().addItem(ItemStack.of(Material.getMaterial(data.getFirst()), Integer.parseInt(data.getLast())));
+                      given = true;
                     } else {
 
                       for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
                         Bukkit.getLogger().info(data.getLast());
                         p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
+                        given = true;
+                      }
+                      if (!given){
+                        if (data.getFirst().equalsIgnoreCase("money")){
+                          addMoney(p, Integer.parseInt(data.getLast()));
+                          p.sendMessage("&aYou have received " + data.getLast() + " money!");
+                        }
                       }
                     }
                   }, delay);
