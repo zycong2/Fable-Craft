@@ -23,25 +23,23 @@ public class questEvents implements Listener {
   @EventHandler
   public void onEntityDeath(EntityDeathEvent event){
     LivingEntity entity = event.getEntity();
-    Player killer = entity.getKiller();
-    if (killer != null){
+    LivingEntity kil = entity.getKiller();
+    if (kil instanceof Player killer){
       String quests = getPlayerPDC("quests", killer); //;quest1
       if (getPlayerPDC("quests", killer) == null || quests.isEmpty()) { return; }
       List<String> questsList = List.of(quests.split(";")); // "", "quest1"
       for (String quest : questsList) {
         if (quest.isEmpty()) {
-          return;
+          continue;
         }
-
         if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type") != null) {
           if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) {
-            return;
+            continue;
           }
-          Bukkit.getLogger().info("quest is a kill quest entity is " + entity.getType() + " and type to get is " + yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity"));
           if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) {
            if(!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString().equalsIgnoreCase("NPC")
               && !isCitizensNPC(event.getEntity()) ) {
-             return;
+             continue;
            }
           }
 

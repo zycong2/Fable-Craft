@@ -86,9 +86,11 @@ public class Stats implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     void onPlayerAttack(EntityDamageByEntityEvent event){
-        if (event.getDamager() instanceof Player player){
-          double strength = Double.parseDouble(getPlayerPDC("AttackDamage", player));
-          event.setDamage(strength);
+        if (event.getDamager() instanceof Player player) {
+          try {
+            double strength = Double.parseDouble(getPlayerPDC("AttackDamage", player));
+            event.setDamage(strength);
+          }catch (NullPointerException ignored) {}
         }
     }
 
@@ -105,31 +107,34 @@ public class Stats implements Listener {
     }
   }
 
-  @EventHandler
+  /*@EventHandler
   void onPlayerDamage(EntityDamageEvent e){
     if(e.getEntity() instanceof Player player) {
-      if (getPlayerPDC("Defense", player) != null) {
+      try{
         double defense = Double.parseDouble(getPlayerPDC("Defense", player));
         double damage = e.getDamage();
         double finalDamage = damage - ((defense / (defense + 100)) * damage);
         e.setDamage(finalDamage);
-      }
+      } catch (NullPointerException ignored) {}
     }
-  }
+  }*/
 
   @EventHandler
   void onDamage(EntityDamageEvent event) {
     double damage = event.getDamage();
     if (event.getEntity() instanceof Player p) { //if player gets damage
-      //StatsMemory stats = p.getStatsMemory();
-      double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
-      double health = p.getMetadata("currentHealth").getFirst().asDouble();
-      double defense = Double.parseDouble(getPlayerPDC("Defense", p));
-      double finalDamage = damage - ((defense/(defense+100))*damage);
-      health -= finalDamage;
-      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
-      double scaledHealth = 20.0 / maxHealth * finalDamage;
-      event.setDamage((double) Math.round(scaledHealth * 100) /100);
+      try {
+        //StatsMemory stats = p.getStatsMemory();
+        double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
+        double health = p.getMetadata("currentHealth").getFirst().asDouble();
+        double defense = Double.parseDouble(getPlayerPDC("Defense", p));
+        double finalDamage = damage - ((defense / (defense + 100)) * damage);
+        health -= finalDamage;
+        p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
+        double scaledHealth = 20.0 / maxHealth * finalDamage;
+        event.setDamage((double) Math.round(scaledHealth * 100) / 100);
+      }
+      catch (NullPointerException ignored) {}
 
     } else if (event instanceof EntityDamageByEntityEvent entityEvent //if player deals damage
               && entityEvent.getDamager() instanceof Player p) {
