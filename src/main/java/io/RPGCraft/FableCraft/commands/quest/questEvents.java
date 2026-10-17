@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import java.util.List;
 
+import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.finishedQuest;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.parseLocation;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
@@ -29,16 +30,19 @@ public class questEvents implements Listener {
       List<String> questsList = List.of(quests.split(";")); // "", "quest1"
       for (String quest : questsList) {
         if (quest.isEmpty()) {
-          continue;
+          return;
         }
 
         if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type") != null) {
           if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) {
-            continue;
+            return;
           }
           Bukkit.getLogger().info("quest is a kill quest entity is " + entity.getType() + " and type to get is " + yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity"));
           if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) {
-            continue;
+           if(!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString().equalsIgnoreCase("NPC")
+              && !isCitizensNPC(event.getEntity()) ) {
+             return;
+           }
           }
 
 

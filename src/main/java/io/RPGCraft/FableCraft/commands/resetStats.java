@@ -2,7 +2,6 @@ package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
-import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,7 +16,7 @@ import java.util.List;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
-public class stats implements CommandInterface {
+public class resetStats implements CommandInterface {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
         if (!p.hasPermission("FableCraft.resetStats")) {
@@ -35,7 +34,12 @@ public class stats implements CommandInterface {
         for(String skill : skills) {
           setPlayerPDC(skill, p, String.valueOf(Double.valueOf(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
         }
-        stats.checkCurrentStats(player);
+
+        for (String st : List.of("Health", "Mana")) {
+          p.setMetadata("current" + st, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + st, p)));
+        }
+
+        resetStats.checkCurrentStats(player);
         p.sendMessage(yamlGetter.getMessage("messages.info.resetSuccess", player, true));
         return true;
     }

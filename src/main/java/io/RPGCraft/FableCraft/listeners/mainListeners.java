@@ -1,7 +1,7 @@
 package io.RPGCraft.FableCraft.listeners;
 
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.commands.resetStats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -112,7 +112,8 @@ public class mainListeners implements Listener {
       }
     }
 
-    stats.checkCurrentStats(p);for (String s : itemStats){
+    resetStats.checkCurrentStats(p);
+    for (String s : itemStats){
       if (getPlayerPDC(s, p) == null) {
         p.setMetadata(s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
       }
@@ -147,7 +148,7 @@ public class mainListeners implements Listener {
       }
     }
 
-    stats.checkCurrentStats(p);
+    resetStats.checkCurrentStats(p);
 
     // Update metadata backup
     for (String s : itemStats) {

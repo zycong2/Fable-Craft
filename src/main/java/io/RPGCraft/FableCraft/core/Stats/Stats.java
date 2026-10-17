@@ -2,7 +2,7 @@ package io.RPGCraft.FableCraft.core.Stats;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.RPGCraft.FableCraft.RPGCraft;
-import io.RPGCraft.FableCraft.commands.stats;
+import io.RPGCraft.FableCraft.commands.resetStats;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -13,6 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -53,7 +54,7 @@ public class Stats implements Listener {
       }
     }
 
-    io.RPGCraft.FableCraft.commands.stats.checkCurrentStats(p);
+    resetStats.checkCurrentStats(p);
   }
 
   @EventHandler
@@ -80,7 +81,7 @@ public class Stats implements Listener {
         }
       }
     }
-    stats.checkCurrentStats(p);
+    resetStats.checkCurrentStats(p);
   }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -92,20 +93,32 @@ public class Stats implements Listener {
     }
 
   @EventHandler
+  void onDrop(PlayerDropItemEvent event){
+    Player p = event.getPlayer();
+    ItemStack item = event.getItemDrop().getItemStack();
+    if (!item.equals(ItemStack.of(Material.AIR))) {
+      for (String s : RPGCraft.itemStats) {
+        if (getItemPDC(s, item) != null && getPlayerPDC(s, p) != null) {
+          setPlayerPDC(s, p, String.valueOf(Double.parseDouble(getPlayerPDC(s, p)) - Double.parseDouble(getItemPDC(s, item))));
+        }
+      }
+    }
+  }
+
+  @EventHandler
   void onPlayerDamage(EntityDamageEvent e){
     if(e.getEntity() instanceof Player player) {
-     /* StatsMemory stats = player.getStatsMemory();
-      Double defense = stats.getDefense();*/
-      double defense = Double.parseDouble(getPlayerPDC("Defense", player));
-      double damage = e.getDamage();
-      double finalDamage = damage - ((defense/(defense+100))*damage);
-      e.setDamage(finalDamage);
+      if (getPlayerPDC("Defense", player) != null) {
+        double defense = Double.parseDouble(getPlayerPDC("Defense", player));
+        double damage = e.getDamage();
+        double finalDamage = damage - ((defense / (defense + 100)) * damage);
+        e.setDamage(finalDamage);
+      }
     }
   }
 
   @EventHandler
   void onDamage(EntityDamageEvent event) {
-    if(isCitizensNPC(event.getEntity())){return;}
     double damage = event.getDamage();
     if (event.getEntity() instanceof Player p) { //if player gets damage
       //StatsMemory stats = p.getStatsMemory();
@@ -117,6 +130,7 @@ public class Stats implements Listener {
       p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
       double scaledHealth = 20.0 / maxHealth * finalDamage;
       event.setDamage((double) Math.round(scaledHealth * 100) /100);
+
     } else if (event instanceof EntityDamageByEntityEvent entityEvent //if player deals damage
               && entityEvent.getDamager() instanceof Player p) {
 
@@ -130,5 +144,4 @@ public class Stats implements Listener {
       }
     }
   }
-
 }
