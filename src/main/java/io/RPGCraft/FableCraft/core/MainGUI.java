@@ -45,8 +45,6 @@ public class MainGUI implements Listener {
     GUIItem menuItem = new GUIItem()
       .material(Material.NETHER_STAR)
       .name("&6RPG Menu");
-    Bukkit.getLogger().info(event.getPlayer().getInventory().getItemInMainHand() + "         " + menuItem.toItemStack());
-
 
     if (event.getPlayer().getInventory().getItemInMainHand().equals(menuItem.toItemStack())) {
 
@@ -58,7 +56,7 @@ public class MainGUI implements Listener {
       formattedSkills[0] = Colorize("&fMoney: " + getMoney(event.getPlayer()));
       for (int i = 1; i < skills.size(); ++i) {
         String statLine = String.valueOf(yamlGetter.getConfig("stats." + skills.get(i)+ ".char", event.getPlayer(), true));
-        formattedSkills[i+1] = Colorize(statLine + " " + getPlayerPDC(skills.get(i), event.getPlayer()) + " " + skills.get(i));
+        formattedSkills[i] = Colorize(statLine + " " + getPlayerPDC(skills.get(i), event.getPlayer()) + " " + skills.get(i));
       }
 
       menu.setItem(4, RPGCraft.createGuiHead(event.getPlayer(), "&eProfile", formattedSkills));

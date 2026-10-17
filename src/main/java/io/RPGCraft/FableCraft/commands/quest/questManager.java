@@ -25,6 +25,12 @@ import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
 public class questManager {
+
+  // ------------------------------------------------------------------
+  // State helpers
+  // ------------------------------------------------------------------
+
+  /** ";quest1;quest2" -> ["quest1", "quest2"] (never contains empty strings). */
   private static List<String> readList(String key, Player p) {
     List<String> out = new ArrayList<>();
     String raw = getPlayerPDC(key, p);
@@ -44,17 +50,21 @@ public class questManager {
   }
 
   public static List<String> getCompletedQuests(Player p) {
+    // lowercase on purpose: NamespacedKey rejects uppercase characters
     return readList("completed_quests", p);
   }
 
+  /** Current step as a real int (0 if the player has no step stored). */
   public static int getStep(Player p, String quest) {
     return toInt(getPlayerPDC(quest + ".step", p), 0);
   }
 
+  /** quests.<quest>.steps.<step>.<field> from the quests YAML (null if missing). */
   static Object stepOption(String quest, int step, String field) {
     return yamlGetter.getPathInDB("quests", quest + ".steps." + step + "." + field);
   }
 
+  /** YAML numbers arrive as Integer, PDC values as String - handle both. */
   static int toInt(Object o, int fallback) {
     if (o instanceof Number n) return n.intValue();
     if (o == null) return fallback;
@@ -69,6 +79,16 @@ public class questManager {
     return ChatColor.translateAlternateColorCodes('&', s);
   }
 
+  /** Flip to false once quests behave. */
+  static final boolean DEBUG = true;
+
+  static void debug(String msg) {
+    if (DEBUG) Bukkit.getLogger().info("[Quests] " + msg);
+  }
+
+  // ------------------------------------------------------------------
+  // Start / progress / finish
+  // ------------------------------------------------------------------
 
   public static void startQuest(Player p, String quest) {
     quest = quest.replace(",", "").replace(";", "").replace(" ", "");
@@ -88,6 +108,7 @@ public class questManager {
     Bukkit.getPluginManager().callEvent(new onQuestStart(p, quest));
   }
 
+  /** Move to the next step, or finish the quest if that was the last one. */
   public static void advanceStep(Player p, String quest) {
     int next = getStep(p, quest) + 1;
     int total = toInt(yamlGetter.getPathInDB("quests", quest + ".steps.amount"), 0);
@@ -100,19 +121,25 @@ public class questManager {
     PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(next));
     PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
 
-    Location loc = parseLocation(quest + ".steps." + next + ".location");
+    Location loc = parseLocation(quest + ".steps." + next + ".location"); // null if none
     Bukkit.getPluginManager().callEvent(new onQuestUpdate(p, quest, loc));
   }
 
+  /** Used by kill / get steps. Advances the step once progress reaches "value". */
   public static void addProgress(Player p, String quest, int amount) {
     int step = getStep(p, quest);
     int required = toInt(stepOption(quest, step, "value"), 1);
     int progress = toInt(getPlayerPDC(quest + ".progress", p), 0) + amount;
+    debug(quest + " step " + step + " progress " + progress + "/" + required);
 
     if (progress >= required) {
       advanceStep(p, quest);
     } else {
       PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(progress));
+
+      // Refresh trackers / Skript on every kill or pickup, not only when the step changes
+      Location loc = parseLocation(quest + ".steps." + step + ".location");
+      Bukkit.getPluginManager().callEvent(new onQuestUpdate(p, quest, loc));
     }
   }
 
@@ -129,6 +156,7 @@ public class questManager {
       for (Object entry : list) giveReward(p, entry.toString());
     }
 
+    // The quest is no longer active, but remember that it was done.
     List<String> active = getActiveQuests(p);
     active.remove(quest);
     writeList("quests", p, active);
@@ -139,9 +167,13 @@ public class questManager {
       writeList("completed_quests", p, done);
     }
 
+    // Always fire - even for quests without rewards.
     Bukkit.getPluginManager().callEvent(new onQuestComplete(p, quest));
   }
 
+  // ------------------------------------------------------------------
+  // NPC interaction
+  // ------------------------------------------------------------------
 
   public static void talkedNPC(Player p, String NPC) {
     List<String> active = getActiveQuests(p);
@@ -152,6 +184,7 @@ public class questManager {
       Object type = stepOption(quest, step, "type");
       Object npcName = stepOption(quest, step, "NPCName");
 
+      // `continue`, not `return`: other quests may still match this NPC
       if (type == null || npcName == null) continue;
       if (!type.toString().equalsIgnoreCase("talkToNPC")) continue;
       if (!NPC.equalsIgnoreCase(npcName.toString())) continue;
@@ -167,11 +200,13 @@ public class questManager {
       advanceStep(p, quest);
     }
 
+    // Only look for new quests if this NPC wasn't part of an active one.
     if (!handled) {
       tryNewQuest(active, p, NPC);
     }
   }
 
+  /** True if the player holds everything the step's removeItems action will take. */
   private static boolean hasRequiredItems(Player p, String quest, int step) {
     Object value = yamlGetter.getPathInDB("quests", quest + ".steps." + step + ".actions.removeItems");
     if (!(value instanceof List<?> list)) return true;
@@ -202,6 +237,7 @@ public class questManager {
 
       switch (node.toString()) {
         case "removeItems" -> {
+          // items were already verified in hasRequiredItems
           for (Object raw : list) {
             Entry e = Entry.parse(raw);
             ItemStack stack = buildStack(e.id(), e.amount());
@@ -231,12 +267,13 @@ public class questManager {
     if (all == null) return;
 
     for (Object node : all) {
+      // replace/split is a no-op if getAllNodesInDB already returns single keys
       for (String id : node.toString().replace("[", "").replace("]", "").split(", ")) {
         if (id.isEmpty() || activeQuests.contains(id) || done.contains(id)) continue;
 
         Object starter = yamlGetter.getPathInDB("quests", id + ".npcStarter");
         if (starter != null && starter.toString().equalsIgnoreCase(NPC)) {
-          startQuest(p, id);
+          startQuest(p, id); // the single id, not the whole string
         }
       }
     }
@@ -244,8 +281,9 @@ public class questManager {
 
   // ------------------------------------------------------------------
   // Items / rewards
-  // ----------------------------------------------------------------
+  // ------------------------------------------------------------------
 
+  /** "DIAMOND:5", "myCustomItem:2", "money:100" - amount defaults to 1. */
   private record Entry(String id, int amount) {
     static Entry parse(Object raw) {
       String[] parts = raw.toString().replace("[", "").replace("]", "").trim().split(":");
@@ -259,6 +297,7 @@ public class questManager {
     }
   }
 
+  /** Vanilla material (case-insensitive) or custom item. Always returns a fresh copy. */
   private static ItemStack buildStack(String id, int amount) {
     Material mat = Material.matchMaterial(id);
     if (mat != null) return new ItemStack(mat, amount);
@@ -266,7 +305,7 @@ public class questManager {
     ItemStack custom = yamlManager.getItem(id);
     if (custom == null) return null;
 
-    ItemStack copy = custom.clone();
+    ItemStack copy = custom.clone(); // never mutate the registered template
     copy.setAmount(amount);
     return copy;
   }
@@ -274,7 +313,7 @@ public class questManager {
   static void giveReward(Player p, String raw) {
     Entry e = Entry.parse(raw);
 
-    if (e.id().equalsIgnoreCase("money")) {
+    if (e.id().equalsIgnoreCase("money")) { // check this first
       addMoney(p, e.amount());
       p.sendMessage(color("&aYou have received " + e.amount() + " money!"));
       return;
@@ -288,6 +327,7 @@ public class questManager {
     giveOrDrop(p, stack);
   }
 
+  /** addItem returns what didn't fit - drop it instead of silently losing it. */
   static void giveOrDrop(Player p, ItemStack item) {
     Map<Integer, ItemStack> leftover = p.getInventory().addItem(item);
     for (ItemStack rest : leftover.values()) {
@@ -295,6 +335,11 @@ public class questManager {
     }
   }
 
+  // ------------------------------------------------------------------
+  // Locations
+  // ------------------------------------------------------------------
+
+  /** path example: "quest1.steps.2.location" - returns null if incomplete. */
   static Location parseLocation(String path) {
     Object world = yamlGetter.getPathInDB("quests", path + ".world");
     Double x = num(yamlGetter.getPathInDB("quests", path + ".x"));
@@ -311,4 +356,3 @@ public class questManager {
     return o instanceof Number n ? Double.valueOf(n.doubleValue()) : null;
   }
 }
-

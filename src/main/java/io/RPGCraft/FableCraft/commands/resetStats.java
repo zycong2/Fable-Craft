@@ -23,16 +23,17 @@ public class resetStats implements CommandInterface {
             p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         }
-        Player player = Bukkit.getPlayer(args[0]);
-        if (args.length == 0 || player == null){
+
+        if (args.length == 0){
             p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
+      Player player = Bukkit.getPlayer(args[0]);
 
         String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
 
         for(String skill : skills) {
-          setPlayerPDC(skill, p, String.valueOf(Double.valueOf(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
+          setPlayerPDC(skill, p, String.valueOf(Double.parseDouble(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
         }
 
         for (String st : List.of("Health", "Mana")) {
