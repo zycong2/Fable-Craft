@@ -7,6 +7,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -55,7 +56,7 @@ public final class SkillProgression implements Listener {
    * SkillProgression.addXP(player, "fishing", 10);
    */
   public static void addXP(Player player, String skill, double amount) {
-    if (player == null || amount <= 0) return;
+    if (player == null || amount <= 0 || player.getGameMode().equals(GameMode.CREATIVE)) return;
 
     YamlConfiguration config = findSkillConfig(skill);
     if (config == null) {
