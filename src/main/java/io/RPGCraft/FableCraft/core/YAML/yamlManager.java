@@ -257,6 +257,8 @@ public class yamlManager {
               getFileConfig("config").addDefault("placing.removeTime", 60);
               getFileConfig("config").addDefault("breaking.enabled", true);
               getFileConfig("config").addDefault("breaking.removeTime", 60);
+
+              getFileConfig("config").addDefault("quests.npc.talk.delay", 40);
               getFileConfig("config").options().copyDefaults(true);
               getFileConfig("config").options().parseComments(true);
             }

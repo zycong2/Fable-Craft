@@ -109,7 +109,7 @@ public class questManager {
                   Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
                     p.sendMessage(s2.toString());
                   }, delay);
-                  delay += 20L;
+                  delay += (int)yamlGetter.getConfig("quests.npc.talk.delay");
                 }
               }
               break;
