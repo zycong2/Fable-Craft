@@ -81,13 +81,10 @@ public class questManager {
           tryNewQuest(activeQuests, p, NPC);
           return;
         }
-        Bukkit.getLogger().info(getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions").toString());
-        Bukkit.getLogger().info(String.valueOf(yamlGetter.getAllNodesInDB("quests", quest + ".steps." + PDCHelper.getPlayerPDC(quest + ".step", p) + ".actions").size()));
         int delay = 0;
         Location loc = new Location(Bukkit.getWorld("world"), 0, 0, 0);
         for (Object s : getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
 
-          Bukkit.getLogger().info(s.toString());
 
           switch (s.toString()) {
 
@@ -131,12 +128,8 @@ public class questManager {
               break;
 
             case ("giveItems"):
-              Bukkit.getLogger().info("quest: " +  quest + " step: " + getPlayerPDC(quest + ".step", p) + " s: " + s);
-              Bukkit.getLogger().info(yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s).toString());
               if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s) instanceof List l) {
-                Bukkit.getLogger().info("2");
                 for (Object s2 : l) {
-                  Bukkit.getLogger().info("3");
                   List<String> data = new java.util.ArrayList<>(List.of(s2.toString().replace("[", "").replace("]", "").split(":")));
                   if (data.size() != 2){
                     data.add(String.valueOf(1));
@@ -147,10 +140,9 @@ public class questManager {
                     if (Material.getMaterial(data.getFirst()) != null) {
                       p.getInventory().addItem(ItemStack.of(Material.getMaterial(data.getFirst()), Integer.parseInt(data.getLast())));
                     } else {
-                      Bukkit.getLogger().info("custom item");
 
                       for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
-                        Bukkit.getLogger().info(data.getFirst());
+                        Bukkit.getLogger().info(data.getLast());
                         p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
                       }
                     }

@@ -54,8 +54,6 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.sql.Connection;
 import java.util.*;
 
-import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupChat;
-import static io.RPGCraft.FableCraft.Utils.VaultUtils.setupEconomy;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 
 public final class RPGCraft extends JavaPlugin {
@@ -63,7 +61,6 @@ public final class RPGCraft extends JavaPlugin {
 
   public static boolean IsLuckperms = false;
   public static boolean IsCitizen = false;
-  public static boolean IsVault = false;
   public static boolean IsPlaceholderAPI = false;
 
   public static List<String> itemStats = List.of("AttackDamage", "Health", "Regeneration", "Mana", "ManaRegeneration", "Defense", "MovementSpeed");
@@ -85,13 +82,6 @@ public final class RPGCraft extends JavaPlugin {
       Bukkit.getLogger().severe("Failed to load config!");
     }
 
-    /*LifecycleEventManager<Plugin> lifecycle = this.getLifecycleManager();
-    lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-      MessageCommand.commands(event);
-      MiscCommand.commands(event);
-    });
-    StatsCommand.commands().forEach(c -> {lifecycle.registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(c));});
-  */
     if (yamlManager.getInstance().getFileConfig("config").getBoolean("items.removeDefaultRecipes")) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
     yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
@@ -244,17 +234,11 @@ public final class RPGCraft extends JavaPlugin {
         if (doesPluginExist("Citizens")) {
           IsCitizen = true;
         }
-        if (doesPluginExist("Vault")) {
-          IsVault = true;
-        }
         if (doesPluginExist("PlaceholderAPI")) {
           IsPlaceholderAPI = true;
           new DefensePlaceholder().register();
           new ManaPlaceholder().register();
         }
-
-        setupEconomy();
-        setupChat();
       }
     });
   }
