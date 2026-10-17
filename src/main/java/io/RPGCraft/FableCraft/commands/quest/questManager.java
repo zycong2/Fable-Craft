@@ -9,215 +9,306 @@ import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
 public class questManager {
-  public static void startQuest(Player p, String quest){
-    quest = quest.replace(",", "").replace(" ", "");
-    String quests = getPlayerPDC("quests", p); //get all current quests
-    if (quests == null) { quests = ""; }
-    if (!quests.contains(quest)){ //if the quest isn't already active
-      PDCHelper.setPlayerPDC("quests", p, quests + ";" + quest);
-      PDCHelper.setPlayerPDC(quest + ".step", p, "1");
-      PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
-      p.sendMessage(yamlGetter.getMessage("messages.info.quests.start", p, true));
+  private static List<String> readList(String key, Player p) {
+    List<String> out = new ArrayList<>();
+    String raw = getPlayerPDC(key, p);
+    if (raw == null) return out;
+    for (String s : raw.split(";")) {
+      if (!s.isEmpty()) out.add(s);
+    }
+    return out;
+  }
 
-      onQuestStart event = new onQuestStart(p, quest);
-      Bukkit.getPluginManager().callEvent(event);
-    } else {
-      p.sendMessage(yamlGetter.getMessage("messages.error.questAlreadyStarted", null, true));
+  private static void writeList(String key, Player p, List<String> list) {
+    PDCHelper.setPlayerPDC(key, p, list.isEmpty() ? "" : ";" + String.join(";", list));
+  }
+
+  public static List<String> getActiveQuests(Player p) {
+    return readList("quests", p);
+  }
+
+  public static List<String> getCompletedQuests(Player p) {
+    return readList("completed_quests", p);
+  }
+
+  public static int getStep(Player p, String quest) {
+    return toInt(getPlayerPDC(quest + ".step", p), 0);
+  }
+
+  static Object stepOption(String quest, int step, String field) {
+    return yamlGetter.getPathInDB("quests", quest + ".steps." + step + "." + field);
+  }
+
+  static int toInt(Object o, int fallback) {
+    if (o instanceof Number n) return n.intValue();
+    if (o == null) return fallback;
+    try {
+      return Integer.parseInt(o.toString().trim());
+    } catch (NumberFormatException e) {
+      return fallback;
     }
   }
-  public static void finishedQuest(Player p, String quest){
+
+  static String color(String s) {
+    return ChatColor.translateAlternateColorCodes('&', s);
+  }
+
+
+  public static void startQuest(Player p, String quest) {
+    quest = quest.replace(",", "").replace(";", "").replace(" ", "");
+
+    List<String> active = getActiveQuests(p);
+    if (active.contains(quest)) { // exact match, not substring ("quest1" vs "quest10")
+      p.sendMessage(yamlGetter.getMessage("messages.error.questAlreadyStarted", null, true));
+      return;
+    }
+
+    active.add(quest);
+    writeList("quests", p, active);
+    PDCHelper.setPlayerPDC(quest + ".step", p, "1");
+    PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
+    p.sendMessage(yamlGetter.getMessage("messages.info.quests.start", p, true));
+
+    Bukkit.getPluginManager().callEvent(new onQuestStart(p, quest));
+  }
+
+  public static void advanceStep(Player p, String quest) {
+    int next = getStep(p, quest) + 1;
+    int total = toInt(yamlGetter.getPathInDB("quests", quest + ".steps.amount"), 0);
+
+    if (next > total) {
+      finishedQuest(p, quest);
+      return;
+    }
+
+    PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(next));
+    PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
+
+    Location loc = parseLocation(quest + ".steps." + next + ".location");
+    Bukkit.getPluginManager().callEvent(new onQuestUpdate(p, quest, loc));
+  }
+
+  public static void addProgress(Player p, String quest, int amount) {
+    int step = getStep(p, quest);
+    int required = toInt(stepOption(quest, step, "value"), 1);
+    int progress = toInt(getPlayerPDC(quest + ".progress", p), 0) + amount;
+
+    if (progress >= required) {
+      advanceStep(p, quest);
+    } else {
+      PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(progress));
+    }
+  }
+
+  public static void finishedQuest(Player p, String quest) {
     p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true));
 
-    if (yamlGetter.getPathInDB("quests", quest + ".rewards") == null){ return; }
-
-    if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof String){
-      List<ItemStack> rewards = lootTableHelper.getLootTable(yamlGetter.getPathInDB("quests", quest + ".rewards").toString());
-      for (ItemStack item : rewards) {
-        p.getInventory().addItem(item);
+    Object rewards = yamlGetter.getPathInDB("quests", quest + ".rewards");
+    if (rewards instanceof String table) {
+      List<ItemStack> items = lootTableHelper.getLootTable(table);
+      if (items != null) {
+        for (ItemStack item : items) giveOrDrop(p, item);
       }
+    } else if (rewards instanceof List<?> list) {
+      for (Object entry : list) giveReward(p, entry.toString());
     }
-    else if (yamlGetter.getPathInDB("quests", quest + ".rewards") instanceof List rewards){
-      List<String> data = new java.util.ArrayList<>(List.of(rewards.toString().replace("[", "").replace("]", "").split(":")));
-      if (data.size() != 2){
-        data.add(String.valueOf(1));
-      }
-        boolean given = false;
-        if (Material.getMaterial(data.getFirst()) != null) {
-          p.getInventory().addItem(ItemStack.of(Material.getMaterial(data.getFirst()), Integer.parseInt(data.getLast())));
-          given = true;
-        } else {
 
-          for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
-            Bukkit.getLogger().info(data.getLast());
-            p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
-            given = true;
-          }
-          if (!given){
-            if (data.getFirst().equalsIgnoreCase("money")){
-              addMoney(p, Integer.parseInt(data.getLast()));
-              p.sendMessage("&aYou have received " + data.getLast() + " money!");
-            }
-          }
-        }
+    List<String> active = getActiveQuests(p);
+    active.remove(quest);
+    writeList("quests", p, active);
+
+    List<String> done = getCompletedQuests(p);
+    if (!done.contains(quest)) {
+      done.add(quest);
+      writeList("completed_quests", p, done);
     }
-    onQuestComplete event = new onQuestComplete(p, quest);
-    Bukkit.getPluginManager().callEvent(event);
+
+    Bukkit.getPluginManager().callEvent(new onQuestComplete(p, quest));
   }
 
-  public static void talkedNPC(Player p, String NPC){
-    String quests = getPlayerPDC("quests", p);
-    if (quests != null ) {
-      List<String> activeQuests = new java.util.ArrayList<>(List.of());
-      Collections.addAll(activeQuests, quests.split(";"));
 
-      if (quests.isEmpty() || quests.equals(";")) {
-        tryNewQuest(activeQuests, p, NPC);
-        return;
+  public static void talkedNPC(Player p, String NPC) {
+    List<String> active = getActiveQuests(p);
+    boolean handled = false;
+
+    for (String quest : active) {
+      int step = getStep(p, quest);
+      Object type = stepOption(quest, step, "type");
+      Object npcName = stepOption(quest, step, "NPCName");
+
+      if (type == null || npcName == null) continue;
+      if (!type.toString().equalsIgnoreCase("talkToNPC")) continue;
+      if (!NPC.equalsIgnoreCase(npcName.toString())) continue;
+
+      handled = true;
+
+      if (!hasRequiredItems(p, quest, step)) {
+        p.sendMessage(color("&cYou don't have the required items."));
+        continue;
       }
 
-      for (String quest : quests.split(";")) {
-        if (quest == null || quest.isEmpty()){
-          continue;
-        }
-        if (!yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("talkToNPC") ||
-          !NPC.equalsIgnoreCase((String) yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".NPCName"))) {
+      runActions(p, quest, step);
+      advanceStep(p, quest);
+    }
 
-          tryNewQuest(activeQuests, p, NPC);
-          return;
-        }
-        int delay = 0;
-        Location loc = new Location(Bukkit.getWorld("world"), 0, 0, 0);
-        for (Object s : getAllNodesInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions")) {
-
-
-          switch (s.toString()) {
-
-            case "removeItems":
-              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s) instanceof List list) {
-                for (Object s2 : list) {
-                  String[] data = s2.toString().split(":");
-                  Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
-                    try {
-                      p.getInventory().removeItem(ItemStack.of(Material.getMaterial(data[0]), Integer.parseInt(data[1])));
-                    } catch (NullPointerException err) {
-                      for (ItemStack item : yamlManager.getInstance().getCustomItems()) {
-                        if (yamlManager.getItem(data[0]).equals(item)) {
-                          item.setAmount(Integer.parseInt(data[1]));
-                          p.getInventory().removeItem(item);
-                        }
-                      }
-                    }
-                  }, delay);
-                }
-                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
-                  loc = parseLocation(quest + ".steps." +  (getPlayerPDC(quest + ".step", p)+1) + ".location");
-                }
-              }
-              break;
-
-            case "talk":
-              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s) instanceof List lines) {
-
-
-                for (Object s2 : lines) {
-                  Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
-                    p.sendMessage(s2.toString());
-                  }, delay);
-                  delay += Integer.parseInt(yamlGetter.getConfig("quests.npc.talk.delay").toString());
-                }
-                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
-                  loc = parseLocation(quest + ".steps." +  (getPlayerPDC(quest + ".step", p)+1) + ".location");
-                }
-              }
-              break;
-
-            case ("giveItems"):
-              if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".actions." + s) instanceof List l) {
-                for (Object s2 : l) {
-                  List<String> data = new java.util.ArrayList<>(List.of(s2.toString().replace("[", "").replace("]", "").split(":")));
-                  if (data.size() != 2){
-                    data.add(String.valueOf(1));
-                  }
-                  Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> {
-                    boolean given = false;
-                    if (Material.getMaterial(data.getFirst()) != null) {
-                      p.getInventory().addItem(ItemStack.of(Material.getMaterial(data.getFirst()), Integer.parseInt(data.getLast())));
-                      given = true;
-                    } else {
-
-                      for (int i = 0; i <= Integer.parseInt(data.getLast()); i++) {
-                        Bukkit.getLogger().info(data.getLast());
-                        p.getInventory().addItem(yamlManager.getItem(data.getFirst()));
-                        given = true;
-                      }
-                      if (!given){
-                        if (data.getFirst().equalsIgnoreCase("money")){
-                          addMoney(p, Integer.parseInt(data.getLast()));
-                          p.sendMessage("&aYou have received " + data.getLast() + " money!");
-                        }
-                      }
-                    }
-                  }, delay);
-                }
-                if (yamlGetter.getPathInDB("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".location.x") != null){
-                  loc = parseLocation(quest + ".steps." + (getPlayerPDC(quest + ".step", p)+1) + ".location");
-                }
-              }
-              break;
-            default:
-              continue;
-          }
-        }
-        PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(Integer.valueOf(getPlayerPDC(quest + ".step", p)) + 1));
-        if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlGetter.getPathInDB("quests", quest + ".steps.amount").toString())) {
-          finishedQuest(p, quest);
-        } else {
-          PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0));
-        }
-
-        onQuestUpdate event = new onQuestUpdate(p, quest, loc);
-        Bukkit.getPluginManager().callEvent(event);
-      }
-    }else {
-      tryNewQuest(List.of(), p, NPC);
+    if (!handled) {
+      tryNewQuest(active, p, NPC);
     }
   }
-  static void tryNewQuest(List<String> activeQuests, Player p, String NPC){
-    for (Object quest : getAllNodesInDB("quests","")) {
-      if (activeQuests.contains(quest.toString())){ continue; }
-      String replace = quest.toString().replace("[", "").replace("]", "");
-      for (String replace1 : replace.split(", ")) {
-        if (yamlGetter.getPathInDB("quests", replace1 + ".npcStarter").toString().equalsIgnoreCase(NPC)) {
-          startQuest(p, replace);
+
+  private static boolean hasRequiredItems(Player p, String quest, int step) {
+    Object value = yamlGetter.getPathInDB("quests", quest + ".steps." + step + ".actions.removeItems");
+    if (!(value instanceof List<?> list)) return true;
+
+    for (Object raw : list) {
+      Entry e = Entry.parse(raw);
+      ItemStack probe = buildStack(e.id(), 1);
+      if (probe == null) {
+        Bukkit.getLogger().warning("[Quests] Unknown item '" + e.id() + "' in " + quest + " step " + step);
+        return false;
+      }
+      if (!p.getInventory().containsAtLeast(probe, e.amount())) return false;
+    }
+    return true;
+  }
+
+  private static void runActions(Player p, String quest, int step) {
+    String base = quest + ".steps." + step + ".actions";
+    var nodes = getAllNodesInDB("quests", base);
+    if (nodes == null) return;
+
+    int talkDelay = toInt(yamlGetter.getConfig("quests.npc.talk.delay"), 20);
+    int delay = 0;
+
+    for (Object node : nodes) {
+      Object value = yamlGetter.getPathInDB("quests", base + "." + node);
+      if (!(value instanceof List<?> list)) continue;
+
+      switch (node.toString()) {
+        case "removeItems" -> {
+          for (Object raw : list) {
+            Entry e = Entry.parse(raw);
+            ItemStack stack = buildStack(e.id(), e.amount());
+            if (stack != null) p.getInventory().removeItem(stack);
+          }
+        }
+        case "talk" -> {
+          for (Object line : list) {
+            String text = color(line.toString());
+            Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> p.sendMessage(text), delay);
+            delay += talkDelay;
+          }
+        }
+        case "giveItems" -> {
+          for (Object raw : list) {
+            Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> giveReward(p, raw.toString()), delay);
+          }
+        }
+        default -> { }
+      }
+    }
+  }
+
+  static void tryNewQuest(List<String> activeQuests, Player p, String NPC) {
+    List<String> done = getCompletedQuests(p);
+    var all = getAllNodesInDB("quests", "");
+    if (all == null) return;
+
+    for (Object node : all) {
+      for (String id : node.toString().replace("[", "").replace("]", "").split(", ")) {
+        if (id.isEmpty() || activeQuests.contains(id) || done.contains(id)) continue;
+
+        Object starter = yamlGetter.getPathInDB("quests", id + ".npcStarter");
+        if (starter != null && starter.toString().equalsIgnoreCase(NPC)) {
+          startQuest(p, id);
         }
       }
     }
   }
 
-  static Location parseLocation(String path){
-    try {
-      Location loc = new Location(
-        Bukkit.getWorld(yamlGetter.getPathInDB("quest", path + ".world").toString()),
-        (Double) yamlGetter.getPathInDB("quest", path + ".x"),
-        (Double) yamlGetter.getPathInDB("quest", path + ".y"),
-        (Double) yamlGetter.getPathInDB("quest", path + ".z")
-      );
-      return loc;
-    } catch (NullPointerException er){
-      return null;
+  // ------------------------------------------------------------------
+  // Items / rewards
+  // ----------------------------------------------------------------
+
+  private record Entry(String id, int amount) {
+    static Entry parse(Object raw) {
+      String[] parts = raw.toString().replace("[", "").replace("]", "").trim().split(":");
+      int amount = 1;
+      if (parts.length > 1) {
+        try {
+          amount = Math.max(1, Integer.parseInt(parts[1].trim()));
+        } catch (NumberFormatException ignored) { }
+      }
+      return new Entry(parts[0].trim(), amount);
     }
+  }
+
+  private static ItemStack buildStack(String id, int amount) {
+    Material mat = Material.matchMaterial(id);
+    if (mat != null) return new ItemStack(mat, amount);
+
+    ItemStack custom = yamlManager.getItem(id);
+    if (custom == null) return null;
+
+    ItemStack copy = custom.clone();
+    copy.setAmount(amount);
+    return copy;
+  }
+
+  static void giveReward(Player p, String raw) {
+    Entry e = Entry.parse(raw);
+
+    if (e.id().equalsIgnoreCase("money")) {
+      addMoney(p, e.amount());
+      p.sendMessage(color("&aYou have received " + e.amount() + " money!"));
+      return;
+    }
+
+    ItemStack stack = buildStack(e.id(), e.amount());
+    if (stack == null) {
+      Bukkit.getLogger().warning("[Quests] Unknown reward '" + e.id() + "'");
+      return;
+    }
+    giveOrDrop(p, stack);
+  }
+
+  static void giveOrDrop(Player p, ItemStack item) {
+    Map<Integer, ItemStack> leftover = p.getInventory().addItem(item);
+    for (ItemStack rest : leftover.values()) {
+      p.getWorld().dropItemNaturally(p.getLocation(), rest);
+    }
+  }
+
+  static Location parseLocation(String path) {
+    Object world = yamlGetter.getPathInDB("quests", path + ".world");
+    Double x = num(yamlGetter.getPathInDB("quests", path + ".x"));
+    Double y = num(yamlGetter.getPathInDB("quests", path + ".y"));
+    Double z = num(yamlGetter.getPathInDB("quests", path + ".z"));
+    if (world == null || x == null || y == null || z == null) return null;
+
+    World w = Bukkit.getWorld(world.toString());
+    if (w == null) return null;
+    return new Location(w, x, y, z);
+  }
+
+  private static Double num(Object o) {
+    return o instanceof Number n ? Double.valueOf(n.doubleValue()) : null;
   }
 }
+

@@ -1,103 +1,64 @@
 package io.RPGCraft.FableCraft.commands.quest;
 
-import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
-import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
-import io.RPGCraft.FableCraft.core.YAML.yamlManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-
-import java.util.List;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.inventory.ItemStack;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
-import static io.RPGCraft.FableCraft.commands.quest.questManager.finishedQuest;
-import static io.RPGCraft.FableCraft.commands.quest.questManager.parseLocation;
-import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
+import static io.RPGCraft.FableCraft.commands.quest.questManager.addProgress;
+import static io.RPGCraft.FableCraft.commands.quest.questManager.getActiveQuests;
+import static io.RPGCraft.FableCraft.commands.quest.questManager.getStep;
+import static io.RPGCraft.FableCraft.commands.quest.questManager.stepOption;
 
 public class questEvents implements Listener {
+
   @EventHandler
-  public void onEntityDeath(EntityDeathEvent event){
+  public void onEntityDeath(EntityDeathEvent event) {
     LivingEntity entity = event.getEntity();
-    LivingEntity kil = entity.getKiller();
-    if (kil instanceof Player killer){
-      String quests = getPlayerPDC("quests", killer); //;quest1
-      if (getPlayerPDC("quests", killer) == null || quests.isEmpty()) { return; }
-      List<String> questsList = List.of(quests.split(";")); // "", "quest1"
-      for (String quest : questsList) {
-        if (quest.isEmpty()) {
-          continue;
-        }
-        if (yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type") != null) {
-          if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".type").toString().equalsIgnoreCase("kill")) {
-            continue;
-          }
-          if (!entity.getType().toString().equalsIgnoreCase(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString())) {
-           if(!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".entity").toString().equalsIgnoreCase("NPC")
-              && !isCitizensNPC(event.getEntity()) ) {
-             continue;
-           }
-          }
+    Player killer = entity.getKiller();
+    if (killer == null) return;
 
+    for (String quest : getActiveQuests(killer)) {
+      int step = getStep(killer, quest);
 
-          PDCHelper.setPlayerPDC(quest + ".progress", killer, String.valueOf(Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) + 1));
-          if (Integer.parseInt(getPlayerPDC(quest + ".progress", killer)) >= Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", killer) + ".value").toString())) {
-            PDCHelper.setPlayerPDC(quest + ".step", killer, getPlayerPDC(quest + ".step", killer) + 1);
+      Object type = stepOption(quest, step, "type");
+      if (type == null || !type.toString().equalsIgnoreCase("kill")) continue;
 
-            Location loc = parseLocation(quest + ".step." + (getPlayerPDC(quest + ".step", killer) + 1) + ".location");
-            if (loc != null){
-              onQuestUpdate e = new onQuestUpdate(killer, quest, loc);
-              Bukkit.getPluginManager().callEvent(e);
-            } else{
-              onQuestUpdate e = new onQuestUpdate(killer, quest, null);
-              Bukkit.getPluginManager().callEvent(e);
-            }
+      Object wanted = stepOption(quest, step, "entity");
+      if (wanted == null) continue;
 
-            if (Integer.parseInt(getPlayerPDC(quest + ".step", killer)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
-              finishedQuest(killer, quest);
-            } else {
-              PDCHelper.setPlayerPDC(quest + ".progress", killer, String.valueOf(0));
-            }
-          }
-        }
-      }
+      boolean matches = wanted.toString().equalsIgnoreCase("NPC")
+        ? isCitizensNPC(entity)
+        : entity.getType().name().equalsIgnoreCase(wanted.toString());
+      if (!matches) continue;
+
+      addProgress(killer, quest, 1);
     }
   }
-  @EventHandler
-  public void onPlayerPickUp(PlayerPickupItemEvent event){
-    Player p = event.getPlayer();
-    String quests = getPlayerPDC("quests", p);
-    if (quests == null || quests.isEmpty()) { return; }
 
-    List<String> questsList = List.of(quests.split(";"));
-    for (String quest : questsList) {
+  @EventHandler(ignoreCancelled = true)
+  public void onPlayerPickUp(EntityPickupItemEvent event) {
+    if (!(event.getEntity() instanceof Player p)) return;
 
-      if (quest == null || quest.isEmpty()) { return; }
-      if (!yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".type").toString().equalsIgnoreCase("get")) { return; }
+    ItemStack stack = event.getItem().getItemStack();
+    int picked = stack.getAmount() - event.getRemaining();
+    if (picked <= 0) return;
 
-      if (event.getItem().getType().toString().equals(yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".item"))) {
-        PDCHelper.setPlayerPDC(quest + ".progress", p, getPlayerPDC(quest + ".progress", p) + 1);
-        Location loc = parseLocation(quest + ".step." + (getPlayerPDC(quest + ".step", p) + 1) + ".location");
-        if (loc != null){
-          onQuestUpdate e = new onQuestUpdate(p, quest, loc);
-          Bukkit.getPluginManager().callEvent(e);
-        } else{
-          onQuestUpdate e = new onQuestUpdate(p, quest, null);
-          Bukkit.getPluginManager().callEvent(e);
-        }
+    for (String quest : getActiveQuests(p)) {
+      int step = getStep(p, quest);
 
-        if (getPlayerPDC(quest + ".progress", p) == yamlManager.getInstance().getOption("quests", quest + ".steps." + getPlayerPDC(quest + ".step", p) + ".value")) {
-          PDCHelper.setPlayerPDC(quest + ".step", p, getPlayerPDC(quest + ".step", p) + 1);
-          if (Integer.parseInt(getPlayerPDC(quest + ".step", p)) > Integer.parseInt(yamlManager.getInstance().getOption("quests", quest + ".steps.amount").toString())) {
-            finishedQuest(p, quest);
-          }
-          else { PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(0)); }
-        }
-      }
+      Object type = stepOption(quest, step, "type");
+      if (type == null || !type.toString().equalsIgnoreCase("get")) continue;
+
+      Object wanted = stepOption(quest, step, "item");
+      if (wanted == null || !stack.getType().name().equalsIgnoreCase(wanted.toString())) continue;
+
+      addProgress(p, quest, picked);
     }
   }
 }
+
