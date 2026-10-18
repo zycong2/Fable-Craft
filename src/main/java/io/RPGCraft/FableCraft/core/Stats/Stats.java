@@ -43,15 +43,6 @@ public class Stats implements Listener {
     return RPGCraft.itemStats;
   }
 
-  // ---------------------------------------------------------------------------------------------
-  //  Equipment stat syncing
-  // ---------------------------------------------------------------------------------------------
-
-  /**
-   * Safety net: re-checks every online player's gear a few times per second.
-   * This is what catches changes that fire no event (Inventory#addItem, setItem, /give, /clear...).
-   * Call this once from your plugin's onEnable().
-   */
   public static void startPolling() {
     Bukkit.getScheduler().runTaskTimer(RPGCraft.getPlugin(), () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
@@ -60,10 +51,6 @@ public class Stats implements Listener {
     }, 20L, 5L);
   }
 
-  /**
-   * Compares what the player has equipped right now with what was last applied,
-   * and only adds/removes the difference. Safe to call as often as you like.
-   */
   public static void refresh(Player p) {
     PlayerInventory inv = p.getInventory();
 
@@ -101,7 +88,7 @@ public class Stats implements Listener {
   }
 
   /** Most events fire BEFORE the inventory actually changes, so refresh on the next tick. */
-  private static void refreshNextTick(Player p) {
+  public static void refreshNextTick(Player p) {
     Bukkit.getScheduler().runTask(RPGCraft.getPlugin(), () -> {
       if (p.isOnline()) refresh(p);
     });

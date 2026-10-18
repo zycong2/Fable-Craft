@@ -4,6 +4,7 @@ import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI.Rows;
 import io.RPGCraft.FableCraft.Utils.money.moneyManager;
+import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 
 import org.bukkit.Bukkit;
@@ -338,6 +339,7 @@ public class ShopManager implements Listener {
 
     Map<Integer, ItemStack> leftovers =
       player.getInventory().addItem(item);
+    Stats.refreshNextTick(player); //update stats
 
     // Preserve purchased items if the inventory is full.
     for (ItemStack leftover : leftovers.values()) {

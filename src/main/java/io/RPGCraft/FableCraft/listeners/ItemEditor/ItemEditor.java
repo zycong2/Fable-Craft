@@ -5,6 +5,7 @@ import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.MainGUI;
+import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.text.Component;
@@ -39,6 +40,7 @@ public class ItemEditor {
       List<String> a = List.of(player.getMetadata("SelectedItemKey").getFirst().asString().split("/"));
       ItemStack i = yamlManager.getItem(a.get(0));
       player.getInventory().addItem(i);
+      Stats.refreshNextTick(ce.player()); //stat update
     });
 
     inv.setItem(4, item);

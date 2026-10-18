@@ -9,10 +9,12 @@ import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -229,8 +231,10 @@ public class mainListeners implements Listener {
     GUIItem menuItem = new GUIItem()
       .material(Material.NETHER_STAR)
       .name("&6RPG Menu");
-    if (event.getCurrentItem().equals(menuItem.toItemStack())){
-      event.setCancelled(true);
+    if (event.getCurrentItem() != null) {
+      if (event.getCurrentItem().equals(menuItem.toItemStack())) {
+        event.setCancelled(true);
+      }
     }
   }
   @EventHandler
@@ -240,6 +244,19 @@ public class mainListeners implements Listener {
       .name("&6RPG Menu");
     if (event.getItemDrop().getItemStack().equals(menuItem.toItemStack())){
       event.setCancelled(true);
+    }
+  }
+  @EventHandler
+  public void onPlayerTrample(PlayerInteractEvent event) {
+    // Check if the player stepped/jumped on a pressure plate or physical block
+    if (event.getAction() == Action.PHYSICAL) {
+      Block block = event.getClickedBlock();
+
+      // Check if that block is farmland
+      if (block != null && block.getType() == Material.FARMLAND) {
+        // Cancel the event to prevent the crop from breaking
+        event.setCancelled(true);
+      }
     }
   }
 }

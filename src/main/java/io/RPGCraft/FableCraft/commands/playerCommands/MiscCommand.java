@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
+import static io.RPGCraft.FableCraft.core.Stats.Stats.refreshNextTick;
 
 public class MiscCommand {
   private static Map<UUID, Long> swearCooldown = new HashMap<UUID, Long>();
@@ -35,6 +36,7 @@ public class MiscCommand {
         }
         Player p = (Player) executor;
         p.getInventory().addItem(menuItem.toItemStack());
+        refreshNextTick(p); //refresh stats
         p.sendMessage(MM("&a[!] You've been given the menu item"));
         return Command.SINGLE_SUCCESS;
       })

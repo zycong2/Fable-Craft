@@ -6,6 +6,7 @@ import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
@@ -196,8 +197,11 @@ public class questManager {
         continue;
       }
 
-      runActions(p, quest, step);
-      advanceStep(p, quest);
+      if (!runActions(p, quest, step)) {
+        p.sendMessage(color("&cYou no longer have the required items."));
+        continue;
+      }
+
     }
 
     // Only look for new quests if this NPC wasn't part of an active one.
@@ -206,27 +210,116 @@ public class questManager {
     }
   }
 
-  /** True if the player holds everything the step's removeItems action will take. */
-  private static boolean hasRequiredItems(Player p, String quest, int step) {
-    Object value = yamlGetter.getPathInDB("quests", quest + ".steps." + step + ".actions.removeItems");
-    if (!(value instanceof List<?> list)) return true;
 
-    for (Object raw : list) {
-      Entry e = Entry.parse(raw);
-      ItemStack probe = buildStack(e.id(), 1);
-      if (probe == null) {
-        Bukkit.getLogger().warning("[Quests] Unknown item '" + e.id() + "' in " + quest + " step " + step);
+  /**
+   * Counts matching items across all storage slots.
+   * Works with items spread across multiple stacks and custom item metadata.
+   */
+  private static int countMatching(Player p, ItemStack probe) {
+    if (probe == null) return 0;
+
+    int total = 0;
+
+    for (ItemStack item : p.getInventory().getStorageContents()) {
+      if (item != null && item.isSimilar(probe)) {
+        total += item.getAmount();
+      }
+    }
+
+    return total;
+  }
+
+  /**
+   * Removes the requested amount across multiple slots.
+   * Returns true only if the full amount was removed.
+   */
+  private static boolean removeMatching(Player p, ItemStack probe, int amount) {
+    if (probe == null || amount <= 0) return false;
+
+    // Check first so we never partially remove an item requirement.
+    if (countMatching(p, probe) < amount) return false;
+
+    int remaining = amount;
+    ItemStack[] contents = p.getInventory().getStorageContents();
+
+    for (int slot = 0; slot < contents.length && remaining > 0; slot++) {
+      ItemStack item = contents[slot];
+
+      if (item == null || !item.isSimilar(probe)) continue;
+
+      int take = Math.min(item.getAmount(), remaining);
+      remaining -= take;
+
+      if (take == item.getAmount()) {
+        contents[slot] = null;
+      } else {
+        item.setAmount(item.getAmount() - take);
+      }
+    }
+
+    p.getInventory().setStorageContents(contents);
+    return remaining == 0;
+  }
+
+  /**
+   * Checks the current step's removeItems requirements.
+   * If the preceding steps are get steps, also checks that their
+   * required items are still in the player's inventory.
+   */
+  private static boolean hasRequiredItems(Player p, String quest, int step) {
+    String base = quest + ".steps." + step + ".actions.removeItems";
+    Object value = yamlGetter.getPathInDB("quests", base);
+
+    // Validate the items the current action will consume.
+    if (value instanceof List<?> list) {
+      for (Object raw : list) {
+        Entry e = Entry.parse(raw);
+        ItemStack probe = buildStack(e.id(), 1);
+
+        if (probe == null) {
+          Bukkit.getLogger().warning(
+            "[Quests] Unknown item '" + e.id()
+              + "' in " + quest + " step " + step
+          );
+          return false;
+        }
+
+        if (countMatching(p, probe) < e.amount()) {
+          return false;
+        }
+      }
+    }
+
+    // Check consecutive preceding "get" steps.
+    // This prevents players from dropping the collected items before
+    // reaching the NPC step that consumes them.
+    for (int previous = step - 1; previous >= 1; previous--) {
+      Object type = stepOption(quest, previous, "type");
+
+      if (type == null || !type.toString().equalsIgnoreCase("get")) {
+        break;
+      }
+
+      Object itemId = stepOption(quest, previous, "item");
+      int required = toInt(stepOption(quest, previous, "value"), 1);
+
+      if (itemId == null) return false;
+
+      ItemStack probe = buildStack(itemId.toString(), 1);
+
+      if (probe == null || countMatching(p, probe) < required) {
         return false;
       }
-      if (!p.getInventory().containsAtLeast(probe, e.amount())) return false;
     }
+
     return true;
   }
 
-  private static void runActions(Player p, String quest, int step) {
+
+  private static boolean runActions(Player p, String quest, int step) {
     String base = quest + ".steps." + step + ".actions";
     var nodes = getAllNodesInDB("quests", base);
-    if (nodes == null) return;
+    if (nodes == null) return true;
 
     int talkDelay = toInt(yamlGetter.getConfig("quests.npc.talk.delay"), 20);
     int delay = 0;
@@ -237,11 +330,21 @@ public class questManager {
 
       switch (node.toString()) {
         case "removeItems" -> {
-          // items were already verified in hasRequiredItems
           for (Object raw : list) {
             Entry e = Entry.parse(raw);
-            ItemStack stack = buildStack(e.id(), e.amount());
-            if (stack != null) p.getInventory().removeItem(stack);
+            ItemStack probe = buildStack(e.id(), 1);
+
+            if (probe == null || !removeMatching(p, probe, e.amount())) {
+              Bukkit.getLogger().warning(
+                "[Quests] Could not remove " + e.amount()
+                  + "x " + e.id() + " for " + p.getName()
+                  + " in quest " + quest + " step " + step
+              );
+
+              // Stop processing this action if the required items
+              // are no longer available.
+              return false;
+            }
           }
         }
         case "talk" -> {
@@ -259,6 +362,7 @@ public class questManager {
         default -> { }
       }
     }
+    return true;
   }
 
   static void tryNewQuest(List<String> activeQuests, Player p, String NPC) {
@@ -315,7 +419,7 @@ public class questManager {
 
     if (e.id().equalsIgnoreCase("money")) { // check this first
       addMoney(p, e.amount());
-      p.sendMessage(color("&aYou have received " + e.amount() + " money!"));
+      p.sendMessage(color("&aYou have received " + e.amount() + " coin!"));
       return;
     }
 
@@ -330,6 +434,7 @@ public class questManager {
   /** addItem returns what didn't fit - drop it instead of silently losing it. */
   static void giveOrDrop(Player p, ItemStack item) {
     Map<Integer, ItemStack> leftover = p.getInventory().addItem(item);
+    Stats.refreshNextTick(p); //update stats
     for (ItemStack rest : leftover.values()) {
       p.getWorld().dropItemNaturally(p.getLocation(), rest);
     }

@@ -43,6 +43,7 @@ public class quests implements CommandInterface, Listener {
       case "resetAllPlayersQuests":
         for (Player pla : Bukkit.getOnlinePlayers()){
           setPlayerPDC("quests", pla, "");
+          setPlayerPDC("completed_quests", pla, "");
         }
         p.sendMessage(MM("&aEvery player's quest has been reset!"));
     }

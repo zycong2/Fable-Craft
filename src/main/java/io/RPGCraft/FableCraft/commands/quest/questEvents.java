@@ -52,11 +52,6 @@ public class questEvents implements Listener {
           && entity.getType().name().equalsIgnoreCase(target);
       }
 
-      debug("wanted=" + target
-        + " entityName=" + entity.getName()
-        + " entityType=" + entity.getType()
-        + " npc=" + isNPC(entity)
-        + " matches=" + matches);
 
       if (!matches) continue;
 
