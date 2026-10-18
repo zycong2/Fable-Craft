@@ -320,6 +320,16 @@ public class yamlManager {
               getFileConfig("mobDB").addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
               getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
               getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
+              getFileConfig("mobDB").addDefault("spider.spawnPoints.respawnSeconds", 60);
+              getFileConfig("mobDB").setComments("spider.spawnPoints.respawnSeconds", List.of("Seconds to wait after the mob dies before this point spawns it again"));
+              getFileConfig("mobDB").addDefault("spider.spawnPoints.maxAlive", 1);
+              getFileConfig("mobDB").setComments("spider.spawnPoints.maxAlive", List.of("How many mobs each spawn point keeps alive at once"));
+              getFileConfig("mobDB").addDefault("spider.spawnPoints.activationRange", 48);
+              getFileConfig("mobDB").setComments("spider.spawnPoints.activationRange", List.of("A player must be within this many blocks for the point to spawn"));
+              getFileConfig("mobDB").addDefault("spider.spawnPoints.locations", List.of());
+              getFileConfig("mobDB").setComments("spider.spawnPoints.locations", List.of("Format: \"world, x, y, z\" (optional yaw at the end). Or stand there and use /mobs addspawn spider"));
+              getFileConfig("mobDB").setComments("spider.damage", List.of("Max 2048"));
+              getFileConfig("mobDB").setComments("spider.speed", List.of("Vanilla speeds are small (a spider is 0.3). Max 1024"));
               getFileConfig("mobDB").options().copyDefaults(true);
               getFileConfig("mobDB").options().parseComments(true);
           }
@@ -345,36 +355,148 @@ public class yamlManager {
 
           case("quests"): {
             if (getFileConfig("quests").getDefaults() == null) {
-              getFileConfig("quests").addDefault("quest1.name", "Kill 10 spiders");
-              getFileConfig("quests").addDefault("quest1.npcStarter", "John");
-              getFileConfig("quests").addDefault("quest1.steps.amount", 3);
-              getFileConfig("quests").addDefault("quest1.steps.1.type", "kill");
-              getFileConfig("quests").addDefault("quest1.steps.1.value", 10);
-              getFileConfig("quests").addDefault("quest1.steps.1.entity", "spider");
-              getFileConfig("quests").addDefault("quest1.steps.1.location.x", 0);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.y", 200);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.z", 0);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.world", "world");
-              getFileConfig("quests").addDefault("quest1.steps.2.type", "get");
-              getFileConfig("quests").addDefault("quest1.steps.2.value", 10);
-              getFileConfig("quests").addDefault("quest1.steps.2.item", "STRING");
-              getFileConfig("quests").addDefault("quest1.steps.1.location.x", 0);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.y", 200);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.z", 0);
-              getFileConfig("quests").addDefault("quest1.steps.1.location.world", "world");
-              getFileConfig("quests").addDefault("quest1.steps.3.type", "talkToNPC");
-              getFileConfig("quests").addDefault("quest1.steps.3.NPCName", "John");
-              getFileConfig("quests").addDefault("quest1.steps.3.actions.talk", List.of("Hello", "I am John", "I am a NPC"));
-              getFileConfig("quests").addDefault("quest1.steps.3.actions.removeItems", List.of("STRING:10"));
-              getFileConfig("quests").addDefault("quest1.steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
-              getFileConfig("quests").addDefault("quest1.steps.3.location.x", 0);
-              getFileConfig("quests").addDefault("quest1.steps.3.location.y", 200);
-              getFileConfig("quests").addDefault("quest1.steps.3.location.z", 0);
-              getFileConfig("quests").addDefault("quest1.steps.3.location.world", "world");
-              getFileConfig("quests").addDefault("quest1.reward", "quest1:1");
-              getFileConfig("quests").options().copyDefaults(true);
+              var cfg = getFileConfig("quests");
+
+              // ==================================================================
+              // STRUCTURE:  <NpcName>.quest.<questId>.<options>
+              //
+              //  - The NPC name is the NPC that hands out the quests (case-insensitive, no dots).
+              //  - Quest ids must be unique across ALL NPCs (they are what is stored on the player).
+              //  - An NPC hands out its quests one after another: click again after
+              //    finishing quest1 and quest2 starts. Order = "order" if set, else file order.
+              //
+              // QUEST OPTIONS
+              //   name            display name (free text)
+              //   order           optional, lower numbers are handed out first
+              //   steps.amount    how many steps the quest has (steps are numbered 1..amount)
+              //   reward/rewards  either a loot table name (String) or a list of "ID:amount"
+              //                   ("money:100", "DIAMOND:5", "myCustomItem:2"). Both keys work.
+              //
+              // STEP OPTIONS (steps.<n>.<option>)
+              //   type = kill       value (how many), entity, location
+              //          entity: an EntityType ("spider"), a Citizens NPC name ("Bandit"),
+              //                  or "NPC" for any Citizens NPC
+              //   type = get        value (how many), item (vanilla material), location
+              //   type = talkToNPC  NPCName (the NPC to talk to - can be a different NPC
+              //                     than the quest giver), location,
+              //          actions.talk         list of dialogue lines (&-colour codes work)
+              //          actions.removeItems  "ID:amount" (single string OR list) taken from the player
+              //          actions.giveItems    list of "ID:amount" given to the player
+              //   location (optional on every step)   x, y, z, world
+              // ==================================================================
+
+              // ------------------------------------------------------------------
+              // John, quest 1 - one step of every type, loot table reward
+              // ------------------------------------------------------------------
+              String q1 = "John.quest.quest1.";
+              cfg.addDefault(q1 + "name", "Kill 10 spiders");
+              cfg.addDefault(q1 + "order", 1);
+              cfg.addDefault(q1 + "steps.amount", 3);
+
+              // step 1: kill a vanilla entity
+              cfg.addDefault(q1 + "steps.1.type", "kill");
+              cfg.addDefault(q1 + "steps.1.value", 10);
+              cfg.addDefault(q1 + "steps.1.entity", "spider");
+              cfg.addDefault(q1 + "steps.1.location.x", 0);
+              cfg.addDefault(q1 + "steps.1.location.y", 200);
+              cfg.addDefault(q1 + "steps.1.location.z", 0);
+              cfg.addDefault(q1 + "steps.1.location.world", "world");
+
+              // step 2: collect items
+              cfg.addDefault(q1 + "steps.2.type", "get");
+              cfg.addDefault(q1 + "steps.2.value", 10);
+              cfg.addDefault(q1 + "steps.2.item", "STRING");
+              cfg.addDefault(q1 + "steps.2.location.x", 0);
+              cfg.addDefault(q1 + "steps.2.location.y", 200);
+              cfg.addDefault(q1 + "steps.2.location.z", 0);
+              cfg.addDefault(q1 + "steps.2.location.world", "world");
+
+              // step 3: hand in to the NPC (dialogue + take items + give items)
+              cfg.addDefault(q1 + "steps.3.type", "talkToNPC");
+              cfg.addDefault(q1 + "steps.3.NPCName", "John");
+              cfg.addDefault(q1 + "steps.3.actions.talk", List.of("&e[John] &fHello", "&e[John] &fI am John", "&e[John] &fThanks for the string!"));
+              cfg.addDefault(q1 + "steps.3.actions.removeItems", List.of("STRING:10"));
+              cfg.addDefault(q1 + "steps.3.actions.giveItems", List.of("WOODEN_AXE:1"));
+              cfg.addDefault(q1 + "steps.3.location.x", 0);
+              cfg.addDefault(q1 + "steps.3.location.y", 200);
+              cfg.addDefault(q1 + "steps.3.location.z", 0);
+              cfg.addDefault(q1 + "steps.3.location.world", "world");
+
+              // reward as a loot table name
+              cfg.addDefault(q1 + "reward", "quest1:1");
+
+              // ------------------------------------------------------------------
+              // John, quest 2 - starts when John is clicked after quest 1 is completed.
+              // Shows: intro dialogue on step 1, kill a Citizens NPC by name,
+              //        a step without location, hand-in to a DIFFERENT NPC,
+              //        removeItems as a single string, rewards as a list.
+              // ------------------------------------------------------------------
+              String q2 = "John.quest.quest2.";
+              cfg.addDefault(q2 + "name", "Bandit trouble");
+              cfg.addDefault(q2 + "order", 2);
+              cfg.addDefault(q2 + "steps.amount", 4);
+
+              // step 1: intro dialogue (plays on the same click that starts the quest)
+              cfg.addDefault(q2 + "steps.1.type", "talkToNPC");
+              cfg.addDefault(q2 + "steps.1.NPCName", "John");
+              cfg.addDefault(q2 + "steps.1.actions.talk", List.of("&e[John] &fThanks for helping with the spiders.", "&e[John] &fNow bandits are scaring off my customers.", "&e[John] &fTake this, you'll need it."));
+              cfg.addDefault(q2 + "steps.1.actions.giveItems", List.of("WOODEN_SWORD:1"));
+
+              // step 2: kill a Citizens NPC by its name ("NPC" would match any Citizens NPC)
+              cfg.addDefault(q2 + "steps.2.type", "kill");
+              cfg.addDefault(q2 + "steps.2.value", 3);
+              cfg.addDefault(q2 + "steps.2.entity", "Bandit");
+              cfg.addDefault(q2 + "steps.2.location.x", 100);
+              cfg.addDefault(q2 + "steps.2.location.y", 70);
+              cfg.addDefault(q2 + "steps.2.location.z", -40);
+              cfg.addDefault(q2 + "steps.2.location.world", "world");
+
+              // step 3: collect items (no location = no tracker target)
+              cfg.addDefault(q2 + "steps.3.type", "get");
+              cfg.addDefault(q2 + "steps.3.value", 5);
+              cfg.addDefault(q2 + "steps.3.item", "IRON_INGOT");
+
+              // step 4: deliver to Mary (different NPC). removeItems as a plain string instead of a list.
+              cfg.addDefault(q2 + "steps.4.type", "talkToNPC");
+              cfg.addDefault(q2 + "steps.4.NPCName", "Mary");
+              cfg.addDefault(q2 + "steps.4.actions.talk", List.of("&d[Mary] &fIs that iron from John?", "&d[Mary] &fHere is something for your trouble."));
+              cfg.addDefault(q2 + "steps.4.actions.removeItems", "IRON_INGOT:5");
+              cfg.addDefault(q2 + "steps.4.actions.giveItems", List.of("money:50"));
+              cfg.addDefault(q2 + "steps.4.location.x", 20);
+              cfg.addDefault(q2 + "steps.4.location.y", 65);
+              cfg.addDefault(q2 + "steps.4.location.z", 20);
+              cfg.addDefault(q2 + "steps.4.location.world", "world");
+
+              // rewards as a list (items and money); "rewards" and "reward" are interchangeable
+              cfg.addDefault(q2 + "rewards", List.of("DIAMOND:2", "money:250"));
+
+              // ------------------------------------------------------------------
+              // Mary, quest 3 - a different NPC with its own quest chain.
+              // Shows: "reward" (singular) holding a list, giveItems on the last step.
+              // ------------------------------------------------------------------
+              String q3 = "Mary.quest.quest3.";
+              cfg.addDefault(q3 + "name", "Zombie trouble");
+              cfg.addDefault(q3 + "steps.amount", 3);
+
+              cfg.addDefault(q3 + "steps.1.type", "talkToNPC");
+              cfg.addDefault(q3 + "steps.1.NPCName", "Mary");
+              cfg.addDefault(q3 + "steps.1.actions.talk", List.of("&d[Mary] &fZombies keep wandering into the village!"));
+
+              cfg.addDefault(q3 + "steps.2.type", "kill");
+              cfg.addDefault(q3 + "steps.2.value", 5);
+              cfg.addDefault(q3 + "steps.2.entity", "zombie");
+
+              cfg.addDefault(q3 + "steps.3.type", "talkToNPC");
+              cfg.addDefault(q3 + "steps.3.NPCName", "Mary");
+              cfg.addDefault(q3 + "steps.3.actions.talk", List.of("&d[Mary] &fThank you, the village is safe again!"));
+              cfg.addDefault(q3 + "steps.3.actions.giveItems", List.of("COOKED_BEEF:5"));
+
+              cfg.addDefault(q3 + "reward", List.of("money:100", "IRON_SWORD:1"));
+
+              cfg.options().copyDefaults(true);
             }
           }
+
 
           case("format"): {
             if (getFileConfig("format").getDefaults() == null) {

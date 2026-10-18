@@ -18,7 +18,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +30,125 @@ import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
 
+/**
+ * YAML layout (quests file):
+ *
+ * <pre>
+ * John:                      <- NPC that offers the quests (no dots in the name)
+ *   quest:
+ *     quest1:                <- quest id, must be unique across ALL npcs
+ *       name: ...
+ *       order: 1             <- optional, default = position in the file
+ *       steps: ...
+ *       reward: ...
+ *     quest2:                <- starts when John is clicked after quest1 is completed
+ *       ...
+ * </pre>
+ */
 public class questManager {
+
+  /** The node between the NPC name and the quest id: npc.quest.questId */
+  private static final String QUEST_NODE = "quest";
+
+  // ------------------------------------------------------------------
+  // Quest lookup: questId -> "NpcName.quest.questId"
+  // ------------------------------------------------------------------
+
+  private static volatile Map<String, String> questIndex = null;
+  private static volatile long lastIndexBuild = 0;
+  private static final long INDEX_REBUILD_COOLDOWN_MS = 2000;
+
+  /** Lower-case, no ',' ';' or spaces. Player data (PDC keys) can't contain uppercase. */
+  static String normalizeId(String id) {
+    return id.replace(",", "").replace(";", "").replace(" ", "").toLowerCase(Locale.ROOT);
+  }
+
+  /** Call this after reloading the quests file so new/removed quests are picked up. */
+  public static void reloadQuests() {
+    questIndex = null;
+  }
+
+  /**
+   * Direct children of a path in the quests file.
+   * Works whether getAllNodesInDB returns plain keys or full paths.
+   */
+  private static List<String> childKeys(String path) {
+    List<String> keys = new ArrayList<>();
+    var all = getAllNodesInDB("quests", path);
+    if (all == null) return keys;
+
+    for (Object node : all) {
+      for (String raw : node.toString().replace("[", "").replace("]", "").split(", ")) {
+        String key = raw.trim();
+        if (key.isEmpty()) continue;
+        if (!path.isEmpty() && key.startsWith(path + ".")) key = key.substring(path.length() + 1);
+        int dot = key.indexOf('.');
+        if (dot > 0) key = key.substring(0, dot);
+        if (!key.isEmpty() && !keys.contains(key)) keys.add(key);
+      }
+    }
+    return keys;
+  }
+
+  private static Map<String, String> buildIndex() {
+    Map<String, String> index = new HashMap<>();
+    for (String npcKey : childKeys("")) {
+      for (String id : childKeys(npcKey + "." + QUEST_NODE)) {
+        String norm = normalizeId(id);
+        String path = npcKey + "." + QUEST_NODE + "." + id;
+        if (index.putIfAbsent(norm, path) != null) {
+          Bukkit.getLogger().warning("[Quests] Duplicate quest id '" + id + "' under " + npcKey
+            + " - quest ids must be unique across all NPCs. Ignoring this one.");
+        }
+      }
+    }
+    return index;
+  }
+
+  /** "John.quest.quest1" for quest id "quest1", or null if no such quest exists. */
+  public static String questPath(String quest) {
+    if (quest == null) return null;
+    String key = normalizeId(quest);
+
+    Map<String, String> index = questIndex;
+    long now = System.currentTimeMillis();
+    if (index == null || (!index.containsKey(key) && now - lastIndexBuild > INDEX_REBUILD_COOLDOWN_MS)) {
+      index = buildIndex();
+      questIndex = index;
+      lastIndexBuild = now;
+    }
+    return index.get(key);
+  }
+
+  /** quests.<npc>.quest.<quest>.<field> (e.g. field "name" or "steps.amount"). Null if missing. */
+  public static Object questOption(String quest, String field) {
+    String root = questPath(quest);
+    return root == null ? null : yamlGetter.getPathInDB("quests", root + "." + field);
+  }
+
+  /** Case/colour-insensitive lookup of the NPC's section in the quests file. */
+  private static String findNpcKey(String npc) {
+    if (npc == null) return null;
+    String wanted = ChatColor.stripColor(npc).trim();
+    for (String key : childKeys("")) {
+      if (ChatColor.stripColor(key).trim().equalsIgnoreCase(wanted)) return key;
+    }
+    return null;
+  }
+
+  /** The quest ids an NPC offers, in the order they are handed out. */
+  private static List<String> questsOf(String npcKey) {
+    String base = npcKey + "." + QUEST_NODE;
+    List<String> ids = childKeys(base);
+
+    Map<String, Integer> rank = new HashMap<>();
+    for (int i = 0; i < ids.size(); i++) {
+      Object order = yamlGetter.getPathInDB("quests", base + "." + ids.get(i) + ".order");
+      rank.put(ids.get(i), toInt(order, i + 1));
+    }
+    ids.sort(Comparator.comparingInt(rank::get)); // stable: ties keep file order
+    return ids;
+  }
 
   // ------------------------------------------------------------------
   // State helpers
@@ -62,13 +183,13 @@ public class questManager {
     return toInt(getPlayerPDC(quest + ".step", p), 0);
   }
 
-  /** quests.<quest>.steps.<step>.<field> from the quests YAML (null if missing). */
+  /** quests.<npc>.quest.<quest>.steps.<step>.<field> from the quests YAML (null if missing). */
   static Object stepOption(String quest, int step, String field) {
-    return yamlGetter.getPathInDB("quests", quest + ".steps." + step + "." + field);
+    return questOption(quest, "steps." + step + "." + field);
   }
 
   /**
-   * quests.<quest>.steps.<step>.actions.<key> as a list.
+   * ...steps.<step>.actions.<key> as a list.
    * YAML allows both "removeItems: STRING:10" and a "- STRING:10" list - both work.
    */
   private static List<Object> actionList(String quest, int step, String key) {
@@ -105,7 +226,12 @@ public class questManager {
   // ------------------------------------------------------------------
 
   public static void startQuest(Player p, String quest) {
-    quest = quest.replace(",", "").replace(";", "").replace(" ", "");
+    quest = normalizeId(quest);
+
+    if (questPath(quest) == null) {
+      Bukkit.getLogger().warning("[Quests] Tried to start unknown quest '" + quest + "'");
+      return;
+    }
 
     List<String> active = getActiveQuests(p);
     if (active.contains(quest)) { // exact match, not substring ("quest1" vs "quest10")
@@ -125,7 +251,7 @@ public class questManager {
   /** Move to the next step, or finish the quest if that was the last one. */
   public static void advanceStep(Player p, String quest) {
     int next = getStep(p, quest) + 1;
-    int total = toInt(yamlGetter.getPathInDB("quests", quest + ".steps.amount"), 0);
+    int total = toInt(questOption(quest, "steps.amount"), 0);
 
     if (next > total) {
       finishedQuest(p, quest);
@@ -135,7 +261,7 @@ public class questManager {
     PDCHelper.setPlayerPDC(quest + ".step", p, String.valueOf(next));
     PDCHelper.setPlayerPDC(quest + ".progress", p, "0");
 
-    Location loc = parseLocation(quest + ".steps." + next + ".location"); // null if none
+    Location loc = stepLocation(quest, next); // null if none
     Bukkit.getPluginManager().callEvent(new onQuestUpdate(p, quest, loc));
   }
 
@@ -152,17 +278,18 @@ public class questManager {
       PDCHelper.setPlayerPDC(quest + ".progress", p, String.valueOf(progress));
 
       // Refresh trackers / Skript on every kill or pickup, not only when the step changes
-      Location loc = parseLocation(quest + ".steps." + step + ".location");
+      Location loc = stepLocation(quest, step);
       Bukkit.getPluginManager().callEvent(new onQuestUpdate(p, quest, loc));
     }
   }
 
   public static void finishedQuest(Player p, String quest) {
+    quest = normalizeId(quest);
     p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true));
 
-    // The YAML uses "reward" (loot table name); older configs used "rewards". Accept both.
-    Object rewards = yamlGetter.getPathInDB("quests", quest + ".rewards");
-    if (rewards == null) rewards = yamlGetter.getPathInDB("quests", quest + ".reward");
+    // "reward" (loot table name or list) or "rewards" - accept both.
+    Object rewards = questOption(quest, "rewards");
+    if (rewards == null) rewards = questOption(quest, "reward");
 
     if (rewards instanceof String table) {
       List<ItemStack> items = lootTableHelper.getLootTable(table);
@@ -311,32 +438,40 @@ public class questManager {
       giveReward(p, raw.toString());
     }
 
-    advanceStep(p, quest); // <- this is what was missing: moves on, or finishes the quest
+    advanceStep(p, quest); // moves on, or finishes the quest
   }
 
+  /**
+   * Hands out the NPC's next quest.
+   *
+   * The NPC's quests are checked in order (quest1, quest2, ...):
+   *  - completed            -> look at the next one
+   *  - active               -> stop, the player is still busy with it (don't start the next one yet)
+   *  - not started          -> start this one
+   *
+   * So clicking an NPC after finishing quest1 starts quest2, and so on.
+   */
   static void tryNewQuest(List<String> activeQuests, Player p, String NPC) {
+    String npcKey = findNpcKey(NPC);
+    if (npcKey == null) return; // this NPC has no quests
+
     List<String> done = getCompletedQuests(p);
-    var all = getAllNodesInDB("quests", "");
-    if (all == null) return;
 
-    for (Object node : all) {
-      // replace/split is a no-op if getAllNodesInDB already returns single keys
-      for (String id : node.toString().replace("[", "").replace("]", "").split(", ")) {
-        if (id.isEmpty() || activeQuests.contains(id) || done.contains(id)) continue;
+    for (String id : questsOf(npcKey)) {
+      String quest = normalizeId(id);
 
-        Object starter = yamlGetter.getPathInDB("quests", id + ".npcStarter");
-        if (starter == null || !starter.toString().equalsIgnoreCase(NPC)) continue;
+      if (done.contains(quest)) continue;
+      if (activeQuests.contains(quest)) return;
 
-        startQuest(p, id);
-        lockTalk(p, 0);
+      startQuest(p, quest);
+      lockTalk(p, 0);
 
-        // The starter NPC usually opens with a talkToNPC step 1: play it right away,
-        // so the first click starts the quest AND gives the intro dialogue/items.
-        if (handleTalkStep(p, id, NPC) == TalkResult.BLOCKED) {
-          sendMissingItems(p);
-        }
-        return; // one new quest per click
+      // The quest giver usually opens with a talkToNPC step 1: play it right away,
+      // so the click that starts the quest also gives the intro dialogue/items.
+      if (handleTalkStep(p, quest, NPC) == TalkResult.BLOCKED) {
+        sendMissingItems(p);
       }
+      return; // one new quest per click
     }
   }
 
@@ -522,12 +657,27 @@ public class questManager {
   // Locations
   // ------------------------------------------------------------------
 
-  /** path example: "quest1.steps.2.location" - returns null if incomplete. */
+  /** The location of a quest step, or null if the step has none / it is incomplete. */
+  static Location stepLocation(String quest, int step) {
+    String root = questPath(quest);
+    return root == null ? null : parseLocationAt(root + ".steps." + step + ".location");
+  }
+
+  /**
+   * Accepts the old style "quest1.steps.2.location" as well as a full path
+   * "John.quest.quest1.steps.2.location". Returns null if incomplete.
+   */
   static Location parseLocation(String path) {
-    Object world = yamlGetter.getPathInDB("quests", path + ".world");
-    Double x = num(yamlGetter.getPathInDB("quests", path + ".x"));
-    Double y = num(yamlGetter.getPathInDB("quests", path + ".y"));
-    Double z = num(yamlGetter.getPathInDB("quests", path + ".z"));
+    int dot = path.indexOf('.');
+    String root = dot > 0 ? questPath(path.substring(0, dot)) : null;
+    return parseLocationAt(root != null ? root + path.substring(dot) : path);
+  }
+
+  private static Location parseLocationAt(String fullPath) {
+    Object world = yamlGetter.getPathInDB("quests", fullPath + ".world");
+    Double x = num(yamlGetter.getPathInDB("quests", fullPath + ".x"));
+    Double y = num(yamlGetter.getPathInDB("quests", fullPath + ".y"));
+    Double z = num(yamlGetter.getPathInDB("quests", fullPath + ".z"));
     if (world == null || x == null || y == null || z == null) return null;
 
     World w = Bukkit.getWorld(world.toString());
