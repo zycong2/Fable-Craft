@@ -92,13 +92,16 @@ and the need to install only one single plugin
     This option is also a book exclusive option that sets the author or the book.
   
 ### Skript support:
-- Added 3 extra events: \
-  - on quest complete: \
+- Added 3 extra events: 
+  - on quest complete: 
       - Will be called when a quest is completed
       - Gives event-quest event-player
-  - on quest start: \
+  - on quest start: 
     - Will be called when a quest is started
     - Gives event-quest event-player
-  - on quest update: \
+  - on quest update: 
     - Will be called when a quest is updated
     - Gives event-quest event-player and location of next objective (if given in config)
+- Expressions: 
+  - custom item "name":  \
+    - returns the itemstack of the custom item

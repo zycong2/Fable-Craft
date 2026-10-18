@@ -31,6 +31,7 @@ import java.util.List;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 import static io.RPGCraft.FableCraft.RPGCraft.itemStats;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
+import static io.RPGCraft.FableCraft.core.Stats.Stats.refresh;
 
 // This class handles a wide range of player-related events in the RPG plugin.
 // It manages joining, quitting, interacting with items, GUI menus, stats, combat, and inventory behavior.
@@ -106,13 +107,14 @@ public class mainListeners implements Listener {
 
     // Setup current stats (metadata and PDC)
     for (String s : List.of("Health", "Mana")) {
-      if (getPlayerPDC("current" + s, p) == null) {
+      if (getPlayerPDC("current" + s, p) == null || getPlayerPDC("current" + s, p).isEmpty()) {
         p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
         //setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
       } else {
         p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + s, p)));
       }
     }
+    Bukkit.getLogger().info("Set the current stats up for " + p.getName());
 
     resetStats.checkCurrentStats(p);
     for (String s : itemStats){
@@ -180,13 +182,24 @@ public class mainListeners implements Listener {
   }
 
 
-  // Reset health metadata on respawn
   @EventHandler
   void onRespawn(PlayerRespawnEvent event) {
-    Player player = event.getPlayer();
+    Player p = event.getPlayer();
+    // wait a tick so refresh() recalculates gear stats first, then fill health/mana
+    Bukkit.getScheduler().runTask(RPGCraft.getPlugin(), () -> {
+      if (!p.isOnline()) return;
+      refresh(p);
+      resetResources(p);
+    });
+  }
 
-    player.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", player))));
-    player.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", player))));
+  public static void resetResources(Player p) {
+    try {
+      double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
+      double maxMana = Double.parseDouble(getPlayerPDC("Mana", p));
+      p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), maxHealth));
+      p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), maxMana));
+    } catch (NullPointerException | NumberFormatException ignored) {}
   }
 
   // Remind me later

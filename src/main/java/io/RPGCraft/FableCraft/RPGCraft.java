@@ -132,35 +132,36 @@ public final class RPGCraft extends JavaPlugin {
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
+        if (p.isDead()) continue; // never touch dead players
         try {
-          double maxHealth = Double.parseDouble(PDCHelper.getPlayerPDC("Health", p));
+          double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
           double maxMana = Double.parseDouble(getPlayerPDC("Mana", p));
           double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
           double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
+
           if (currentHealth < maxHealth) {
             double amount = Double.parseDouble(getPlayerPDC("Regeneration", p));
-            currentHealth += (double) 20.0F / maxHealth * amount;
+            currentHealth = Math.min(maxHealth, currentHealth + 20.0 / maxHealth * amount);
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), currentHealth));
-            if ((double) 20.0F / maxHealth * currentHealth > 0){
-              p.setHealth((double) 20.0F / maxHealth * currentHealth);
-            } else {
+            if (currentHealth <= 0) {
               p.setHealth(0);
+            } else {
+              p.setHealth(Math.min(20.0, 20.0 / maxHealth * currentHealth));
             }
           } else if (currentHealth > maxHealth) {
             p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), maxHealth));
           }
+
           if (currentMana < maxMana) {
             double amount = Double.parseDouble(getPlayerPDC("ManaRegeneration", p));
-            currentMana += (double) 20.0F / maxMana * amount;
+            currentMana = Math.min(maxMana, currentMana + 20.0 / maxMana * amount);
             p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), currentMana));
           } else if (currentMana > maxMana) {
             p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), maxMana));
           }
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException | NullPointerException | java.util.NoSuchElementException ignored) {}
       }
     }, 20L, 20L);
-    //startPinnedMessageTask();
-    //startListenPacketPINNED(this);
 
     //Skript support
     Skript.registerEvent("quest start", SimpleEvent.class, onQuestStart.class, "quest start");
@@ -225,6 +226,17 @@ public final class RPGCraft extends JavaPlugin {
           return event.getLocation();
         }
       }, EventValues.TIME_NOW);
+
+    try {
+      Class.forName(
+        "io.RPGCraft.FableCraft.Utils.skript.customItem"
+      );
+      getLogger().info("Registered custom item Skript expression.");
+    } catch (ClassNotFoundException e) {
+      getLogger().severe("Could not load customItem expression!");
+      e.printStackTrace();
+    }
+
 
     ShopManager.register();
 

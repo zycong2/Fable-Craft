@@ -150,10 +150,6 @@ public class Stats implements Listener {
     refreshNextTick(event.getPlayer());
   }
 
-  @EventHandler
-  void onRespawn(PlayerRespawnEvent event) {
-    refreshNextTick(event.getPlayer());
-  }
   @EventHandler(priority = EventPriority.LOWEST)
   void onPlayerAttack(EntityDamageByEntityEvent event) {
     if (event.getDamager() instanceof Player player) {
@@ -164,10 +160,11 @@ public class Stats implements Listener {
     }
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   void onDamage(EntityDamageEvent event) {
     double damage = event.getDamage();
-    if (event.getEntity() instanceof Player p) { //if player gets damage
+    if (event.getEntity() instanceof Player p) {
+      if (p.isDead()) return;
       try {
         double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
         double health = p.getMetadata("currentHealth").getFirst().asDouble();
@@ -175,10 +172,16 @@ public class Stats implements Listener {
         double finalDamage = damage - ((defense / (defense + 100)) * damage);
         health -= finalDamage;
         p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
+
+        if (health <= 0) {
+          Bukkit.getScheduler().runTask(RPGCraft.getPlugin(), () -> {
+            if (p.isOnline() && !p.isDead()) p.setHealth(0);
+          });
+        }
+
         double scaledHealth = 20.0 / maxHealth * finalDamage;
         event.setDamage((double) Math.round(scaledHealth * 100) / 100);
-      }
-      catch (NullPointerException ignored) {}
+      } catch (NullPointerException | NumberFormatException | java.util.NoSuchElementException ignored) {}
 
     } else if (event instanceof EntityDamageByEntityEvent entityEvent //if player deals damage
       && entityEvent.getDamager() instanceof Player p) {

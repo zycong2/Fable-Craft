@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
@@ -63,6 +65,17 @@ public class questManager {
   /** quests.<quest>.steps.<step>.<field> from the quests YAML (null if missing). */
   static Object stepOption(String quest, int step, String field) {
     return yamlGetter.getPathInDB("quests", quest + ".steps." + step + "." + field);
+  }
+
+  /**
+   * quests.<quest>.steps.<step>.actions.<key> as a list.
+   * YAML allows both "removeItems: STRING:10" and a "- STRING:10" list - both work.
+   */
+  private static List<Object> actionList(String quest, int step, String key) {
+    Object value = stepOption(quest, step, "actions." + key);
+    if (value == null) return List.of();
+    if (value instanceof List<?> list) return new ArrayList<Object>(list);
+    return List.of(value);
   }
 
   /** YAML numbers arrive as Integer, PDC values as String - handle both. */
@@ -147,7 +160,10 @@ public class questManager {
   public static void finishedQuest(Player p, String quest) {
     p.sendMessage(yamlGetter.getMessage("messages.info.quests.completed", p, true));
 
+    // The YAML uses "reward" (loot table name); older configs used "rewards". Accept both.
     Object rewards = yamlGetter.getPathInDB("quests", quest + ".rewards");
+    if (rewards == null) rewards = yamlGetter.getPathInDB("quests", quest + ".reward");
+
     if (rewards instanceof String table) {
       List<ItemStack> items = lootTableHelper.getLootTable(table);
       if (items != null) {
@@ -176,40 +192,157 @@ public class questManager {
   // NPC interaction
   // ------------------------------------------------------------------
 
+  private enum TalkResult {
+    NO_MATCH, // this quest's current step has nothing to do with this NPC
+    BLOCKED,  // it does, but the player is missing the required items
+    STARTED   // dialogue is playing, the step will complete when it ends
+  }
+
+  /**
+   * While an NPC is talking (and for a short moment after), further clicks are ignored.
+   * This stops click spam and the main-hand/off-hand double interact event
+   * from replaying the dialogue or starting things twice.
+   */
+  private static final long MIN_TALK_COOLDOWN_MS = 500;
+  private static final Map<UUID, Long> talkLockUntil = new ConcurrentHashMap<>();
+
+  private static boolean isTalkLocked(Player p) {
+    Long until = talkLockUntil.get(p.getUniqueId());
+    if (until == null) return false;
+    if (System.currentTimeMillis() >= until) {
+      talkLockUntil.remove(p.getUniqueId());
+      return false;
+    }
+    return true;
+  }
+
+  private static void lockTalk(Player p, int dialogueTicks) {
+    long until = System.currentTimeMillis() + dialogueTicks * 50L + MIN_TALK_COOLDOWN_MS;
+    talkLockUntil.merge(p.getUniqueId(), until, Long::max);
+  }
+
+  private static void sendMissingItems(Player p) {
+    p.sendMessage(color("&cYou don't have the required items."));
+  }
+
   public static void talkedNPC(Player p, String NPC) {
+    if (isTalkLocked(p)) return;
+
     List<String> active = getActiveQuests(p);
-    boolean handled = false;
+    boolean blocked = false;
 
     for (String quest : active) {
-      int step = getStep(p, quest);
-      Object type = stepOption(quest, step, "type");
-      Object npcName = stepOption(quest, step, "NPCName");
+      TalkResult result = handleTalkStep(p, quest, NPC);
 
-      // `continue`, not `return`: other quests may still match this NPC
-      if (type == null || npcName == null) continue;
-      if (!type.toString().equalsIgnoreCase("talkToNPC")) continue;
-      if (!NPC.equalsIgnoreCase(npcName.toString())) continue;
+      if (result == TalkResult.STARTED) return; // one conversation per click
+      if (result == TalkResult.BLOCKED) blocked = true;
+    }
 
-      handled = true;
-
-      if (!hasRequiredItems(p, quest, step)) {
-        p.sendMessage(color("&cYou don't have the required items."));
-        continue;
-      }
-
-      if (!runActions(p, quest, step)) {
-        p.sendMessage(color("&cYou no longer have the required items."));
-        continue;
-      }
-
+    // This NPC belongs to an active quest, but the player isn't ready yet.
+    if (blocked) {
+      sendMissingItems(p);
+      lockTalk(p, 0);
+      return;
     }
 
     // Only look for new quests if this NPC wasn't part of an active one.
-    if (!handled) {
-      tryNewQuest(active, p, NPC);
+    tryNewQuest(active, p, NPC);
+  }
+
+  /**
+   * If the quest's CURRENT step is a talkToNPC step for this NPC and the player has
+   * the required items: play the dialogue, then (once it is over) take the items,
+   * hand out the rewards and advance the quest.
+   */
+  private static TalkResult handleTalkStep(Player p, String quest, String npc) {
+    int step = getStep(p, quest);
+    Object type = stepOption(quest, step, "type");
+    Object npcName = stepOption(quest, step, "NPCName");
+
+    if (type == null || npcName == null) return TalkResult.NO_MATCH;
+    if (!type.toString().equalsIgnoreCase("talkToNPC")) return TalkResult.NO_MATCH;
+    if (!npc.equalsIgnoreCase(npcName.toString())) return TalkResult.NO_MATCH;
+
+    // Nothing is consumed yet - this only checks, so a failed check leaves the quest untouched.
+    if (!hasRequiredItems(p, quest, step)) {
+      debug(quest + " step " + step + ": " + p.getName() + " is missing required items");
+      return TalkResult.BLOCKED;
+    }
+
+    int talkDelay = toInt(yamlGetter.getConfig("quests.npc.talk.delay"), 20);
+    int delay = 0;
+
+    for (Object line : actionList(quest, step, "talk")) {
+      String text = color(line.toString());
+      if (delay == 0) {
+        p.sendMessage(text);
+      } else {
+        Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> p.sendMessage(text), delay);
+      }
+      delay += talkDelay;
+    }
+
+    lockTalk(p, delay);
+    debug(quest + " step " + step + ": talking to " + npc + " (" + delay + " ticks of dialogue)");
+
+    // Finish after the last line so "quest completed" never shows up mid-conversation.
+    if (delay == 0) {
+      completeTalkStep(p, quest, step);
+    } else {
+      Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> completeTalkStep(p, quest, step), delay);
+    }
+    return TalkResult.STARTED;
+  }
+
+  /** Runs when the dialogue is over: re-check, take items, give items, advance. */
+  private static void completeTalkStep(Player p, String quest, int step) {
+    if (!p.isOnline()) return; // nothing was consumed, they can simply talk again later
+
+    // Quest state could have changed while the NPC was talking.
+    if (!getActiveQuests(p).contains(quest) || getStep(p, quest) != step) return;
+
+    // The player may have dropped the items during the dialogue.
+    if (!hasRequiredItems(p, quest, step) || !removeItems(p, quest, step)) {
+      p.sendMessage(color("&cYou no longer have the required items."));
+      return;
+    }
+
+    for (Object raw : actionList(quest, step, "giveItems")) {
+      giveReward(p, raw.toString());
+    }
+
+    advanceStep(p, quest); // <- this is what was missing: moves on, or finishes the quest
+  }
+
+  static void tryNewQuest(List<String> activeQuests, Player p, String NPC) {
+    List<String> done = getCompletedQuests(p);
+    var all = getAllNodesInDB("quests", "");
+    if (all == null) return;
+
+    for (Object node : all) {
+      // replace/split is a no-op if getAllNodesInDB already returns single keys
+      for (String id : node.toString().replace("[", "").replace("]", "").split(", ")) {
+        if (id.isEmpty() || activeQuests.contains(id) || done.contains(id)) continue;
+
+        Object starter = yamlGetter.getPathInDB("quests", id + ".npcStarter");
+        if (starter == null || !starter.toString().equalsIgnoreCase(NPC)) continue;
+
+        startQuest(p, id);
+        lockTalk(p, 0);
+
+        // The starter NPC usually opens with a talkToNPC step 1: play it right away,
+        // so the first click starts the quest AND gives the intro dialogue/items.
+        if (handleTalkStep(p, id, NPC) == TalkResult.BLOCKED) {
+          sendMissingItems(p);
+        }
+        return; // one new quest per click
+      }
     }
   }
 
+  // ------------------------------------------------------------------
+  // Inventory checks
+  // ------------------------------------------------------------------
 
   /**
    * Counts matching items across all storage slots.
@@ -262,37 +395,33 @@ public class questManager {
   }
 
   /**
-   * Checks the current step's removeItems requirements.
-   * If the preceding steps are get steps, also checks that their
-   * required items are still in the player's inventory.
+   * Can this step's removeItems be paid?
+   * If the step consumes items, the "get" steps right before it must also still be
+   * satisfied - so a player can't collect the items, drop them, and still hand in.
+   * Steps without removeItems have nothing to verify.
    */
   private static boolean hasRequiredItems(Player p, String quest, int step) {
-    String base = quest + ".steps." + step + ".actions.removeItems";
-    Object value = yamlGetter.getPathInDB("quests", base);
+    List<Object> toRemove = actionList(quest, step, "removeItems");
+    if (toRemove.isEmpty()) return true;
 
-    // Validate the items the current action will consume.
-    if (value instanceof List<?> list) {
-      for (Object raw : list) {
-        Entry e = Entry.parse(raw);
-        ItemStack probe = buildStack(e.id(), 1);
+    // The items this step will consume.
+    for (Object raw : toRemove) {
+      Entry e = Entry.parse(raw);
+      ItemStack probe = buildStack(e.id(), 1);
 
-        if (probe == null) {
-          Bukkit.getLogger().warning(
-            "[Quests] Unknown item '" + e.id()
-              + "' in " + quest + " step " + step
-          );
-          return false;
-        }
+      if (probe == null) {
+        Bukkit.getLogger().warning(
+          "[Quests] Unknown item '" + e.id() + "' in " + quest + " step " + step
+        );
+        return false;
+      }
 
-        if (countMatching(p, probe) < e.amount()) {
-          return false;
-        }
+      if (countMatching(p, probe) < e.amount()) {
+        return false;
       }
     }
 
-    // Check consecutive preceding "get" steps.
-    // This prevents players from dropping the collected items before
-    // reaching the NPC step that consumes them.
+    // Consecutive "get" steps directly before this one.
     for (int previous = step - 1; previous >= 1; previous--) {
       Object type = stepOption(quest, previous, "type");
 
@@ -315,72 +444,21 @@ public class questManager {
     return true;
   }
 
+  /** Takes every removeItems entry of the step. False if any of them can't be paid. */
+  private static boolean removeItems(Player p, String quest, int step) {
+    for (Object raw : actionList(quest, step, "removeItems")) {
+      Entry e = Entry.parse(raw);
+      ItemStack probe = buildStack(e.id(), 1);
 
-  private static boolean runActions(Player p, String quest, int step) {
-    String base = quest + ".steps." + step + ".actions";
-    var nodes = getAllNodesInDB("quests", base);
-    if (nodes == null) return true;
-
-    int talkDelay = toInt(yamlGetter.getConfig("quests.npc.talk.delay"), 20);
-    int delay = 0;
-
-    for (Object node : nodes) {
-      Object value = yamlGetter.getPathInDB("quests", base + "." + node);
-      if (!(value instanceof List<?> list)) continue;
-
-      switch (node.toString()) {
-        case "removeItems" -> {
-          for (Object raw : list) {
-            Entry e = Entry.parse(raw);
-            ItemStack probe = buildStack(e.id(), 1);
-
-            if (probe == null || !removeMatching(p, probe, e.amount())) {
-              Bukkit.getLogger().warning(
-                "[Quests] Could not remove " + e.amount()
-                  + "x " + e.id() + " for " + p.getName()
-                  + " in quest " + quest + " step " + step
-              );
-
-              // Stop processing this action if the required items
-              // are no longer available.
-              return false;
-            }
-          }
-        }
-        case "talk" -> {
-          for (Object line : list) {
-            String text = color(line.toString());
-            Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> p.sendMessage(text), delay);
-            delay += talkDelay;
-          }
-        }
-        case "giveItems" -> {
-          for (Object raw : list) {
-            Bukkit.getScheduler().runTaskLater(RPGCraft.getPlugin(), () -> giveReward(p, raw.toString()), delay);
-          }
-        }
-        default -> { }
+      if (probe == null || !removeMatching(p, probe, e.amount())) {
+        Bukkit.getLogger().warning(
+          "[Quests] Could not remove " + e.amount() + "x " + e.id()
+            + " for " + p.getName() + " in quest " + quest + " step " + step
+        );
+        return false;
       }
     }
     return true;
-  }
-
-  static void tryNewQuest(List<String> activeQuests, Player p, String NPC) {
-    List<String> done = getCompletedQuests(p);
-    var all = getAllNodesInDB("quests", "");
-    if (all == null) return;
-
-    for (Object node : all) {
-      // replace/split is a no-op if getAllNodesInDB already returns single keys
-      for (String id : node.toString().replace("[", "").replace("]", "").split(", ")) {
-        if (id.isEmpty() || activeQuests.contains(id) || done.contains(id)) continue;
-
-        Object starter = yamlGetter.getPathInDB("quests", id + ".npcStarter");
-        if (starter != null && starter.toString().equalsIgnoreCase(NPC)) {
-          startQuest(p, id); // the single id, not the whole string
-        }
-      }
-    }
   }
 
   // ------------------------------------------------------------------
