@@ -54,6 +54,13 @@ public class CustomItemUpdateListener implements Listener {
       ItemStack updated = yamlManager.getItem(customName);
 
       if (updated == null) {
+        player.getInventory().setItem(slot, null);
+
+        plugin.getLogger().info(
+          "[CustomItemUpdate] Removed obsolete custom item '"
+            + customName + "' from " + player.getName()
+        );
+
         continue;
       }
       updated.setAmount(oldItem.getAmount());
