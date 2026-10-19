@@ -105,3 +105,6 @@ and the need to install only one single plugin
 - Expressions: 
   - custom item "name":  \
     - returns the itemstack of the custom item
+- Effects:
+  - spawn custom mob "name" at "location"
+    - Just spawns the custom mob at the given location

@@ -28,11 +28,8 @@ import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.RPGCraft.FableCraft.listeners.*;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
-import io.RPGCraft.FableCraft.listeners.abilities;
-import io.RPGCraft.FableCraft.listeners.buildingBreaking;
-import io.RPGCraft.FableCraft.listeners.mainListeners;
-import io.RPGCraft.FableCraft.listeners.skills;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -111,7 +108,8 @@ public final class RPGCraft extends JavaPlugin {
       new buildingBreaking(),
       new abilities(),
       new MainGUI(),
-      new SkillProgression()
+      new SkillProgression(),
+      new CustomItemUpdateListener(this)
     );
 
     try{
@@ -234,6 +232,15 @@ public final class RPGCraft extends JavaPlugin {
       getLogger().info("Registered custom item Skript expression.");
     } catch (ClassNotFoundException e) {
       getLogger().severe("Could not load customItem expression!");
+      e.printStackTrace();
+    }
+    try {
+      Class.forName(
+        "io.RPGCraft.FableCraft.Utils.skript.customMob"
+      );
+      getLogger().info("Registered custom mob Skript effect!");
+    } catch (ClassNotFoundException e) {
+      getLogger().severe("Could not load customMob!");
       e.printStackTrace();
     }
 

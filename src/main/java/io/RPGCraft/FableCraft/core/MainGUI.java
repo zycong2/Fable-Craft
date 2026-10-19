@@ -85,62 +85,83 @@ public class MainGUI implements Listener {
     GUI menu = new GUI("&eItemDB", GUI.Rows.FIVE);
     List<ItemStack> items = yamlManager.getInstance().getCustomItems();
 
-    if (items.size() <= 36) {
-      for (int i = 0; i < items.size(); ++i) {
-        GUIItem item = ItemStackToGUIItem(items.get(i));
-        item = item.clickEvent(ce -> {
-          GUI editor = makeItemEditor(ce.clickedItem());
-          String itemKey = getItemKey(ce.clickedItem().toItemStack());
-          Player p = ce.player();
+    int page = player.hasMetadata("itemDBPage")
+      ? player.getMetadata("itemDBPage").getFirst().asInt()
+      : 0;
 
-          p.closeInventory();
-          editor.open(p);
-          p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
-        });
-        menu.setItem(i, item);
-      }
-    } else {
-      int page = player.hasMetadata("itemDBPage") ? player.getMetadata("itemDBPage").getFirst().asInt() : 0;
-      for (int i = 0; i <= 36 && i + 36 * page < items.size(); ++i) {
-        GUIItem item = ItemStackToGUIItem(items.get(i + 36 * page));
-          item = item.clickEvent(ce -> {
-            GUI editor = makeItemEditor(ce.clickedItem());
-            String itemKey = getItemKey(ce.clickedItem().toItemStack());
-            Player p = ce.player();
+    int pageSize = 36;
+    int start = page * pageSize;
+    int end = Math.min(start + pageSize, items.size());
 
-            p.closeInventory();
-            editor.open(p);
-            p.setMetadata("SelectedItemKey", new FixedMetadataValue(RPGCraft.getPlugin(), itemKey));
-          });
-        menu.setItem(i, item);
-      }
+    for (int i = start; i < end; i++) {
+      int slot = i - start;
+
+      GUIItem item = ItemStackToGUIItem(items.get(i));
+
+      item = item.clickEvent(ce -> {
+        GUI editor = makeItemEditor(ce.clickedItem());
+        String itemKey = getItemKey(ce.clickedItem().toItemStack());
+        Player p = ce.player();
+
+        p.closeInventory();
+        editor.open(p);
+
+        p.setMetadata(
+          "SelectedItemKey",
+          new FixedMetadataValue(RPGCraft.getPlugin(), itemKey)
+        );
+      });
+
+      menu.setItem(slot, item);
     }
 
-    // Add pagination arrows
-    GUIItem nextArrow = new GUIItem(Material.ARROW)
-      .name("&aNext")
-      .lore("&aTest Lore")
+    GUIItem backArrow = new GUIItem(Material.ARROW)
+      .name("&aPrevious Page")
       .clickEvent(ce -> {
         Player p = ce.player();
-        int page = p.getMetadata("itemDBPage").isEmpty() ? 0 : p.getMetadata("itemDBPage").getFirst().asInt();
-        if (!(page >= 1)) return;
-        page--;
-        p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
+
+        int current = p.hasMetadata("itemDBPage")
+          ? p.getMetadata("itemDBPage").getFirst().asInt()
+          : 0;
+
+        if (current <= 0) {
+          return;
+        }
+
+        p.setMetadata(
+          "itemDBPage",
+          new FixedMetadataValue(RPGCraft.getPlugin(), current - 1)
+        );
+
         itemDBMenu(p).open(p);
       });
-    GUIItem backArrow = new GUIItem(Material.ARROW)
-      .name("&aBack")
+
+    GUIItem nextArrow = new GUIItem(Material.ARROW)
+      .name("&aNext Page")
       .clickEvent(ce -> {
         Player p = ce.player();
-        int page = p.getMetadata("itemDBPage").isEmpty() ? 0 : p.getMetadata("itemDBPage").getFirst().asInt();
-        if (!(items.size() >= page * 36)) return;
-        page++;
-        p.setMetadata("itemDBPage", new FixedMetadataValue(RPGCraft.getPlugin(), page));
+
+        int current = p.hasMetadata("itemDBPage")
+          ? p.getMetadata("itemDBPage").getFirst().asInt()
+          : 0;
+
+        int maxPage = Math.max(0, (items.size() - 1) / pageSize);
+
+        if (current >= maxPage) {
+          return;
+        }
+
+        p.setMetadata(
+          "itemDBPage",
+          new FixedMetadataValue(RPGCraft.getPlugin(), current + 1)
+        );
+
         itemDBMenu(p).open(p);
       });
 
     menu.setItem(39, backArrow);
     menu.setItem(41, nextArrow);
+
 
     GUIItem newItem = new GUIItem(Material.EMERALD_BLOCK)
       .name("&aCreate a new item")
