@@ -89,7 +89,7 @@ public class ColorUtils {
     text = hexBuffer.toString();
 
     // 5. Translate alternate color codes (&a, &l, etc.)
-    return ChatColor.translateAlternateColorCodes(colorSymbol, text).replace("<", "").replace(">", "");
+    return ChatColor.translateAlternateColorCodes(colorSymbol, text);
   }
 
 
@@ -155,6 +155,8 @@ public class ColorUtils {
   }
 
   private static double[] linear(double from, double to, int max) {
+    if (max <= 0) return new double[0];
+    if (max == 1) return new double[]{from};
     final double[] res = new double[max];
     for (int i = 0; i < max; i++) {
       res[i] = from + i * ((to - from) / (max - 1));

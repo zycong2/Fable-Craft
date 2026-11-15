@@ -17,6 +17,7 @@ public class money implements CommandInterface {
     Player p = (Player) commandSender;
     if (!p.hasPermission("FableCraft.money")) {
       p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
+      return true;
     }if (args.length == 0){
       p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
       return true;

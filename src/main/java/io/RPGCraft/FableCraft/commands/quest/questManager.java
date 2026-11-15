@@ -6,6 +6,7 @@ import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import io.RPGCraft.FableCraft.core.PlayerLevel.PlayerLevel;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -72,7 +73,7 @@ public class questManager {
    * Direct children of a path in the quests file.
    * Works whether getAllNodesInDB returns plain keys or full paths.
    */
-  private static List<String> childKeys(String path) {
+  static List<String> childKeys(String path) {
     List<String> keys = new ArrayList<>();
     var all = getAllNodesInDB("quests", path);
     if (all == null) return keys;
@@ -200,7 +201,7 @@ public class questManager {
   }
 
   /** YAML numbers arrive as Integer, PDC values as String - handle both. */
-  static int toInt(Object o, int fallback) {
+  public static int toInt(Object o, int fallback) {
     if (o instanceof Number n) return n.intValue();
     if (o == null) return fallback;
     try {
@@ -442,12 +443,64 @@ public class questManager {
   }
 
   /**
+   * Returns the minimum player level required for a quest, or 0 if none is set.
+   * Configured via: quests.<npc>.quest.<questId>.min-level
+   */
+  public static int getMinLevel(String quest) {
+    Object val = questOption(quest, "min-level");
+    return toInt(val, 0);
+  }
+
+  /**
+   * Returns the quest-level default location, or null if not configured.
+   * Configured via: quests.<npc>.quest.<questId>.location (world, x, y, z)
+   * Steps without their own location inherit this one.
+   */
+  public static Location getQuestLocation(String quest) {
+    String root = questPath(quest);
+    if (root == null) return null;
+    return parseLocationAt(root + ".location");
+  }
+
+  /**
+   * Checks if the player meets the minimum level requirement for a quest.
+   * Returns true if no level requirement is set or the player meets it.
+   */
+  public static boolean meetsLevelRequirement(Player p, String quest) {
+    int minLevel = getMinLevel(quest);
+    if (minLevel <= 0) return true;
+    return PlayerLevel.getLevel(p) >= minLevel;
+  }
+
+  /**
+   * Sends a random configured message to the player when they are below the required level.
+   * Messages are configured in config.yml under playerLevel.level-requirement-messages.
+   * Supports %required% and %playerLevel% placeholders.
+   */
+  static void sendLevelRequirementMessage(Player p, int requiredLevel) {
+    List<String> messages = yamlManager.getInstance().getFileConfig("config")
+      .getStringList("playerLevel.level-requirement-messages");
+
+    // Fallback if no messages configured
+    if (messages.isEmpty()) {
+      p.sendMessage(color("&cYou need to be at least Player Level &6" + requiredLevel + "&c to take this quest."));
+      return;
+    }
+
+    String message = messages.get((int) (Math.random() * messages.size()));
+    message = message
+      .replace("%required%", String.valueOf(requiredLevel))
+      .replace("%playerLevel%", String.valueOf(PlayerLevel.getLevel(p)));
+    p.sendMessage(color(message));
+  }
+
+  /**
    * Hands out the NPC's next quest.
    *
    * The NPC's quests are checked in order (quest1, quest2, ...):
    *  - completed            -> look at the next one
    *  - active               -> stop, the player is still busy with it (don't start the next one yet)
-   *  - not started          -> start this one
+   *  - not started          -> start this one (if level requirement is met)
    *
    * So clicking an NPC after finishing quest1 starts quest2, and so on.
    */
@@ -462,6 +515,14 @@ public class questManager {
 
       if (done.contains(quest)) continue;
       if (activeQuests.contains(quest)) return;
+
+      // Check level requirement before starting the quest
+      if (!meetsLevelRequirement(p, quest)) {
+        int minLevel = getMinLevel(quest);
+        sendLevelRequirementMessage(p, minLevel);
+        lockTalk(p, 0);
+        return;
+      }
 
       startQuest(p, quest);
       lockTalk(p, 0);
@@ -657,10 +718,21 @@ public class questManager {
   // Locations
   // ------------------------------------------------------------------
 
-  /** The location of a quest step, or null if the step has none / it is incomplete. */
-  static Location stepLocation(String quest, int step) {
+  /** The location of a quest step, or null if the step has none / it is incomplete.
+   *
+   * If the step does not define its own location, falls back to the quest-level
+   * default location (quests.<npc>.quest.<questId>.location).
+   */
+  public static Location stepLocation(String quest, int step) {
     String root = questPath(quest);
-    return root == null ? null : parseLocationAt(root + ".steps." + step + ".location");
+    if (root == null) return null;
+
+    // Try step-specific location first
+    Location stepLoc = parseLocationAt(root + ".steps." + step + ".location");
+    if (stepLoc != null) return stepLoc;
+
+    // Fall back to quest-level default location
+    return parseLocationAt(root + ".location");
   }
 
   /**

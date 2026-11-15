@@ -45,14 +45,16 @@ public class mainListeners implements Listener {
     if (item == null || item.isEmpty() ){ return; }
     Object customItem = PDCHelper.getItemPDC("customItemName", item);
     if (customItem != null) {
-      if (!item.equals(yamlManager.getItem(PDCHelper.getItemPDC("customItemName", item)))) {
-        ItemStack i = yamlManager.getItem(PDCHelper.getItemPDC("customItemName", item));
-        i.setAmount(item.getAmount());
-        inventory.setItem(slot, i);
+      ItemStack updated = yamlManager.getItem(PDCHelper.getItemPDC("customItemName", item));
+      if (updated != null) {
+        if (!item.equals(updated)) {
+          updated.setAmount(item.getAmount());
+          inventory.setItem(slot, updated);
+        }
       }
-    } else{
-      inventory.setItem(slot, ItemStack.of(Material.AIR));
+      // If updated is null, the custom item was removed from itemDB; keep the old item in inventory
     }
+    // Vanilla items (no customItemName PDC) are left untouched
   }
 
 
@@ -107,11 +109,11 @@ public class mainListeners implements Listener {
 
     // Setup current stats (metadata and PDC)
     for (String s : List.of("Health", "Mana")) {
+      double defaultVal = Double.parseDouble(yamlGetter.getConfig("stats." + s + ".default", p, true).toString());
       if (getPlayerPDC("current" + s, p) == null || getPlayerPDC("current" + s, p).isEmpty()) {
-        p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
-        //setPlayerPDC("current" + s, p, String.valueOf(yamlGetter.getConfig("stats." + s + ".default", p, true).toString()));
+        p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), defaultVal));
       } else {
-        p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + s, p)));
+        p.setMetadata("current" + s, new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("current" + s, p))));
       }
     }
     Bukkit.getLogger().info("Set the current stats up for " + p.getName());
@@ -202,9 +204,8 @@ public class mainListeners implements Listener {
     } catch (NullPointerException | NumberFormatException ignored) {}
   }
 
-  // Remind me later
   @EventHandler void onItemDamage(PlayerItemDamageEvent event) {
-    if (yamlGetter.getConfig("items.unbreakable.enabled", null, false).equals(true)) {
+    if (yamlManager.getInstance().getFileConfig("config").getBoolean("items.unbreakable.enabled", false)) {
       event.setCancelled(true);
     }/*else{
       Player p = event.getPlayer();

@@ -22,6 +22,10 @@ public class quests implements CommandInterface, Listener {
   @Override
   public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
     Player p = (Player) commandSender;
+    if (!p.hasPermission("FableCraft.quests")) {
+      p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
+      return true;
+    }
     if (args.length == 0){
       p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
       return true;

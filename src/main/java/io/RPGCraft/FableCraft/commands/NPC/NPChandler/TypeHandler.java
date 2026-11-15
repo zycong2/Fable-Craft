@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
+import static io.RPGCraft.FableCraft.Utils.money.BankManager.openBankGUI;
 import static io.RPGCraft.FableCraft.Utils.money.ShopManager.openedShop;
 import static io.RPGCraft.FableCraft.commands.quest.questManager.talkedNPC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getNPCPDC;
@@ -28,6 +29,9 @@ public class TypeHandler implements Listener {
                   break;
                 case "quest":
                   talkedNPC(p, gotClickedEntity.getName());
+                  break;
+                case "bank":
+                  openBankGUI(p);
                   break;
                 default:
                   break;

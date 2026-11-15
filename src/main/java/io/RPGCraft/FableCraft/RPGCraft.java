@@ -5,6 +5,7 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import io.RPGCraft.FableCraft.Tasks.Actionbar;
+import io.RPGCraft.FableCraft.Tasks.Sidebar;
 import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.ColorUtils;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIListener;
@@ -13,6 +14,7 @@ import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholderAPI.ManaPlaceholder;
 import io.RPGCraft.FableCraft.Utils.Placeholders.PlaceholdersRegistry;
 import io.RPGCraft.FableCraft.Utils.SkillProgression;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
+import io.RPGCraft.FableCraft.Utils.money.BankManager;
 import io.RPGCraft.FableCraft.Utils.money.ShopManager;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
@@ -23,14 +25,19 @@ import io.RPGCraft.FableCraft.commands.buildHelper;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.quest.questEvents;
-import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.Achievements;
+import io.RPGCraft.FableCraft.core.ConfigMenu;
+import io.RPGCraft.FableCraft.core.CustomEnchantments;
+import io.RPGCraft.FableCraft.core.CraftingStations;
+import io.RPGCraft.FableCraft.core.InventoryManager;
+import io.RPGCraft.FableCraft.core.PartyManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.MainGUI;
+import io.RPGCraft.FableCraft.core.PlayerLevel.PlayerLevel;
 import io.RPGCraft.FableCraft.core.Stats.Stats;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.*;
 import io.RPGCraft.FableCraft.listeners.Chat.Chat;
-import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -68,7 +75,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
-  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops", "enchantments", "craftingStations");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
@@ -88,6 +95,10 @@ public final class RPGCraft extends JavaPlugin {
     setPDC.initializeNPCs();
 
     new PlaceholdersRegistry().init();
+    PartyManager.getInstance().init();
+    InventoryManager.getInstance().init();
+    new CustomEnchantments().init();
+    new CraftingStations().init();
 
     this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
     this.getCommand("RPGCraft").setExecutor(new CommandManager());
@@ -109,7 +120,15 @@ public final class RPGCraft extends JavaPlugin {
       new abilities(),
       new MainGUI(),
       new SkillProgression(),
-      new CustomItemUpdateListener(this)
+      new PlayerLevel(),
+      new CustomItemUpdateListener(this),
+      new BankManager(),
+      new Achievements(),
+      PartyManager.getInstance(),
+      InventoryManager.getInstance(),
+      new CustomEnchantments(),
+      new CraftingStations(),
+      new ConfigMenu()
     );
 
     try{
@@ -128,14 +147,19 @@ public final class RPGCraft extends JavaPlugin {
 
     BukkitScheduler scheduler = this.getServer().getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, Actionbar.getActionInstance(), 20L, 20L);
+    scheduler.scheduleSyncRepeatingTask(this, Sidebar.getInstance(), 20L, 20L);
     scheduler.scheduleSyncRepeatingTask(this, () -> {
       for (Player p : Bukkit.getOnlinePlayers()) {
         if (p.isDead()) continue; // never touch dead players
         try {
           double maxHealth = Double.parseDouble(getPlayerPDC("Health", p));
           double maxMana = Double.parseDouble(getPlayerPDC("Mana", p));
-          double currentHealth = p.getMetadata("currentHealth").getFirst().asDouble();
-          double currentMana = p.getMetadata("currentMana").getFirst().asDouble();
+          List<org.bukkit.metadata.MetadataValue> healthMeta = p.getMetadata("currentHealth");
+          List<org.bukkit.metadata.MetadataValue> manaMeta = p.getMetadata("currentMana");
+          if (healthMeta.isEmpty() || manaMeta.isEmpty()) continue;
+
+          double currentHealth = healthMeta.getFirst().asDouble();
+          double currentMana = manaMeta.getFirst().asDouble();
 
           if (currentHealth < maxHealth) {
             double amount = Double.parseDouble(getPlayerPDC("Regeneration", p));
@@ -161,87 +185,95 @@ public final class RPGCraft extends JavaPlugin {
       }
     }, 20L, 20L);
 
-    //Skript support
-    Skript.registerEvent("quest start", SimpleEvent.class, onQuestStart.class, "quest start");
+    //Skript support - only register if Skript is loaded
+    if (doesPluginExist("Skript")) {
+      try {
+        Skript.registerEvent("quest start", SimpleEvent.class, onQuestStart.class, "quest start");
 
-    EventValues.registerEventValue(onQuestStart.class, Player.class,
-      new Getter<Player, onQuestStart>() {
-        @Override
-        public Player get(onQuestStart event) {
-          return event.getPlayer();
+        EventValues.registerEventValue(onQuestStart.class, Player.class,
+          new Getter<Player, onQuestStart>() {
+            @Override
+            public Player get(onQuestStart event) {
+              return event.getPlayer();
+            }
+          }, EventValues.TIME_NOW);
+
+        EventValues.registerEventValue(onQuestStart.class, String.class,
+          new Getter<String, onQuestStart>() {
+            @Override
+            public String get(onQuestStart event) {
+              return event.getContextString();
+            }
+          }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("quest complete", SimpleEvent.class, onQuestComplete.class, "quest complete");
+
+        EventValues.registerEventValue(onQuestComplete.class, Player.class,
+          new Getter<Player, onQuestComplete>() {
+            @Override
+            public Player get(onQuestComplete event) {
+              return event.getPlayer();
+            }
+          }, EventValues.TIME_NOW);
+
+        EventValues.registerEventValue(onQuestComplete.class, String.class,
+          new Getter<String, onQuestComplete>() {
+            @Override
+            public String get(onQuestComplete event) {
+              return event.getContextString();
+            }
+          }, EventValues.TIME_NOW);
+
+
+        Skript.registerEvent("quest update", SimpleEvent.class, onQuestUpdate.class, "quest update");
+
+        EventValues.registerEventValue(onQuestUpdate.class, Player.class,
+          new Getter<Player, onQuestUpdate>() {
+            @Override
+            public Player get(onQuestUpdate event) {
+              return event.getPlayer();
+            }
+          }, EventValues.TIME_NOW);
+
+        EventValues.registerEventValue(onQuestUpdate.class, String.class,
+          new Getter<String, onQuestUpdate>() {
+            @Override
+            public String get(onQuestUpdate event) {
+              return event.getContextString();
+            }
+          }, EventValues.TIME_NOW);
+
+        EventValues.registerEventValue(onQuestUpdate.class, Location.class,
+          new Getter<Location, onQuestUpdate>() {
+            @Override
+            public Location get(onQuestUpdate event) {
+              return event.getLocation();
+            }
+          }, EventValues.TIME_NOW);
+
+        try {
+          Class.forName(
+            "io.RPGCraft.FableCraft.Utils.skript.customItem"
+          );
+          getLogger().info("Registered custom item Skript expression.");
+        } catch (ClassNotFoundException e) {
+          getLogger().severe("Could not load customItem expression!");
+          e.printStackTrace();
         }
-      }, EventValues.TIME_NOW);
-
-    EventValues.registerEventValue(onQuestStart.class, String.class,
-      new Getter<String, onQuestStart>() {
-        @Override
-        public String get(onQuestStart event) {
-          return event.getContextString();
+        try {
+          Class.forName(
+            "io.RPGCraft.FableCraft.Utils.skript.customMob"
+          );
+          getLogger().info("Registered custom mob Skript effect!");
+        } catch (ClassNotFoundException e) {
+          getLogger().severe("Could not load customMob!");
+          e.printStackTrace();
         }
-      }, EventValues.TIME_NOW);
-
-    Skript.registerEvent("quest complete", SimpleEvent.class, onQuestComplete.class, "quest complete");
-
-    EventValues.registerEventValue(onQuestComplete.class, Player.class,
-      new Getter<Player, onQuestComplete>() {
-        @Override
-        public Player get(onQuestComplete event) {
-          return event.getPlayer();
-        }
-      }, EventValues.TIME_NOW);
-
-    EventValues.registerEventValue(onQuestComplete.class, String.class,
-      new Getter<String, onQuestComplete>() {
-        @Override
-        public String get(onQuestComplete event) {
-          return event.getContextString();
-        }
-      }, EventValues.TIME_NOW);
-
-
-    Skript.registerEvent("quest update", SimpleEvent.class, onQuestUpdate.class, "quest update");
-
-    EventValues.registerEventValue(onQuestUpdate.class, Player.class,
-      new Getter<Player, onQuestUpdate>() {
-        @Override
-        public Player get(onQuestUpdate event) {
-          return event.getPlayer();
-        }
-      }, EventValues.TIME_NOW);
-
-    EventValues.registerEventValue(onQuestUpdate.class, String.class,
-      new Getter<String, onQuestUpdate>() {
-        @Override
-        public String get(onQuestUpdate event) {
-          return event.getContextString();
-        }
-      }, EventValues.TIME_NOW);
-
-    EventValues.registerEventValue(onQuestUpdate.class, Location.class,
-      new Getter<Location, onQuestUpdate>() {
-        @Override
-        public Location get(onQuestUpdate event) {
-          return event.getLocation();
-        }
-      }, EventValues.TIME_NOW);
-
-    try {
-      Class.forName(
-        "io.RPGCraft.FableCraft.Utils.skript.customItem"
-      );
-      getLogger().info("Registered custom item Skript expression.");
-    } catch (ClassNotFoundException e) {
-      getLogger().severe("Could not load customItem expression!");
-      e.printStackTrace();
-    }
-    try {
-      Class.forName(
-        "io.RPGCraft.FableCraft.Utils.skript.customMob"
-      );
-      getLogger().info("Registered custom mob Skript effect!");
-    } catch (ClassNotFoundException e) {
-      getLogger().severe("Could not load customMob!");
-      e.printStackTrace();
+      } catch (Exception e) {
+        getLogger().warning("Failed to register Skript events (Skript may not be fully loaded yet).");
+      }
+    } else {
+      getLogger().info("Skript not found, skipping Skript integration.");
     }
 
 
@@ -293,13 +325,10 @@ public final class RPGCraft extends JavaPlugin {
   @Deprecated
   public static ItemStack createGuiHead(Player p, String name, String... lore) {
     ItemStack item = new ItemStack(Material.PLAYER_HEAD, 1);
-    ItemMeta meta = item.getItemMeta();
-    item.setData(DataComponentTypes.CUSTOM_NAME, MM(name));
-    meta.setLore(Arrays.asList(lore));
-    item.setItemMeta(meta);
-    SkullMeta skullMeta = (SkullMeta)item.getItemMeta();
+    SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
+    skullMeta.setDisplayName(Colorize(name));
+    skullMeta.setLore(Arrays.asList(lore));
     skullMeta.setOwningPlayer(p);
-    // skullMeta.setPlayerProfile(p.getPlayerProfile());
     item.setItemMeta(skullMeta);
     return item;
   }

@@ -155,7 +155,7 @@ public class Stats implements Listener {
     if (event.getDamager() instanceof Player player) {
       try {
         double strength = Double.parseDouble(getPlayerPDC("AttackDamage", player));
-        event.setDamage(strength);
+        event.setDamage(event.getDamage() + strength);
       } catch (NullPointerException ignored) {}
     }
   }

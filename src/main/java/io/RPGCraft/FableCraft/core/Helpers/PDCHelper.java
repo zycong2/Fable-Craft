@@ -24,6 +24,28 @@ public class PDCHelper {
         return container.get(key, PersistentDataType.STRING);
     }
 
+    /** Returns the PDC value parsed as an int, or {@code fallback} if missing or invalid. */
+    public static int getIntPDC(Player p, String keyString, int fallback) {
+        String value = getPlayerPDC(keyString, p);
+        if (value == null) return fallback;
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    /** Returns the PDC value parsed as a double, or {@code fallback} if missing or invalid. */
+    public static double getDoublePDC(Player p, String keyString, double fallback) {
+        String value = getPlayerPDC(keyString, p);
+        if (value == null) return fallback;
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
     public static void setNPCPDC(String keyString, Entity npc, Object data) {
       yamlManager.getInstance().setOption("data", "npc." + npc.getUniqueId() + "." + keyString, data);
     }

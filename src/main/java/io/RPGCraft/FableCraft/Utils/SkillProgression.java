@@ -2,6 +2,7 @@
 package io.RPGCraft.FableCraft.Utils;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.core.PlayerLevel.PlayerLevel;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -88,6 +89,7 @@ public final class SkillProgression implements Listener {
 
       applyLevelRewards(player, config, skill, level);
       showLevelUp(player, config, skill, level);
+      PlayerLevel.onSkillLevelUp(player);
     }
 
     // Do not accumulate unused XP after reaching the maximum.
@@ -97,6 +99,7 @@ public final class SkillProgression implements Listener {
 
     setPlayerPDC(skill + "_xp", player, String.valueOf(xp));
 
+    PlayerLevel.onSkillXPGained(player, amount);
     showXPBar(player, config, skill, level, xp, maxLevel);
   }
 

@@ -1,6 +1,5 @@
 package io.RPGCraft.FableCraft.commands;
 
-import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.mobs.mobs;
@@ -15,31 +14,81 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class reload implements CommandInterface {
+
   @Override
-  public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-    Player p = (Player) commandSender;
-    if (!p.hasPermission("FableCraft.reload")) {
-      p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
+  public boolean onCommand(
+    @NotNull CommandSender sender,
+    @NotNull Command command,
+    @NotNull String label,
+    @NotNull String[] args
+  ) {
+    if (!sender.hasPermission("FableCraft.reload")) {
+      if (sender instanceof Player player) {
+        player.sendMessage(
+          yamlGetter.getMessage(
+            "messages.error.noPermission",
+            player,
+            true
+          )
+        );
+      } else {
+        sender.sendMessage("You don't have permission.");
+      }
       return true;
     }
-    yamlManager.getFileConfig("data").set("customMobs", RPGCraft.customMobs);
 
-    RPGCraft.fileConfigurationList.clear();
+    yamlManager manager = yamlManager.getInstance();
 
-
-    if (!yamlManager.getInstance().loadData()) {
-      Bukkit.getLogger().severe("Failed to load config!");
+    // Reload all YAML files from disk.
+    if (!manager.loadData()) {
+      sender.sendMessage("Failed to reload YAML files. Check console.");
+      Bukkit.getLogger().severe(
+        "FableCraft failed to reload YAML files."
+      );
+      return true;
     }
-    if (yamlGetter.getConfig("items.removeDefaultRecipes", null, false).equals(true)) {Bukkit.clearRecipes();} else {Bukkit.resetRecipes();}
-    yamlManager.getInstance().getCustomItems();
-    mobs.reloadSpawns();
-    setPDC.initializeNPCs();
+
+    try {
+      // Rebuild custom items from the newly loaded YAML data.
+      manager.getCustomItems();
+
+      // Reinitialize systems that depend on configuration.
+      mobs.reloadSpawns();
+      setPDC.initializeNPCs();
+
+      // Apply recipe configuration.
+      if (yamlGetter.getConfig(
+        "items.removeDefaultRecipes", null, false
+      ).equals(true)) {
+        Bukkit.clearRecipes();
+      } else {
+        Bukkit.resetRecipes();
+      }
+
+      sender.sendMessage("FableCraft configuration reloaded.");
+      Bukkit.getLogger().info(
+        "FableCraft configuration reloaded successfully."
+      );
+    } catch (Exception e) {
+      sender.sendMessage(
+        "An error occurred while reloading FableCraft. Check console."
+      );
+      Bukkit.getLogger().severe(
+        "FableCraft reload failed: " + e.getMessage()
+      );
+      e.printStackTrace();
+    }
 
     return true;
   }
 
   @Override
-  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+  public List<String> onTabComplete(
+    CommandSender sender,
+    Command command,
+    String label,
+    String[] args
+  ) {
     return List.of();
   }
 }

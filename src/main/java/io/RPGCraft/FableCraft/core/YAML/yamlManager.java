@@ -29,12 +29,12 @@ import static io.RPGCraft.FableCraft.RPGCraft.*;
 import static org.bukkit.Bukkit.getLogger;
 import static org.bukkit.Bukkit.getServer;
 
-
 public class yamlManager {
     private static FileConfiguration fileConfig;
     private static File cfile;
 
     private static yamlManager myInstance;
+    private boolean isEditing = false;
 
     private yamlManager() {}
 
@@ -44,7 +44,16 @@ public class yamlManager {
       }
       return myInstance;
     }
+
+    public void setEditing(boolean val){
+      isEditing = val;
+    }
+    public boolean getEditing(){
+      return isEditing;
+    }
+
     public synchronized boolean saveData() {
+        if (!isEditing) {return false;}
         boolean ok = true;
         for (String config : RPGCraft.yamlFiles) {
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
@@ -205,6 +214,7 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.mobEditor.rename.info", "&rEnter the new name for the mob.");
               getFileConfig("messages").options().copyDefaults(true);
             }
+            break;
           }
           case("config"): {
             if (getFileConfig("config").getDefaults() == null) {
@@ -224,7 +234,7 @@ public class yamlManager {
               getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
               getFileConfig("config").addDefault("items.display.rarity.rare", "&9&lRARE");
               getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
-              getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lEPIC");
+              getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lLEGENDARY");
               getFileConfig("config").setComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
               getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
               getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
@@ -253,15 +263,37 @@ public class yamlManager {
               // MISC
               getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
               getFileConfig("config").addDefault("actionbar.enabled", true);
+              // SIDEBAR
+              getFileConfig("config").addDefault("sidebar.enabled", true);
+              getFileConfig("config").addDefault("sidebar.title", "&6&lRPG Craft");
+              getFileConfig("config").addDefault("sidebar.lines", List.of(
+                "",
+                "%rankPrefix%",
+                "&7Coins: &6%money%",
+                "",
+                "&7Quest: &b%quest_name%",
+                "&7Step: &a%quest_step%",
+                "&7Distance: &d%quest_distance%",
+                "",
+                "&7Health: &c%currentHealth%/%maxHealth%",
+                "&7Mana: &9%currentMana%/%maxMana%"
+              ));
               getFileConfig("config").addDefault("placing.enabled", true);
               getFileConfig("config").addDefault("placing.removeTime", 60);
               getFileConfig("config").addDefault("breaking.enabled", true);
               getFileConfig("config").addDefault("breaking.removeTime", 60);
 
               getFileConfig("config").addDefault("quests.npc.talk.delay", 40);
+
+              // BANK
+              getFileConfig("config").addDefault("bank.deathTax.enabled", true);
+              getFileConfig("config").addDefault("bank.deathTax.percent", 10.0);
+              getFileConfig("config").addDefault("bank.deathTax.maxLoss", 0);
+
               getFileConfig("config").options().copyDefaults(true);
               getFileConfig("config").options().parseComments(true);
             }
+            break;
           }
           case("itemDB"): {
               getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
@@ -300,6 +332,7 @@ public class yamlManager {
               getFileConfig("itemDB").addDefault("customBread.group", "food");
               getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
               getFileConfig("itemDB").options().copyDefaults(true);
+            break;
           }
           case ("mobDB"): {
               getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
@@ -332,6 +365,7 @@ public class yamlManager {
               getFileConfig("mobDB").setComments("spider.speed", List.of("Vanilla speeds are small (a spider is 0.3). Max 1024"));
               getFileConfig("mobDB").options().copyDefaults(true);
               getFileConfig("mobDB").options().parseComments(true);
+            break;
           }
           case("lootTables"): {
               getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
@@ -345,12 +379,14 @@ public class yamlManager {
 
               getFileConfig("lootTables").options().copyDefaults(true);
               getFileConfig("lootTables").options().parseComments(true);
+            break;
           }
           case("data"): {
             if (getFileConfig("data") == null || getFileConfig("data").getDefaults() == null) {
               getFileConfig("data").addDefault("customMobs", List.of());
               getFileConfig("data").options().copyDefaults(true);
             }
+            break;
           }
 
           case("quests"): {
@@ -368,9 +404,14 @@ public class yamlManager {
               // QUEST OPTIONS
               //   name            display name (free text)
               //   order           optional, lower numbers are handed out first
-              //   steps.amount    how many steps the quest has (steps are numbered 1..amount)
+              //   min-level       optional, minimum player level to start this quest
+              //   steps.amount    how many steps the quest has (steps are numbered 1.amount)
               //   reward/rewards  either a loot table name (String) or a list of "ID:amount"
               //                   ("money:100", "DIAMOND:5", "myCustomItem:2"). Both keys work.
+              //
+              //   location        optional default location for the quest (world, x, y, z)
+              //                   steps without their own location inherit this one;
+              //                   used for tracker beacons, sidebar distance, etc.
               //
               // STEP OPTIONS (steps.<n>.<option>)
               //   type = kill       value (how many), entity, location
@@ -379,7 +420,7 @@ public class yamlManager {
               //   type = get        value (how many), item (vanilla material), location
               //   type = talkToNPC  NPCName (the NPC to talk to - can be a different NPC
               //                     than the quest giver), location,
-              //          actions.talk         list of dialogue lines (&-colour codes work)
+              //          actions.talk         list of dialogue lines (&-color codes work)
               //          actions.removeItems  "ID:amount" (single string OR list) taken from the player
               //          actions.giveItems    list of "ID:amount" given to the player
               //   location (optional on every step)   x, y, z, world
@@ -391,7 +432,13 @@ public class yamlManager {
               String q1 = "John.quest.quest1.";
               cfg.addDefault(q1 + "name", "Kill 10 spiders");
               cfg.addDefault(q1 + "order", 1);
+              cfg.addDefault(q1 + "min-level", 1);
               cfg.addDefault(q1 + "steps.amount", 3);
+              // Quest-level default location — steps without their own location inherit this one
+              cfg.addDefault(q1 + "location.world", "world");
+              cfg.addDefault(q1 + "location.x", 0);
+              cfg.addDefault(q1 + "location.y", 200);
+              cfg.addDefault(q1 + "location.z", 0);
 
               // step 1: kill a vanilla entity
               cfg.addDefault(q1 + "steps.1.type", "kill");
@@ -434,7 +481,13 @@ public class yamlManager {
               String q2 = "John.quest.quest2.";
               cfg.addDefault(q2 + "name", "Bandit trouble");
               cfg.addDefault(q2 + "order", 2);
+              cfg.addDefault(q2 + "min-level", 3);
               cfg.addDefault(q2 + "steps.amount", 4);
+              // Quest-level default location — steps 1, 3 (no location) inherit these coords
+              cfg.addDefault(q2 + "location.world", "world");
+              cfg.addDefault(q2 + "location.x", 100);
+              cfg.addDefault(q2 + "location.y", 70);
+              cfg.addDefault(q2 + "location.z", -40);
 
               // step 1: intro dialogue (plays on the same click that starts the quest)
               cfg.addDefault(q2 + "steps.1.type", "talkToNPC");
@@ -476,7 +529,13 @@ public class yamlManager {
               // ------------------------------------------------------------------
               String q3 = "Mary.quest.quest3.";
               cfg.addDefault(q3 + "name", "Zombie trouble");
+              cfg.addDefault(q3 + "min-level", 5);
               cfg.addDefault(q3 + "steps.amount", 3);
+              // Quest-level default location
+              cfg.addDefault(q3 + "location.world", "world");
+              cfg.addDefault(q3 + "location.x", 20);
+              cfg.addDefault(q3 + "location.y", 65);
+              cfg.addDefault(q3 + "location.z", 20);
 
               cfg.addDefault(q3 + "steps.1.type", "talkToNPC");
               cfg.addDefault(q3 + "steps.1.NPCName", "Mary");
@@ -495,6 +554,7 @@ public class yamlManager {
 
               cfg.options().copyDefaults(true);
             }
+            break;
           }
 
 
@@ -509,6 +569,7 @@ public class yamlManager {
               getFileConfig("format").addDefault("skill.foraging.reward.5", List.of("health:5"));
               getFileConfig("format").options().copyDefaults(true);
             }
+            break;
           }
           case ("shops"): {
             YamlConfiguration shopConfig = getDefaultDB("shops");
@@ -572,6 +633,105 @@ public class yamlManager {
               "weapon_vendor.items.sword.sell-enabled", false);
 
             shopConfig.options().copyDefaults(true);
+            break;
+          }
+
+          case ("enchantments"): {
+            YamlConfiguration enchants = getDefaultDB("enchantments");
+
+            // Life Steal
+            enchants.addDefault("lifeSteal.name", "&c&lLife Steal");
+            enchants.addDefault("lifeSteal.description", "&7Heal yourself when you deal damage");
+            enchants.addDefault("lifeSteal.maxLevel", 3);
+            enchants.addDefault("lifeSteal.icon", "REDSTONE");
+            enchants.addDefault("lifeSteal.type", "normal");
+            enchants.addDefault("lifeSteal.compatibleItems", List.of("DIAMOND_SWORD", "NETHERITE_SWORD", "IRON_SWORD"));
+            enchants.addDefault("lifeSteal.levels.1.healPercent", 0.05);
+            enchants.addDefault("lifeSteal.levels.2.healPercent", 0.10);
+            enchants.addDefault("lifeSteal.levels.3.healPercent", 0.15);
+
+            // Haste
+            enchants.addDefault("haste.name", "&e&lHaste");
+            enchants.addDefault("haste.description", "&7Increases attack speed");
+            enchants.addDefault("haste.maxLevel", 2);
+            enchants.addDefault("haste.icon", "GOLDEN_SWORD");
+            enchants.addDefault("haste.type", "normal");
+            enchants.addDefault("haste.compatibleItems", List.of("DIAMOND_SWORD", "NETHERITE_SWORD", "IRON_SWORD", "STONE_SWORD"));
+            enchants.addDefault("haste.levels.1.speedBonus", 0.1);
+            enchants.addDefault("haste.levels.2.speedBonus", 0.2);
+
+            // Thorns of Fate
+            enchants.addDefault("thornsOfFate.name", "&2&lThorns of Fate");
+            enchants.addDefault("thornsOfFate.description", "&7Chance to reflect damage back to attacker");
+            enchants.addDefault("thornsOfFate.maxLevel", 3);
+            enchants.addDefault("thornsOfFate.icon", "IRON_CHESTPLATE");
+            enchants.addDefault("thornsOfFate.type", "normal");
+            enchants.addDefault("thornsOfFate.compatibleItems", List.of("DIAMOND_CHESTPLATE", "NETHERITE_CHESTPLATE", "IRON_CHESTPLATE"));
+            enchants.addDefault("thornsOfFate.levels.1.chance", 0.1);
+            enchants.addDefault("thornsOfFate.levels.1.reflectedPercent", 0.25);
+            enchants.addDefault("thornsOfFate.levels.2.chance", 0.2);
+            enchants.addDefault("thornsOfFate.levels.2.reflectedPercent", 0.5);
+            enchants.addDefault("thornsOfFate.levels.3.chance", 0.35);
+            enchants.addDefault("thornsOfFate.levels.3.reflectedPercent", 0.75);
+
+            // Soul Fire (treasure)
+            enchants.addDefault("soulFire.name", "&9&lSoul Fire");
+            enchants.addDefault("soulFire.description", "&7Deals extra damage to low-health enemies");
+            enchants.addDefault("soulFire.maxLevel", 2);
+            enchants.addDefault("soulFire.icon", "BLAZE_ROD");
+            enchants.addDefault("soulFire.type", "treasure");
+            enchants.addDefault("soulFire.compatibleItems", List.of("DIAMOND_SWORD", "NETHERITE_SWORD"));
+            enchants.addDefault("soulFire.levels.1.threshold", 0.3);
+            enchants.addDefault("soulFire.levels.1.bonusDamage", 5);
+            enchants.addDefault("soulFire.levels.2.threshold", 0.5);
+            enchants.addDefault("soulFire.levels.2.bonusDamage", 10);
+
+            enchants.options().copyDefaults(true);
+            break;
+          }
+
+          case ("craftingStations"): {
+            YamlConfiguration stations = getDefaultDB("craftingStations");
+
+            // Anvil Station
+            stations.addDefault("anvil.name", "Anvil");
+            stations.addDefault("anvil.item", "ANVIL");
+            stations.addDefault("anvil.title", "&7Anvil Crafting");
+            stations.addDefault("anvil.rows", 3);
+
+            // Reinforced Sword recipe
+            stations.addDefault("anvil.recipes.reinforced_sword.result", "DIAMOND_SWORD");
+            stations.addDefault("anvil.recipes.reinforced_sword.resultAmount", 1);
+            stations.addDefault("anvil.recipes.reinforced_sword.resultName", "&7Reinforced Sword");
+            stations.addDefault("anvil.recipes.reinforced_sword.resultLore", List.of("&7A stronger sword forged at the anvil"));
+            stations.addDefault("anvil.recipes.reinforced_sword.pattern", List.of(" D ", "DSD", " I "));
+            stations.addDefault("anvil.recipes.reinforced_sword.ingredients", List.of("D:DIAMOND", "S:STICK", "I:IRON_INGOT"));
+            stations.addDefault("anvil.recipes.reinforced_sword.requirements.combatLevel", 10);
+            stations.addDefault("anvil.recipes.reinforced_sword.requirements.coins", 500);
+
+            // Netherite Upgrade recipe
+            stations.addDefault("anvil.recipes.netherite_upgrade.result", "NETHERITE_INGOT");
+            stations.addDefault("anvil.recipes.netherite_upgrade.resultAmount", 1);
+            stations.addDefault("anvil.recipes.netherite_upgrade.resultName", "&8Netherite Ingot");
+            stations.addDefault("anvil.recipes.netherite_upgrade.resultLore", List.of("&7Crafted from ancient debris"));
+            stations.addDefault("anvil.recipes.netherite_upgrade.ingredients", List.of("A:ANCIENT_DEBRIS", "G:GOLD_INGOT"));
+            stations.addDefault("anvil.recipes.netherite_upgrade.requirements.coins", 1000);
+
+            // Furnace Station
+            stations.addDefault("furnace.name", "Furnace");
+            stations.addDefault("furnace.item", "FURNACE");
+            stations.addDefault("furnace.title", "&6Furnace Crafting");
+            stations.addDefault("furnace.rows", 2);
+
+            // Smelted Armor recipe
+            stations.addDefault("furnace.recipes.smelted_armor.result", "DIAMOND_CHESTPLATE");
+            stations.addDefault("furnace.recipes.smelted_armor.resultAmount", 1);
+            stations.addDefault("furnace.recipes.smelted_armor.resultName", "&6Smelted Chestplate");
+            stations.addDefault("furnace.recipes.smelted_armor.resultLore", List.of("&6Hardened in the flames"));
+            stations.addDefault("furnace.recipes.smelted_armor.ingredients", List.of("D:DIAMOND", "L:LAVA_BUCKET"));
+            stations.addDefault("furnace.recipes.smelted_armor.requirements.coins", 300);
+
+            stations.options().copyDefaults(true);
             break;
           }
 
@@ -954,25 +1114,46 @@ public class yamlManager {
 
     public void deleteOption(String file, String path){ getFileConfig(file).set(path, null); }
 
-    public List<ItemStack> getCustomItems() {
-        List<ItemStack> items = new ArrayList<>();
-        List<Object> nodes = yamlGetter.getAllNodesInDB("itemDB", "");
-        if(nodes == null) {
-          Bukkit.getLogger().warning("No Items Loaded");
-          return List.of(new ItemStack(Material.DIRT));
-        }
 
-      Bukkit.getLogger().info(nodes.toString());
-        for (Object node : nodes) {
-          for (String looseNode : node.toString().replace("[", "").replace("]", "").replace(" ", "").split(",")) {
-            Bukkit.getLogger().info(looseNode);
-            items.add(getItem(looseNode));
-          }
-        }
+  public List<ItemStack> getCustomItems() {
+    List<ItemStack> items = new ArrayList<>();
 
+    List<YamlConfiguration> itemDB =
+      DBFileConfiguration.get("itemDB");
 
-        return items;
+    if (itemDB == null || itemDB.isEmpty()) {
+      Bukkit.getLogger().warning("No itemDB files loaded.");
+      return items;
     }
+
+    // Rebuild the cache from the newly loaded YAML files.
+    ItemDB.clear();
+
+    for (YamlConfiguration config : itemDB) {
+      if (config == null) {
+        continue;
+      }
+
+      for (String name : config.getKeys(false)) {
+        if (!config.contains(name + ".ItemID")) {
+          continue;
+        }
+
+        ItemStack item = getItem(name);
+
+        if (item != null) {
+          items.add(item);
+        }
+      }
+    }
+
+    Bukkit.getLogger().info(
+      "Reloaded " + items.size() + " custom item definitions."
+    );
+
+    return items;
+  }
+
 
 
   public static ItemStack getItem(String name) {

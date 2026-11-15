@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getServer;
@@ -12,7 +13,7 @@ import static org.bukkit.Bukkit.getServer;
 public class DatabaseManager {
 
     public static List<String> databasesName = new ArrayList<>();
-    private static Connection connection;
+    private static final Map<String, Connection> connections = new java.util.HashMap<>();
 
     public static void createDBFile(String fileName) throws IOException {
         File database = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), fileName + ".db");
@@ -28,13 +29,15 @@ public class DatabaseManager {
             getServer().getLogger().log(Level.WARNING, "Database file does not exist");
             return null;
         }
-        if(connection != null){
-            return connection;
-        }
-        String url = "jdbc:sqlite:" + database.getAbsolutePath();
-        Connection connection = DriverManager.getConnection(url);
-        DatabaseManager.connection = connection;
-        return connection;
+        return connections.computeIfAbsent(fileName, key -> {
+            try {
+                String url = "jdbc:sqlite:" + database.getAbsolutePath();
+                return DriverManager.getConnection(url);
+            } catch (SQLException e) {
+                getServer().getLogger().log(Level.SEVERE, "Failed to connect to database: " + fileName, e);
+                return null;
+            }
+        });
     }
 
     public static void createTable(Connection connection, String name, String columns) throws SQLException {

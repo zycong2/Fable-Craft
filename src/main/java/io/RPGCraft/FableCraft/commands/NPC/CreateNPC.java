@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.commands.NPC;
 
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;
@@ -26,7 +27,10 @@ public class CreateNPC implements CommandInterface {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-
+      if (!commandSender.hasPermission("FableCraft.money")) {
+        commandSender.sendMessage( yamlGetter.getMessage("messages.error.noPermission", (Player) commandSender, true));
+        return true;
+      }
       if(commandSender instanceof Player) {
         for (int i = 0; i <= 2; i++) {
           if (args[i].isBlank()) {

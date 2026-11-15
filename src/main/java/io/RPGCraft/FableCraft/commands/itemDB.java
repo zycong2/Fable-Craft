@@ -18,6 +18,7 @@ public class itemDB implements CommandInterface {
         Player p = (Player)commandSender;
         if (!p.hasPermission("FableCraft.itemDB")) {
             p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
+            return true;
         } else {
             MainGUI.itemDBMenu(p).open(p);
         }
