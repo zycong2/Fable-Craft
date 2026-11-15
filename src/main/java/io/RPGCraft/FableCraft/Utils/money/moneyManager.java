@@ -1,5 +1,7 @@
 package io.RPGCraft.FableCraft.Utils.money;
 
+import io.RPGCraft.FableCraft.Utils.skript.onMoneyChange;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
@@ -19,10 +21,14 @@ public class moneyManager {
     }
   }
   public static void addMoney(Player p, int amount){
-    setMoney(p, getMoney(p) + amount);
+    int old = getMoney(p);
+    setMoney(p, old + amount);
+    Bukkit.getPluginManager().callEvent(new onMoneyChange(p, old, old + amount, amount));
   }
   public static void subtractMoney(Player p, int amount){
-    setMoney(p, getMoney(p) - amount);
+    int old = getMoney(p);
+    setMoney(p, old - amount);
+    Bukkit.getPluginManager().callEvent(new onMoneyChange(p, old, old - amount, -amount));
   }
 
 

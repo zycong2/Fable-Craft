@@ -2,6 +2,7 @@
 package io.RPGCraft.FableCraft.Utils;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.skript.onSkillXPGain;
 import io.RPGCraft.FableCraft.core.PlayerLevel.PlayerLevel;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import net.kyori.adventure.bossbar.BossBar;
@@ -100,6 +101,8 @@ public final class SkillProgression implements Listener {
     setPlayerPDC(skill + "_xp", player, String.valueOf(xp));
 
     PlayerLevel.onSkillXPGained(player, amount);
+    // Fire Skript event
+    Bukkit.getPluginManager().callEvent(new onSkillXPGain(player, skill, amount));
     showXPBar(player, config, skill, level, xp, maxLevel);
   }
 

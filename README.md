@@ -12,7 +12,7 @@
 
 | Plugin | Required | Purpose |
 |--------|----------|---------|
-| **Skript** | ✅ | Skript integration events and expressions |
+| **Skript** | Optional | Skript integration events, expressions, and effects |
 | **Citizens** | ✅ | NPC system (quests, shops, bank) |
 | **Vault** | ✅ | Economy bridge |
 | **LuckPerms** | ✅ | Permissions |
@@ -435,6 +435,7 @@ Each player has a private 54-slot chest that auto-saves.
 - 54-slot personal inventory
 - Auto-saves on close and on player quit
 - Accessible via the Nether Star menu
+- **Browse ItemDB** button — click to browse custom items and check their details without leaving the storage menu
 
 ---
 
@@ -510,7 +511,7 @@ placing:
 
 ### 🔌 Skript Support
 
-Integrate Fable Craft with Skript scripts.
+Integrate Fable Craft with Skript scripts. All Skript elements are automatically registered when Skript is detected on the server.
 
 **Events:**
 
@@ -519,18 +520,34 @@ Integrate Fable Craft with Skript scripts.
 | `on quest start` | Quest started | `event-player`, `event-quest` |
 | `on quest complete` | Quest completed | `event-player`, `event-quest` |
 | `on quest update` | Quest objective updated | `event-player`, `event-quest`, `event-location` |
+| `on achievement unlock` | Achievement unlocked | `event-player`, `event-achievement` |
+| `on player level up` | Player level increased | `event-player`, `event-newlevel` |
+| `on party join` | Player joined a party | `event-player`, `event-party` |
+| `on party leave` | Player left a party | `event-player`, `event-party` |
+| `on money change` | Player coins changed | `event-player`, `event-oldamount`, `event-newamount` |
+| `on skill XP gain` | Player gained skill XP | `event-player`, `event-skill`, `event-xp` |
 
 **Expressions:**
 
 | Expression | Returns |
 |------------|---------|
 | `custom item "name"` | `ItemStack` of the custom item |
+| `player's coins` | Player's coin balance |
+| `player's level` | Player's overall level |
+| `player's stat "Health"` | Player's stat value (Health, Mana, Defense, etc.) |
+| `player's party` | Player's party name (empty if none) |
+| `player's skill XP "mining"` | Player's XP in a skill |
 
 **Effects:**
 
 | Effect | Description |
 |--------|-------------|
-| `spawn custom mob "name" at "location"` | Spawns the custom mob |
+| `spawn custom mob "name" at location` | Spawns the custom mob |
+| `add 100 to player's coins` | Adds coins to the player |
+| `remove 50 from player's coins` | Removes coins from the player |
+| `set stat "Health" of player to 20` | Sets a player's stat value |
+| `add 10 to player's skill XP "mining"` | Awards skill XP |
+| `give custom item "sword" to player` | Gives a custom item from the ItemDB |
 
 ---
 
@@ -714,7 +731,7 @@ Right-click a Nether Star to open the player menu:
 
 ## Installation
 
-1. Install required dependencies: **Skript**, **Citizens**, **Vault**, **LuckPerms**
+1. Install required dependencies: **Citizens**, **Vault**, **LuckPerms** (Skript and PlaceholderAPI are optional)
 2. Place `RPGCraft.jar` in your `plugins/` folder
 3. Start the server — the plugin will generate all configuration files
 4. Configure your custom items, mobs, quests, and shops

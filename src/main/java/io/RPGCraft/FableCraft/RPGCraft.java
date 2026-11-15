@@ -16,9 +16,15 @@ import io.RPGCraft.FableCraft.Utils.SkillProgression;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandManager;
 import io.RPGCraft.FableCraft.Utils.money.BankManager;
 import io.RPGCraft.FableCraft.Utils.money.ShopManager;
+import io.RPGCraft.FableCraft.Utils.skript.onAchievementUnlock;
+import io.RPGCraft.FableCraft.Utils.skript.onMoneyChange;
+import io.RPGCraft.FableCraft.Utils.skript.onPartyJoin;
+import io.RPGCraft.FableCraft.Utils.skript.onPartyLeave;
+import io.RPGCraft.FableCraft.Utils.skript.onPlayerLevelUp;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestComplete;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestStart;
 import io.RPGCraft.FableCraft.Utils.skript.onQuestUpdate;
+import io.RPGCraft.FableCraft.Utils.skript.onSkillXPGain;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.TypeHandler;
 import io.RPGCraft.FableCraft.commands.NPC.NPChandler.setPDC;
 import io.RPGCraft.FableCraft.commands.buildHelper;
@@ -251,23 +257,65 @@ public final class RPGCraft extends JavaPlugin {
             }
           }, EventValues.TIME_NOW);
 
-        try {
-          Class.forName(
-            "io.RPGCraft.FableCraft.Utils.skript.customItem"
-          );
-          getLogger().info("Registered custom item Skript expression.");
-        } catch (ClassNotFoundException e) {
-          getLogger().severe("Could not load customItem expression!");
-          e.printStackTrace();
-        }
-        try {
-          Class.forName(
-            "io.RPGCraft.FableCraft.Utils.skript.customMob"
-          );
-          getLogger().info("Registered custom mob Skript effect!");
-        } catch (ClassNotFoundException e) {
-          getLogger().severe("Could not load customMob!");
-          e.printStackTrace();
+        // Register new Skript events
+        Skript.registerEvent("achievement unlock", SimpleEvent.class, onAchievementUnlock.class, "achievement unlock");
+        EventValues.registerEventValue(onAchievementUnlock.class, Player.class, new Getter<Player, onAchievementUnlock>() {
+          @Override public Player get(onAchievementUnlock event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+        EventValues.registerEventValue(onAchievementUnlock.class, String.class, new Getter<String, onAchievementUnlock>() {
+          @Override public String get(onAchievementUnlock event) { return event.getAchievementId(); }
+        }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("player level up", SimpleEvent.class, onPlayerLevelUp.class, "player level up");
+        EventValues.registerEventValue(onPlayerLevelUp.class, Player.class, new Getter<Player, onPlayerLevelUp>() {
+          @Override public Player get(onPlayerLevelUp event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("party join", SimpleEvent.class, onPartyJoin.class, "party join");
+        EventValues.registerEventValue(onPartyJoin.class, Player.class, new Getter<Player, onPartyJoin>() {
+          @Override public Player get(onPartyJoin event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("party leave", SimpleEvent.class, onPartyLeave.class, "party leave");
+        EventValues.registerEventValue(onPartyLeave.class, Player.class, new Getter<Player, onPartyLeave>() {
+          @Override public Player get(onPartyLeave event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("money change", SimpleEvent.class, onMoneyChange.class, "money change");
+        EventValues.registerEventValue(onMoneyChange.class, Player.class, new Getter<Player, onMoneyChange>() {
+          @Override public Player get(onMoneyChange event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+
+        Skript.registerEvent("skill XP gain", SimpleEvent.class, onSkillXPGain.class, "skill XP gain");
+        EventValues.registerEventValue(onSkillXPGain.class, Player.class, new Getter<Player, onSkillXPGain>() {
+          @Override public Player get(onSkillXPGain event) { return event.getPlayer(); }
+        }, EventValues.TIME_NOW);
+        EventValues.registerEventValue(onSkillXPGain.class, String.class, new Getter<String, onSkillXPGain>() {
+          @Override public String get(onSkillXPGain event) { return event.getSkillName(); }
+        }, EventValues.TIME_NOW);
+
+        // Load all Skript expressions and effects via reflection
+        String[] skriptClasses = {
+          "io.RPGCraft.FableCraft.Utils.skript.customItem",
+          "io.RPGCraft.FableCraft.Utils.skript.customMob",
+          "io.RPGCraft.FableCraft.Utils.skript.ExprPlayerCoins",
+          "io.RPGCraft.FableCraft.Utils.skript.ExprPlayerLevel",
+          "io.RPGCraft.FableCraft.Utils.skript.ExprPlayerStat",
+          "io.RPGCraft.FableCraft.Utils.skript.ExprPlayerParty",
+          "io.RPGCraft.FableCraft.Utils.skript.ExprSkillXP",
+          "io.RPGCraft.FableCraft.Utils.skript.EffAddCoins",
+          "io.RPGCraft.FableCraft.Utils.skript.EffRemoveCoins",
+          "io.RPGCraft.FableCraft.Utils.skript.EffSetStat",
+          "io.RPGCraft.FableCraft.Utils.skript.EffAddSkillXP",
+          "io.RPGCraft.FableCraft.Utils.skript.EffGiveCustomItem"
+        };
+        for (String className : skriptClasses) {
+          try {
+            Class.forName(className);
+            getLogger().info("Registered Skript element: " + className.substring(className.lastIndexOf('.') + 1));
+          } catch (ClassNotFoundException e) {
+            getLogger().severe("Could not load Skript element: " + className);
+          }
         }
       } catch (Exception e) {
         getLogger().warning("Failed to register Skript events (Skript may not be fully loaded yet).");
