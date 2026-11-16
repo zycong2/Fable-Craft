@@ -3,7 +3,7 @@
 
 **Fable Craft** (or *RPGCraft*) is a comprehensive RPG plugin for Minecraft. It focuses on deep customization so you can build a full RPG experience with just one plugin.
 
-**Version:** 1.4 &nbsp;|&nbsp; **API:** 1.21.4+ &nbsp;|&nbsp; **License:** MIT  
+**Version:** 1.4 &nbsp;|&nbsp; **API:** Paper 26.2 (Java 25) &nbsp;|&nbsp; **License:** MIT  
 **Authors:** zycong, Tonnam\_101
 
 ---
@@ -33,7 +33,7 @@
 - 🏪 **Shops** — NPC-based buy/sell shops configured via YAML
 - 💰 **Money System** — In-game coins with `/money` command
 - 🏦 **Banking System** — Deposit/withdraw via bank NPC; configurable death tax on carried coins
-- 🏆 **Achievements** — Milestone tracking with coin rewards and notifications
+- 🏆 **Achievements** — Vanilla-integrated advancement system with configurable trees, coin rewards, and toast notifications
 - 👥 **Party System** — Create parties, share coins, transfer leadership
 - 📦 **Personal Storage** — Private 54-slot chest per player, auto-saved
 - 🌟 **Player Levels** — Overall level that aggregates vanilla XP and skill XP
@@ -45,7 +45,8 @@
 - 🔮 **Custom Enchantments** — Unique enchantments beyond vanilla (Life Steal, Haste, Thorns of Fate, Soul Fire)
 - 🔨 **Crafting Stations** — Advanced block-based crafting with unique recipes and requirements
 - ✨ **Magic System** — Configurable spells castable from items with mana costs, cooldowns, and effects (damage, particles, fire, glow, attributes, summoning, potions, knockback)
-- ⚙️ **Config Menu** — In-game GUI to change plugin settings via `/rpgcraft editor config`
+- ⚙️ **Config Menu** — In-game GUI to change plugin settings via `/rpgcraft editor config` (includes advancement settings)
+- 🔧 **Auto Config Defaults** — Missing config options are automatically filled on startup without overwriting user values
 
 ---
 
@@ -53,6 +54,7 @@
 
 ### v1.3 → v1.4
 
+- **Upgraded to Paper 26.2** — Requires Java 25; all APIs updated to match
 - Changed `getNextMessage` to `waitForNextMessage`
   - Old: `getNextMessage(Player).thenAccept(msg -> {})`
   - New: `waitForNextMessage(Player, (Player, Message) -> {})`
@@ -63,6 +65,15 @@
 - Fixed `/itemDB` not opening GUI or clickEvent not working
 - Added `/message`, `/broadcast`, `/discord` commands
 - Added SQLite database for persistent player data
+- **Vanilla Advancement Integration** — Achievements now appear in the vanilla Minecraft advancement menu (L-key) with toast notifications
+- **Configurable Advancement Trees** — Each tree in `advancements.yml` creates a separate tab in the advancement menu, fully configurable via YAML or in-game GUI
+- **GUI Item Paper 26.2 Features** — Added support for Use Cooldown, Swing Animation, Piercing Weapon, and other new data components
+- **Config Menu — Advancement Settings** — In-game GUI toggles for Remove Vanilla Advancements and Achievements GUI Background
+- **Auto Config Defaults** — Missing config options are automatically filled on startup without overwriting user-set values via `copyMissingDefaults()`
+- **Advancements Config Separated** — Moved advancement trees from `config.yml` to a dedicated `advancements.yml` for cleaner organization
+- **Player Menu Update** — Removed achievements button (replaced by vanilla menu); moved Quests button to its place
+- **Achievement Trigger Events** — Each advancement can now define configurable trigger events (kill, mine, craft, fish, levelUp, death, join, money) with custom counts; managed via in-game editor or `advancements.yml`
+- **Config System Fix** — Fixed bug where default config files for DB folders (itemDB, mobDB, etc.) were never written to disk
 - Numerous bug fixes
 
 ---
@@ -543,30 +554,237 @@ bank:
 
 ### 🏆 Achievements System
 
-Track player milestones and earn coin rewards. Achievements are tracked automatically as you play.
+Achievements are fully integrated into the **vanilla Minecraft advancement menu** (press `L` to open). Players see toast notifications, progress tracking, and organized advancement trees — all through the native Minecraft UI.
+
+**How It Works:**
+
+Achievements are defined in a separate `advancements.yml` file. Each tree creates a **separate tab** in the vanilla advancement menu. The root advancement defines the tab, and children form the tree structure within that tab.
+
+**Configuration Options (in `advancements.yml`):**
+
+| Option | Description |
+|--------|-------------|
+| `removeVanilla` | When `true`, revokes all vanilla Minecraft advancements on join (default: `false`) |
+| `guiBackground` | Background material for the custom achievements GUI (default: `GRAY_STAINED_GLASS_PANE`) |
+
+**Advancement Tree Structure:**
+
+Each tree has a `root` advancement (creates the tab) and optional `children` that reference their parent by ID:
+
+```yaml
+# advancements.yml
+removeVanilla: false
+guiBackground: GRAY_STAINED_GLASS_PANE
+trees:
+    # Each key is a separate tab in the advancement menu
+    combat:
+      # Root advancement — creates the tab
+      root:
+        id: first_kill              # Unique identifier
+        name: "&c&lFirst Blood"     # Display name (supports color codes)
+        description: "Kill your first mob."
+        icon: REDSTONE              # Icon item
+        background: REDSTONE_BLOCK  # Tab background texture (root only)
+        rewardCoins: 10             # Coin reward on unlock
+        frame: task                 # Frame type: task, goal, challenge
+      # Child advancements — form the tree within the tab
+      children:
+        kill_10:
+          id: kill_10
+          name: "&c&lWarrior"
+          description: "Kill 10 mobs."
+          icon: IRON_SWORD
+          parent: first_kill        # References parent by ID
+          rewardCoins: 25
+          frame: task
+        kill_100:
+          id: kill_100
+          name: "&c&lSlayer"
+          description: "Kill 100 mobs."
+          icon: DIAMOND_SWORD
+          parent: kill_10           # Chains from kill_10
+          rewardCoins: 100
+          frame: challenge
+    mining:
+      root:
+        id: mine_10
+        name: "&7&lMiner"
+        description: "Mine 10 blocks."
+        icon: IRON_PICKAXE
+        background: IRON_BLOCK
+        rewardCoins: 15
+        frame: task
+      children:
+        mine_100:
+          id: mine_100
+          name: "&7&lQuarry Master"
+          description: "Mine 100 blocks."
+          icon: DIAMOND_PICKAXE
+          parent: mine_10
+          rewardCoins: 50
+          frame: challenge
+    crafting:
+      root:
+        id: craft_10
+        name: "&e&lCraftsman"
+        description: "Craft 10 items."
+        icon: CRAFTING_TABLE
+        background: CRAFTING_TABLE
+        rewardCoins: 20
+        frame: goal
+    fishing:
+      root:
+        id: fish_1
+        name: "&b&lFisherman"
+        description: "Catch your first fish."
+        icon: FISHING_ROD
+        background: DEEPSLATE_COPPER_BLOCK
+        rewardCoins: 10
+        frame: task
+      children:
+        fish_50:
+          id: fish_50
+          name: "&b&lMaster Angler"
+          description: "Catch 50 fish."
+          icon: COD
+          parent: fish_1
+          rewardCoins: 75
+          frame: challenge
+    wealth:
+      root:
+        id: rich
+        name: "&6&lRich"
+        description: "Have 1000 coins at once."
+        icon: GOLD_BLOCK
+        background: GOLD_BLOCK
+        rewardCoins: 50
+        frame: goal
+    completionist:
+      root:
+        id: all_achievements
+        name: "&5&lCompletionist"
+        description: "Get all other achievements."
+        icon: ENDER_EYE
+        background: ENDER_CHEST
+        rewardCoins: 500
+        frame: challenge
+```
+
+**Adding a New Tab:**
+
+To add a new advancement tab, simply add a new key under `trees` in `advancements.yml` with a `root` section. Children are optional:
+
+```yaml
+# advancements.yml
+trees:
+  myNewTree:
+    root:
+      id: my_first
+      name: "&a&lMy Achievement"
+      description: "Do something awesome."
+      icon: EMERALD
+      background: EMERALD_BLOCK
+      rewardCoins: 50
+      frame: goal
+```
+
+**Frame Types:**
+
+| Frame | Appearance |
+|-------|-----------|
+| `task` | Standard white frame |
+| `goal` | Green-tinted frame |
+| `challenge` | Orange-tinted frame with special icon |
+
+**Trigger Events:**
+
+Each achievement can define one or more **trigger events** that determine when it unlocks. A trigger specifies an action type and how many times that action must occur:
+
+```yaml
+triggers:
+  kill:
+    type: kill
+    count: 10        # Unlocks after killing 10 mobs
+```
+
+| Trigger Type | Description |
+|-------------|-------------|
+| `kill` | Player kills a mob |
+| `mine` | Player mines a block |
+| `craft` | Player crafts an item |
+| `fish` | Player catches fish |
+| `levelUp` | Player levels up |
+| `death` | Player dies |
+| `join` | Player joins the server |
+| `money` | Player has X coins (checked periodically) |
+
+An achievement unlocks when **any** of its triggers are met. You can configure triggers via the in-game editor (`/rpgcraft editor advancements` → edit an achievement → Trigger Events) or directly in `advancements.yml`.
+
+**Example with Triggers:**
+
+```yaml
+trees:
+  combat:
+    root:
+      id: first_kill
+      name: "&c&lFirst Blood"
+      description: "Kill your first mob."
+      icon: REDSTONE
+      background: REDSTONE_BLOCK
+      rewardCoins: 10
+      frame: task
+      triggers:
+        kill:
+          type: kill
+          count: 1
+    children:
+      kill_10:
+        id: kill_10
+        name: "&c&lWarrior"
+        description: "Kill 10 mobs."
+        icon: IRON_SWORD
+        parent: first_kill
+        rewardCoins: 25
+        frame: task
+        triggers:
+          kill:
+            type: kill
+            count: 10
+```
 
 **Built-in Achievements:**
 
-| Achievement | Requirement | Reward |
-|-------------|-------------|--------|
-| First Blood | Kill your first mob | 10 coins |
-| Warrior | Kill 10 mobs | 25 coins |
-| Slayer | Kill 100 mobs | 100 coins |
-| Miner | Mine 10 blocks | 15 coins |
-| Quarry Master | Mine 100 blocks | 50 coins |
-| Craftsman | Craft 10 items | 20 coins |
-| Fisherman | Catch your first fish | 10 coins |
-| Master Angler | Catch 50 fish | 75 coins |
-| Rich | Have 1,000 coins at once | 50 coins |
-| Completionist | Get all other achievements | 500 coins |
+The default config includes 6 tabs (Combat, Mining, Crafting, Fishing, Wealth, Completionist) with 10 total achievements:
 
-**Access:** Open the Nether Star menu and click the Achievements button, or run `/rpgcraft editor advancements` (requires `rpgcraft.advancements` permission).
+| Achievement | Tree | Requirement | Reward |
+|-------------|------|-------------|--------|
+| First Blood | Combat | Kill your first mob | 10 coins |
+| Warrior | Combat | Kill 10 mobs | 25 coins |
+| Slayer | Combat | Kill 100 mobs | 100 coins |
+| Miner | Mining | Mine 10 blocks | 15 coins |
+| Quarry Master | Mining | Mine 100 blocks | 50 coins |
+| Craftsman | Crafting | Craft 10 items | 20 coins |
+| Fisherman | Fishing | Catch your first fish | 10 coins |
+| Master Angler | Fishing | Catch 50 fish | 75 coins |
+| Rich | Wealth | Have 1,000 coins at once | 50 coins |
+| Completionist | Completionist | Get all other achievements | 500 coins |
 
-**GUI Features:**
-- View all achievements with their status (locked/unlocked)
-- Unlocked achievements show their icon and reward
-- Progress tracker shows total unlocked count and percentage
-- Close button to exit the menu
+**Access:**
+
+- **Vanilla Menu:** Press `L` to open the advancement menu and browse all custom achievement tabs
+- **Custom GUI:** Run `/rpgcraft editor advancements` to view achievements in a custom GUI (requires `rpgcraft.advancements` permission)
+- **Config GUI:** Configure advancement settings via `/rpgcraft editor config` → Items & Mobs
+
+**Features:**
+
+- Toast notifications when unlocking achievements
+- Coin rewards automatically awarded on unlock
+- Configurable trigger events (kill, mine, craft, fish, levelUp, death, join, money) with custom counts
+- Skript event `on achievement unlock` fires for each achievement
+- Completionist auto-unlocks when all other achievements are earned
+- Vanilla advancements can be revoked on join via config option
+- Tab backgrounds customizable per tree
+- Manage triggers via in-game editor (`/rpgcraft editor advancements`)
 
 ---
 
@@ -887,7 +1105,7 @@ Change plugin settings in-game through a GUI-based configuration editor. No need
 | Bank | Death tax enabled, percent, max loss |
 | Skills | Skill progression settings |
 | Display | Sidebar, actionbar, boss bar toggles |
-| Items/Mobs | Unbreakable items toggle, mob settings |
+| Items/Mobs | Unbreakable items toggle, mob settings, Remove Vanilla Advancements, Achievements GUI Background |
 | Player Level | Level progression, XP multipliers |
 
 **Features:**
@@ -896,6 +1114,34 @@ Change plugin settings in-game through a GUI-based configuration editor. No need
 - Reload configurations without restarting
 - Permission-gated access (`rpgcraft.config`)
 - Changes take effect immediately
+
+**Items & Mobs Settings:**
+
+| Setting | Type | Description |
+|---------|------|-------------|
+| Remove Vanilla Advancements | Toggle | When enabled, revokes all vanilla Minecraft advancements when players join |
+| Achievements GUI Background | Material | Click to enter a material name (e.g., `GRAY_STAINED_GLASS_PANE`) for the achievements GUI background |
+
+---
+
+### 🔧 Auto Config Defaults
+
+The plugin automatically manages config file updates without overwriting your custom values.
+
+**How It Works:**
+
+When the plugin starts, it checks all config files against the built-in defaults. If any new config options have been added in a recent update, they are automatically filled in with their default values. Your existing custom values are **never overwritten**.
+
+**Key Behaviors:**
+
+- **New options are added automatically** — When a new version adds config options, they appear in your `config.yml` on the next restart
+- **User values are preserved** — If you've changed a value, your change is kept even if the default changes
+- **Nested sections work recursively** — Deeply nested options (e.g., `stats.Health.default`) are handled the same way
+- **No manual migration needed** — You never need to manually merge config files or delete and regenerate them
+
+**Example:**
+
+If your `config.yml` has `advancements.removeVanilla: true` and a new update adds `advancements.guiBackground`, the next restart will add `advancements.guiBackground: GRAY_STAINED_GLASS_PANE` while keeping your `removeVanilla: true` value intact.
 
 ---
 
@@ -1100,7 +1346,6 @@ Right-click a Nether Star to open the player menu:
 |--------|----------|
 | **Profile** | View stats and money |
 | **Skills** | Open skill progression menu |
-| **Achievements** | View achievement progress |
 | **Party** | Manage your party |
 | **Personal Storage** | Open private chest |
 | **Quests** | View and manage your quests |
@@ -1112,6 +1357,7 @@ Right-click a Nether Star to open the player menu:
 | File/Folder | Purpose |
 |-------------|---------|
 | `config.yml` | Main settings (stats, death tax, block safety, player levels, etc.) |
+| `advancements.yml` | Achievement/advancement trees and settings (separate from main config) |
 | `messages.yml` | All player-facing messages |
 | `data.yml` | Runtime data (custom mobs, pending blocks) |
 | `format.yml` | Number and text formatting |
@@ -1126,6 +1372,8 @@ Right-click a Nether Star to open the player menu:
 | `craftingStations/` | Advanced crafting station definitions |
 | `mobSkills/` | Mob skill definitions (assignable to mobs and NPCs) |
 | `spells/` | Spell definitions for the magic system |
+
+**Note:** All config files use the **auto-config-defaults** system — new options are automatically added on startup without overwriting your custom values. See the [Auto Config Defaults](#-auto-config-defaults) section for details.
 
 ---
 

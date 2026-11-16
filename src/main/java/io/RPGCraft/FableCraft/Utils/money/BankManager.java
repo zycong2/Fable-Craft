@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
@@ -92,99 +94,206 @@ public class BankManager implements Listener {
   // ------------------------------------------------------------------
 
   public static void openBankGUI(Player p) {
-    GUI gui = new GUI("&6&lBank", GUI.Rows.THREE);
+    GUI gui = new GUI("&6&lBank", GUI.Rows.SIX);
 
-    // Info
-    gui.setItem(0, new GUIItem()
-      .material(Material.BOOK)
+    int carried = moneyManager.getMoney(p);
+    int banked = getBankMoney(p);
+
+    // Track occupied slots for filler placement
+    Set<Integer> occupied = new HashSet<>();
+
+    // ============ BORDER ============
+    Material borderMat = Material.BLACK_STAINED_GLASS_PANE;
+    String borderName = "&8.";
+
+    // Top row
+    for (int i = 0; i <= 8; i++) {
+      gui.setItem(i, new GUIItem().material(borderMat).name(borderName));
+      occupied.add(i);
+    }
+    // Bottom row
+    for (int i = 45; i <= 53; i++) {
+      gui.setItem(i, new GUIItem().material(borderMat).name(borderName));
+      occupied.add(i);
+    }
+    // Left column
+    for (int row = 1; row <= 5; row++) {
+      gui.setItem(row * 9, new GUIItem().material(borderMat).name(borderName));
+      occupied.add(row * 9);
+    }
+    // Right column
+    for (int row = 1; row <= 5; row++) {
+      gui.setItem(row * 9 + 8, new GUIItem().material(borderMat).name(borderName));
+      occupied.add(row * 9 + 8);
+    }
+
+    // ============ TITLE ============
+    gui.setItem(13, new GUIItem()
+      .material(Material.GOLD_BLOCK)
+      .name("&6&l═══ Bank ═══"));
+    occupied.add(13);
+
+    // ============ BALANCE INFO ============
+    gui.setItem(11, new GUIItem()
+      .material(Material.CHEST)
+      .name("&e&lYour Balances")
+      .lore("&7Money on hand: &a" + carried + " &7coins",
+            "&7Money in bank: &6" + banked + " &7coins",
+            "",
+            "&7Money in the bank is safe",
+            "&7from death tax!"));
+    occupied.add(11);
+
+    gui.setItem(15, new GUIItem()
+      .material(Material.ENDER_CHEST)
       .name("&e&lBank Info")
-      .lore("&7Money on hand: &a" + moneyManager.getMoney(p) + " coins",
-            "&7Money in bank: &6" + getBankMoney(p) + " coins",
+      .lore("&7Deposit coins to keep them",
+            "&7safe from death tax.",
             "",
-            "&7Click the buttons below to"));
+            "&7Withdraw coins when you",
+            "&7need to spend them.",
+            "",
+            "&7Death tax: &c" + yamlManager.getInstance().getFileConfig("config")
+              .getDouble("bank.deathTax.percent", 10.0) + "% &7on carried coins"));
+    occupied.add(15);
 
-    // Deposit All
-    gui.setItem(2, new GUIItem()
+    // ============ DIVIDER ============
+    for (int i = 18; i <= 26; i++) {
+      gui.setItem(i, new GUIItem().material(borderMat).name(borderName));
+      occupied.add(i);
+    }
+
+    // ============ DEPOSIT SECTION ============
+    gui.setItem(19, new GUIItem()
+      .material(Material.LIME_STAINED_GLASS_PANE)
+      .name("&a&lDeposit"));
+    occupied.add(19);
+
+    gui.setItem(21, new GUIItem()
       .material(Material.GOLD_INGOT)
-      .name("&a&lDeposit All")
-      .lore("&7Deposit all your coins",
-            "&7into the bank.",
+      .name("&a&lDeposit 100")
+      .lore("&7Deposit 100 coins into the bank",
             "",
-            "&7Current: &a" + moneyManager.getMoney(p) + " coins")
+            "&7Available: &a" + carried + " &7coins",
+            "",
+            "&eLeft-click &7to deposit")
+      .clickEvent(ctx -> deposit(p, 100)));
+    occupied.add(21);
+
+    gui.setItem(22, new GUIItem()
+      .material(Material.GOLD_INGOT)
+      .name("&a&lDeposit 500")
+      .lore("&7Deposit 500 coins into the bank",
+            "",
+            "&7Available: &a" + carried + " &7coins",
+            "",
+            "&eLeft-click &7to deposit")
+      .clickEvent(ctx -> deposit(p, 500)));
+    occupied.add(22);
+
+    gui.setItem(23, new GUIItem()
+      .material(Material.GOLD_BLOCK)
+      .name("&a&lDeposit 1,000")
+      .lore("&7Deposit 1,000 coins into the bank",
+            "",
+            "&7Available: &a" + carried + " &7coins",
+            "",
+            "&eLeft-click &7to deposit")
+      .clickEvent(ctx -> deposit(p, 1000)));
+    occupied.add(23);
+
+    gui.setItem(25, new GUIItem()
+      .material(Material.GOLD_BLOCK)
+      .name("&a&lDeposit All")
+      .lore("&7Deposit all your coins into the bank",
+            "",
+            "&7Available: &a" + carried + " &7coins",
+            "",
+            "&eLeft-click &7to deposit all")
       .clickEvent(ctx -> {
-        int amount = moneyManager.getMoney(p);
-        if (amount <= 0) {
+        if (carried <= 0) {
           p.sendMessage(Colorize("&cYou have no coins to deposit!"));
           return;
         }
         moneyManager.setMoney(p, 0);
-        addBankMoney(p, amount);
-        p.sendMessage(Colorize("&aDeposited &6" + amount + " &acoins into the bank!"));
+        addBankMoney(p, carried);
+        p.sendMessage(Colorize("&aDeposited &6" + carried + " &acoins into the bank!"));
         openBankGUI(p);
       }));
+    occupied.add(25);
 
-    // Deposit 100
-    gui.setItem(3, new GUIItem()
+    // ============ WITHDRAW SECTION ============
+    gui.setItem(28, new GUIItem()
+      .material(Material.RED_STAINED_GLASS_PANE)
+      .name("&c&lWithdraw"));
+    occupied.add(28);
+
+    gui.setItem(30, new GUIItem()
       .material(Material.GOLD_INGOT)
-      .name("&a&lDeposit 100")
-      .lore("&7Deposit 100 coins",
-            "&7Current: &a" + moneyManager.getMoney(p) + " coins")
-      .clickEvent(ctx -> deposit(p, 100)));
-
-    // Deposit 1000
-    gui.setItem(4, new GUIItem()
-      .material(Material.GOLD_BLOCK)
-      .name("&a&lDeposit 1,000")
-      .lore("&7Deposit 1,000 coins",
-            "&7Current: &a" + moneyManager.getMoney(p) + " coins")
-      .clickEvent(ctx -> deposit(p, 1000)));
-
-    // Withdraw All
-    gui.setItem(8, new GUIItem()
-      .material(Material.GOLD_INGOT)
-      .name("&c&lWithdraw All")
-      .lore("&7Withdraw all coins",
-            "&7from the bank.",
+      .name("&c&lWithdraw 100")
+      .lore("&7Withdraw 100 coins from the bank",
             "",
-            "&7Bank balance: &6" + getBankMoney(p) + " coins")
+            "&7Bank balance: &6" + banked + " &7coins",
+            "",
+            "&eLeft-click &7to withdraw")
+      .clickEvent(ctx -> withdraw(p, 100)));
+    occupied.add(30);
+
+    gui.setItem(31, new GUIItem()
+      .material(Material.GOLD_INGOT)
+      .name("&c&lWithdraw 500")
+      .lore("&7Withdraw 500 coins from the bank",
+            "",
+            "&7Bank balance: &6" + banked + " &7coins",
+            "",
+            "&eLeft-click &7to withdraw")
+      .clickEvent(ctx -> withdraw(p, 500)));
+    occupied.add(31);
+
+    gui.setItem(32, new GUIItem()
+      .material(Material.GOLD_BLOCK)
+      .name("&c&lWithdraw 1,000")
+      .lore("&7Withdraw 1,000 coins from the bank",
+            "",
+            "&7Bank balance: &6" + banked + " &7coins",
+            "",
+            "&eLeft-click &7to withdraw")
+      .clickEvent(ctx -> withdraw(p, 1000)));
+    occupied.add(32);
+
+    gui.setItem(34, new GUIItem()
+      .material(Material.GOLD_BLOCK)
+      .name("&c&lWithdraw All")
+      .lore("&7Withdraw all coins from the bank",
+            "",
+            "&7Bank balance: &6" + banked + " &7coins",
+            "",
+            "&eLeft-click &7to withdraw all")
       .clickEvent(ctx -> {
-        int amount = getBankMoney(p);
-        if (amount <= 0) {
+        if (banked <= 0) {
           p.sendMessage(Colorize("&cThe bank is empty!"));
           return;
         }
         setBankMoney(p, 0);
-        moneyManager.addMoney(p, amount);
-        p.sendMessage(Colorize("&aWithdrew &6" + amount + " &acoins from the bank!"));
+        moneyManager.addMoney(p, banked);
+        p.sendMessage(Colorize("&aWithdrew &6" + banked + " &acoins from the bank!"));
         openBankGUI(p);
       }));
+    occupied.add(34);
 
-    // Withdraw 100
-    gui.setItem(12, new GUIItem()
-      .material(Material.GOLD_INGOT)
-      .name("&c&lWithdraw 100")
-      .lore("&7Withdraw 100 coins",
-            "&7Bank balance: &6" + getBankMoney(p) + " coins")
-      .clickEvent(ctx -> withdraw(p, 100)));
+    // ============ CLOSE BUTTON ============
+    gui.setItem(46, new GUIItem()
+      .material(Material.BARRIER)
+      .name("&c&lClose")
+      .lore("&7Close the bank menu")
+      .clickEvent(ctx -> ctx.player().closeInventory()));
+    occupied.add(46);
 
-    // Withdraw 1000
-    gui.setItem(13, new GUIItem()
-      .material(Material.GOLD_BLOCK)
-      .name("&c&lWithdraw 1,000")
-      .lore("&7Withdraw 1,000 coins",
-            "&7Bank balance: &6" + getBankMoney(p) + " coins")
-      .clickEvent(ctx -> withdraw(p, 1000)));
-
-    // Fillers
-    for (int i = 9; i <= 17; i++) {
-      if (i == 12 || i == 13) continue;
+    // ============ FILLER SLOTS ============
+    for (int i = 0; i <= 53; i++) {
+      if (occupied.contains(i)) continue;
       gui.setItem(i, new GUIItem()
-        .material(Material.GRAY_STAINED_GLASS_PANE)
-        .name("&8."));
-    }
-    for (int i = 5; i <= 7; i++) {
-      gui.setItem(i, new GUIItem()
-        .material(Material.GRAY_STAINED_GLASS_PANE)
+        .material(Material.BLACK_STAINED_GLASS_PANE)
         .name("&8."));
     }
 

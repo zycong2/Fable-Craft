@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Stats.Stats.refreshNextTick;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getMessage;
 
 public class MiscCommand {
   private static Map<UUID, Long> swearCooldown = new HashMap<UUID, Long>();
@@ -33,12 +34,12 @@ public class MiscCommand {
           .name("&6RPG Menu");
         Entity executor = getExecutor(ctx);
         if(!(executor instanceof Player p)){
-          executor.sendMessage(MM("[!] Only player can run this command"));
+          executor.sendMessage(getMessage("messages.misc.giveMenu.onlyPlayers", null, true));
           return 0;
         }
         p.getInventory().addItem(menuItem.toItemStack());
         refreshNextTick(p); //refresh stats
-        p.sendMessage(MM("&a[!] You've been given the menu item"));
+        p.sendMessage(getMessage("messages.misc.giveMenu.success", p, true));
         return Command.SINGLE_SUCCESS;
       })
       .build();

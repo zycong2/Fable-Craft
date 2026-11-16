@@ -541,6 +541,57 @@ public class ConfigMenu implements Listener {
         openItemsMobsConfig(p);
       }));
 
+    YamlConfiguration advConfig = yamlManager.getInstance().getFileConfig("advancements");
+    boolean removeVanillaAdvancements = advConfig.getBoolean("removeVanilla", false);
+    gui.setItem(6, new GUIItem()
+      .material(removeVanillaAdvancements ? Material.EMERALD_BLOCK : Material.EMERALD)
+      .name("&7Remove Vanilla Advancements")
+      .lore("&7Current: " + (removeVanillaAdvancements ? "&aEnabled" : "&cDisabled"),
+            "&7Revokes all vanilla Minecraft",
+            "&7advancements when a player joins",
+            "",
+            "&eClick to toggle")
+      .clickEvent(ctx -> {
+        yamlManager.getInstance().setEditing(true);
+        advConfig.set("removeVanilla", !removeVanillaAdvancements);
+        yamlManager.getInstance().saveData();
+        p.sendMessage(Colorize("&aRemove vanilla advancements " + (!removeVanillaAdvancements ? "enabled" : "disabled") + "!"));
+        openItemsMobsConfig(p);
+      }));
+
+    String guiBackground = advConfig.getString("guiBackground", "GRAY_STAINED_GLASS_PANE");
+    Material backgroundMat;
+    try {
+      backgroundMat = Material.matchMaterial(guiBackground);
+      if (backgroundMat == null) backgroundMat = Material.GRAY_STAINED_GLASS_PANE;
+    } catch (Exception e) {
+      backgroundMat = Material.GRAY_STAINED_GLASS_PANE;
+    }
+    gui.setItem(8, new GUIItem()
+      .material(backgroundMat)
+      .name("&7Achievements GUI Background")
+      .lore("&7Current: &f" + guiBackground,
+            "&7Background item for the",
+            "&7achievements menu",
+            "",
+            "&eLeft-click to change via chat")
+      .clickEvent(ctx -> {
+        p.closeInventory();
+        p.sendMessage(Colorize("&7Enter the background material name (e.g., GRAY_STAINED_GLASS_PANE):"));
+        ChatInputManager.waitForNextMessage(p, (pl, msg) -> {
+          String materialName = io.RPGCraft.FableCraft.RPGCraft.plaintext(msg).toString().toUpperCase().trim();
+          Material tested = Material.matchMaterial(materialName);
+          if (tested == null || tested == Material.AIR) {
+            pl.sendMessage(Colorize("&cInvalid material name! Use the Minecraft material ID (e.g., GRAY_STAINED_GLASS_PANE)."));
+            return;
+          }
+          yamlManager.getInstance().setEditing(true);
+          advConfig.set("guiBackground", materialName);
+          yamlManager.getInstance().saveData();
+          pl.sendMessage(Colorize("&aAchievements GUI background set to " + materialName + "!"));
+        });
+      }));
+
     // Back button
     gui.setItem(13, new GUIItem()
       .material(Material.ARROW)

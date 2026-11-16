@@ -7,6 +7,7 @@ import io.RPGCraft.FableCraft.core.ConfigMenu;
 import io.RPGCraft.FableCraft.core.CustomEnchantments;
 import io.RPGCraft.FableCraft.core.MainGUI;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.commands.mobs.mobsEditor;
 import io.RPGCraft.FableCraft.commands.quest.quests;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.QuestEditor;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 
 public class editor implements CommandInterface {
 
@@ -44,7 +46,7 @@ public class editor implements CommandInterface {
     @NotNull String[] args
   ) {
     if (!(sender instanceof Player player)) {
-      sender.sendMessage("This command can only be used by players.");
+      sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
       return true;
     }
 
@@ -59,17 +61,17 @@ public class editor implements CommandInterface {
     // yamlEdit is special — it's a toggle, not a GUI
     if (editorName.equals("yamledit")) {
       if (!player.hasPermission("rpgcraft.yamlEdit")) {
-        player.sendMessage("§cYou don't have permission to use the YAML editor!");
+        player.sendMessage(yamlGetter.getMessage("messages.editor.yamlEdit.noPermission", player, true));
         return true;
       }
       yamlManager.getInstance().setEditing(!yamlManager.getInstance().getEditing());
-      player.sendMessage("Set YAML editing to " + yamlManager.getInstance().getEditing());
+      player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.editor.yamlEdit.toggled", "").replace("%value%", String.valueOf(yamlManager.getInstance().getEditing()))));
       return true;
     }
 
     // All other editors require the generic editor permission
     if (!player.hasPermission("rpgcraft.editor")) {
-      player.sendMessage("§cYou don't have permission to access editors!");
+      player.sendMessage(yamlGetter.getMessage("messages.editor.noPermission", player, true));
       return true;
     }
 
@@ -77,49 +79,49 @@ public class editor implements CommandInterface {
     switch (editorName) {
       case "itemdb" -> {
         if (!player.hasPermission("rpgcraft.itemDB")) {
-          player.sendMessage("§cYou don't have permission to access the ItemDB editor!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.itemdb.noPermission", player, true));
           return true;
         }
         MainGUI.itemDBMenu(player).open(player);
       }
       case "config" -> {
         if (!player.hasPermission("rpgcraft.config")) {
-          player.sendMessage("§cYou don't have permission to access the config editor!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.config.noPermission", player, true));
           return true;
         }
         ConfigMenu.openConfigMenu(player);
       }
       case "crafting" -> {
         if (!player.hasPermission("rpgcraft.crafting")) {
-          player.sendMessage("§cYou don't have permission to access the crafting editor!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.crafting.noPermission", player, true));
           return true;
         }
         CraftingStations.openStationsBrowser(player);
       }
       case "enchantments" -> {
         if (!player.hasPermission("rpgcraft.enchantments")) {
-          player.sendMessage("§cYou don't have permission to browse enchantments!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.enchantments.noPermission", player, true));
           return true;
         }
         CustomEnchantments.openEnchantmentsGUI(player);
       }
       case "advancements" -> {
         if (!player.hasPermission("rpgcraft.advancements")) {
-          player.sendMessage("§cYou don't have permission to view advancements!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.advancements.noPermission", player, true));
           return true;
         }
         Achievements.openAchievementsGUI(player);
       }
       case "mobs" -> {
         if (!player.hasPermission("rpgcraft.mobs")) {
-          player.sendMessage("§cYou don't have permission to access the mobs editor!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.mobs.noPermission", player, true));
           return true;
         }
         mobsEditor.openMobDB(player);
       }
       case "quests" -> {
         if (!player.hasPermission("rpgcraft.quests")) {
-          player.sendMessage("§cYou don't have permission to access the quests editor!");
+          player.sendMessage(yamlGetter.getMessage("messages.editor.quests.noPermission", player, true));
           return true;
         }
         // Route to the full editor if the player has edit permission
@@ -130,8 +132,8 @@ public class editor implements CommandInterface {
         }
       }
       default -> {
-        player.sendMessage(Colorize("&cUnknown editor: " + editorName));
-        player.sendMessage(Colorize("&7Type &6/rpgcraft editor&7 for a list of available editors."));
+        player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.editor.unknown", "").replace("%name%", editorName)));
+        player.sendMessage(yamlGetter.getMessage("messages.editor.unknown.help", player, true));
       }
     }
 
@@ -159,17 +161,17 @@ public class editor implements CommandInterface {
   }
 
   private static void showHelp(Player p) {
-    p.sendMessage(Colorize("&6&l=== RPGCraft Editors ==="));
-    p.sendMessage(Colorize("&7Open an editor with: &6/rpgcraft editor <name>"));
-    p.sendMessage(Colorize(""));
-    p.sendMessage(Colorize("&7Available editors:"));
-    p.sendMessage(Colorize("  &fitemdb &8- &7Browse and edit custom items"));
-    p.sendMessage(Colorize("  &fconfig &8- &7In-game config menu"));
-    p.sendMessage(Colorize("  &fcrafting &8- &7Browse crafting stations"));
-    p.sendMessage(Colorize("  &fenchantments &8- &7Browse, create, edit, and delete enchantments"));
-    p.sendMessage(Colorize("  &fadvancements &8- &7View achievements"));
-    p.sendMessage(Colorize("  &fmobs &8- &7Browse and edit custom mobs"));
-    p.sendMessage(Colorize("  &fquests &8- &7View, create, edit, and delete quests"));
-    p.sendMessage(Colorize("  &fyamledit &8- &7Toggle YAML click-to-edit mode"));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.title", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.usage", p, true));
+    p.sendMessage(MM(""));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.available", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.itemdb", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.config", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.crafting", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.enchantments", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.advancements", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.mobs", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.quests", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.editor.help.yamledit", p, true));
   }
 }

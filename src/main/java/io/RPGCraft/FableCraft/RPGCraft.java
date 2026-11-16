@@ -82,7 +82,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<LivingEntity> customMobs = new java.util.ArrayList<>(List.of());
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
-  public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
+  public static List<String> yamlFiles = List.of("config", "data", "messages", "format", "advancements");
   public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops", "enchantments", "craftingStations", "mobSkills", "spells");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
@@ -108,6 +108,7 @@ public final class RPGCraft extends JavaPlugin {
     InventoryManager.getInstance().init();
     new CustomEnchantments().init();
     new CraftingStations().init();
+    Achievements.loadAdvancements(this);
 
     this.getCommand("RPGCraft").setTabCompleter(new CommandManager());
     this.getCommand("RPGCraft").setExecutor(new CommandManager());
@@ -364,6 +365,7 @@ public final class RPGCraft extends JavaPlugin {
       Bukkit.getLogger().info("Saved data.");
     }
     buildingBreaking.restorePendingBlocks();
+    Achievements.unregisterAdvancements(this);
   }
 
   public static ItemStack createGuiItem(Material material, String name, String... lore) {

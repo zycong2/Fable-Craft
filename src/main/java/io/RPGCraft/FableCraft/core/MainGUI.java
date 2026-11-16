@@ -67,12 +67,12 @@ public class MainGUI implements Listener {
       .clickEvent(ce -> SkillMenu.openSkillsMenu(ce.player(), 0));
     menu.setItem(20, skillsButton);
 
-    // Achievements
-    GUIItem achievementsButton = new GUIItem(Material.EMERALD)
-      .name("&6&lAchievements")
-      .lore("&7View your achievements")
-      .clickEvent(ce -> Achievements.openAchievementsGUI(ce.player()));
-    menu.setItem(21, achievementsButton);
+    // Quests
+    GUIItem questsButton = new GUIItem(Material.WRITABLE_BOOK)
+      .name("&b&lQuests")
+      .lore("&7View and manage your quests")
+      .clickEvent(ce -> quests.openQuestsGUI(ce.player()));
+    menu.setItem(21, questsButton);
 
 
     // Party
@@ -88,13 +88,6 @@ public class MainGUI implements Listener {
       .lore("&7Open your personal chest")
       .clickEvent(ce -> InventoryManager.getInstance().openStorage(ce.player()));
     menu.setItem(24, storageButton);
-
-    // Quests
-    GUIItem questsButton = new GUIItem(Material.WRITABLE_BOOK)
-      .name("&b&lQuests")
-      .lore("&7View and manage your quests")
-      .clickEvent(ce -> quests.openQuestsGUI(ce.player()));
-    menu.setItem(25, questsButton);
 
     GUIItem close = new GUIItem(Material.BARRIER)
       .name("&cClose Menu")

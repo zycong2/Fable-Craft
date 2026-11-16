@@ -13,7 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.PartyManager.openPartyGUI;
 
 public class party implements CommandInterface {
@@ -26,12 +29,12 @@ public class party implements CommandInterface {
     @NotNull String[] args
   ) {
     if (!(sender instanceof Player player)) {
-      sender.sendMessage(Colorize("&cOnly players can use party commands."));
+      sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
       return true;
     }
 
     if (!player.hasPermission("rpgcraft.party")) {
-      player.sendMessage(Colorize("&cYou don't have permission to use party commands!"));
+      player.sendMessage(yamlGetter.getMessage("messages.party.noPermission", player, true));
       return true;
     }
 
@@ -51,12 +54,12 @@ public class party implements CommandInterface {
 
       case "invite" -> {
         if (args.length < 2) {
-          player.sendMessage(Colorize("&cUsage: /rpgcraft party invite <player>"));
+          player.sendMessage(yamlGetter.getMessage("messages.party.invite.usage", player, true));
           return true;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null || !target.isOnline()) {
-          player.sendMessage(Colorize("&cPlayer not found or offline: " + args[1]));
+          player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.invite.notFound", "").replace("%player%", args[1])));
           return true;
         }
         pm.invitePlayer(player, target);
@@ -69,11 +72,11 @@ public class party implements CommandInterface {
       case "decline" -> {
         String inviteFrom = io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC("party_invite_from", player);
         if (inviteFrom == null || inviteFrom.isEmpty()) {
-          player.sendMessage(Colorize("&cYou have no pending party invites!"));
+          player.sendMessage(yamlGetter.getMessage("messages.party.decline.none", player, true));
         } else {
           Player inviter = Bukkit.getPlayer(UUID.fromString(inviteFrom));
           String inviterName = inviter != null ? inviter.getName() : "unknown";
-          player.sendMessage(Colorize("&cYou declined the party invite from &e" + inviterName));
+          player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.decline.declined", "").replace("%inviter%", inviterName)));
           io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC("party_invite_from", player, "");
         }
       }
@@ -84,12 +87,12 @@ public class party implements CommandInterface {
 
       case "kick" -> {
         if (args.length < 2) {
-          player.sendMessage(Colorize("&cUsage: /rpgcraft party kick <player>"));
+          player.sendMessage(yamlGetter.getMessage("messages.party.kick.usage", player, true));
           return true;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null || !target.isOnline()) {
-          player.sendMessage(Colorize("&cPlayer not found or offline: " + args[1]));
+          player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.kick.notFound", "").replace("%player%", args[1])));
           return true;
         }
         pm.kickPlayer(player, target);
@@ -98,28 +101,28 @@ public class party implements CommandInterface {
       case "list" -> {
         PartyManager.Party party = pm.getParty(player);
         if (party == null) {
-          player.sendMessage(Colorize("&cYou are not in a party."));
+          player.sendMessage(yamlGetter.getMessage("messages.party.list.notInParty", player, true));
           return true;
         }
-        player.sendMessage(Colorize("&e&l" + party.name));
-        player.sendMessage(Colorize("&7Leader: &6" + Bukkit.getPlayer(party.leader).getName()));
-        player.sendMessage(Colorize("&7Members:"));
+        player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.list.name", "").replace("%name%", party.name)));
+        player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.list.leader", "").replace("%leader%", Bukkit.getPlayer(party.leader).getName())));
+        player.sendMessage(yamlGetter.getMessage("messages.party.list.members", player, true));
         for (var uuid : party.getMembers()) {
           var op = Bukkit.getPlayer(uuid);
           String status = op.isOnline() ? "&a" : "&c";
           String role = uuid.equals(party.leader) ? " (Leader)" : "";
-          player.sendMessage(Colorize("  " + status + op.getName() + role));
+          player.sendMessage(MM("  " + status + op.getName() + role));
         }
       }
 
       case "disband" -> {
         PartyManager.Party party = pm.getParty(player);
         if (party == null) {
-          player.sendMessage(Colorize("&cYou are not in a party."));
+          player.sendMessage(yamlGetter.getMessage("messages.party.disband.notInParty", player, true));
           return true;
         }
         if (!party.leader.equals(player.getUniqueId())) {
-          player.sendMessage(Colorize("&cOnly the party leader can disband the party."));
+          player.sendMessage(yamlGetter.getMessage("messages.party.disband.notLeader", player, true));
           return true;
         }
         // leaveParty for leader already handles disbanding the entire party
@@ -131,8 +134,8 @@ public class party implements CommandInterface {
       }
 
       default -> {
-        player.sendMessage(Colorize("&cUnknown party subcommand: " + sub));
-        player.sendMessage(Colorize("&7Available: create, invite, accept, decline, leave, kick, list, disband, gui"));
+        player.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.party.unknown", "").replace("%sub%", sub)));
+        player.sendMessage(yamlGetter.getMessage("messages.party.unknown.help", player, true));
       }
     }
 

@@ -28,7 +28,7 @@ public class quests implements CommandInterface, Listener {
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
     if (!(sender instanceof Player p)) {
-      sender.sendMessage("This command can only be used by players.");
+      sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
       return true;
     }
 
@@ -89,7 +89,7 @@ public class quests implements CommandInterface, Listener {
           setPlayerPDC("quests", pla, "");
           setPlayerPDC("completed_quests", pla, "");
         }
-        p.sendMessage(MM("&aEvery player's quest has been reset!"));
+        p.sendMessage(yamlGetter.getMessage("messages.quests.resetAll", p, true));
       }
       default -> p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
     }
@@ -108,13 +108,13 @@ public class quests implements CommandInterface, Listener {
       }
       return subs;
     } else if (args.length == 2) {
-      if (args[1].equalsIgnoreCase("startNew")) {
+      if (args[0].equalsIgnoreCase("startNew")) {
         List<String> arguments = new ArrayList<>();
         for (Object o : yamlGetter.getAllNodesInDB("quests", "")) {
           if (o instanceof String st) arguments.add(st);
         }
         return arguments;
-      } else if (args[1].equalsIgnoreCase("disband")) {
+      } else if (args[0].equalsIgnoreCase("disband")) {
         String activeQuests = getPlayerPDC("quests", p);
         if (activeQuests == null) return List.of();
         return List.of(activeQuests.split(";"));

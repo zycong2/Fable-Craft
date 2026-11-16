@@ -94,7 +94,13 @@ public class yamlManager {
                     if (Objects.equals(s, config)) { break; }
                     index++;
                 }
-                RPGCraft.fileConfigurationList.set(index, YamlConfiguration.loadConfiguration(cfile));
+                YamlConfiguration loaded = YamlConfiguration.loadConfiguration(cfile);
+                RPGCraft.fileConfigurationList.set(index, loaded);
+                // If the file exists but is completely empty, fill it with defaults
+                if (loaded.getKeys(true).isEmpty()) {
+                  toReset.add(config);
+                  Bukkit.getLogger().info("Config file '" + config + ".yml' is empty — filling with defaults.");
+                }
             }
             else {
               try {
@@ -134,6 +140,11 @@ public class yamlManager {
           }
           else {
             list = getAllFilesConfig(folder);
+            // If Default.yml exists but is completely empty, fill it with defaults
+            if (!list.isEmpty() && list.get(0).getKeys(true).isEmpty()) {
+              toReset.add(s);
+              Bukkit.getLogger().info("Config file '" + s + "/Default.yml' is empty — filling with defaults.");
+            }
           }
           DBFileConfiguration.put(s, list);
         }
@@ -144,9 +155,20 @@ public class yamlManager {
         for (String s : toReset){
           try {
             setDefaults(s);
+            // Save the defaults to disk so the file is no longer empty
+            if (RPGCraft.yamlFiles.contains(s)) {
+              cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s + ".yml");
+              getFileConfig(s).save(cfile);
+            } else if (RPGCraft.DBFolders.contains(s)) {
+              File dbFolder = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), s);
+              cfile = new File(dbFolder.getAbsolutePath(), "Default.yml");
+              getFileConfig(s, 0).save(cfile);
+            }
             Bukkit.getLogger().info("Successfully set the default of the '" + s + "' config folder. ");
           } catch (NullPointerException e) {
             Bukkit.getLogger().warning("Failed to set the default of the '" + s + "' config folder.");
+          } catch (IOException e) {
+            Bukkit.getLogger().warning("Failed to save the '" + s + "' config file after setting defaults.");
           }
         }
         setEditing(false);
@@ -159,7 +181,7 @@ public class yamlManager {
     public boolean setDefaults(String fileName) {
         switch (fileName) {
           case("messages"): {
-            if (getFileConfig("messages").getDefaults() == null) {
+            {
               getFileConfig("messages").addDefault("messages.joinMessage", "&6%target% &ajoined the game!");
               getFileConfig("messages").addDefault("messages.firstJoinMessage", "&6%target% &ajoined the server for the first time!");
               getFileConfig("messages").addDefault("messages.quitMessage", "&6%target%&a left!");
@@ -218,61 +240,273 @@ public class yamlManager {
               getFileConfig("messages").addDefault("messages.mobEditor.type.info", "&rEnter the type for the mob.");
               getFileConfig("messages").addDefault("messages.mobEditor.rename.success", "&aSuccessfully renamed mob.");
               getFileConfig("messages").addDefault("messages.mobEditor.rename.info", "&rEnter the new name for the mob.");
-              getFileConfig("messages").options().copyDefaults(true);
+              getFileConfig("messages").addDefault("messages.mobEditor.customName.rename.success", "&aSuccessfully set the custom name of the mob.");
+
+              // ======================================================================
+              // GENERAL COMMAND MESSAGES
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.general.onlyPlayers", "&cThis command can only be used by players.");
+              getFileConfig("messages").addDefault("messages.general.consoleNoPermission", "&cYou don't have permission.");
+
+              // ======================================================================
+              // EDITOR COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.editor.noPermission", "&cYou don't have permission to access editors!");
+              getFileConfig("messages").addDefault("messages.editor.yamlEdit.noPermission", "&cYou don't have permission to use the YAML editor!");
+              getFileConfig("messages").addDefault("messages.editor.yamlEdit.toggled", "&aYAML editing set to %value%");
+              getFileConfig("messages").addDefault("messages.editor.itemdb.noPermission", "&cYou don't have permission to access the ItemDB editor!");
+              getFileConfig("messages").addDefault("messages.editor.config.noPermission", "&cYou don't have permission to access the config editor!");
+              getFileConfig("messages").addDefault("messages.editor.crafting.noPermission", "&cYou don't have permission to access the crafting editor!");
+              getFileConfig("messages").addDefault("messages.editor.enchantments.noPermission", "&cYou don't have permission to browse enchantments!");
+              getFileConfig("messages").addDefault("messages.editor.advancements.noPermission", "&cYou don't have permission to view advancements!");
+              getFileConfig("messages").addDefault("messages.editor.mobs.noPermission", "&cYou don't have permission to access the mobs editor!");
+              getFileConfig("messages").addDefault("messages.editor.quests.noPermission", "&cYou don't have permission to access the quests editor!");
+              getFileConfig("messages").addDefault("messages.editor.unknown", "&cUnknown editor: %name%");
+              getFileConfig("messages").addDefault("messages.editor.unknown.help", "&7Type &6/rpgcraft editor&7 for a list of available editors.");
+              getFileConfig("messages").addDefault("messages.editor.help.title", "&6&l=== RPGCraft Editors ===");
+              getFileConfig("messages").addDefault("messages.editor.help.usage", "&7Open an editor with: &6/rpgcraft editor <name>");
+              getFileConfig("messages").addDefault("messages.editor.help.available", "&7Available editors:");
+              getFileConfig("messages").addDefault("messages.editor.help.itemdb", "  &fitemdb &8- &7Browse and edit custom items");
+              getFileConfig("messages").addDefault("messages.editor.help.config", "  &fconfig &8- &7In-game config menu");
+              getFileConfig("messages").addDefault("messages.editor.help.crafting", "  &fcrafting &8- &7Browse crafting stations");
+              getFileConfig("messages").addDefault("messages.editor.help.enchantments", "  &fenchantments &8- &7Browse, create, edit, and delete enchantments");
+              getFileConfig("messages").addDefault("messages.editor.help.advancements", "  &fadvancements &8- &7Create, edit, and delete achievements");
+              getFileConfig("messages").addDefault("messages.editor.help.mobs", "  &fmobs &8- &7Browse and edit custom mobs");
+              getFileConfig("messages").addDefault("messages.editor.help.quests", "  &fquests &8- &7View, create, edit, and delete quests");
+              getFileConfig("messages").addDefault("messages.editor.help.yamledit", "  &fyamledit &8- &7Toggle YAML click-to-edit mode");
+
+              // ======================================================================
+              // NPC COMMANDS
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.npc.create.usage", "&fPlease enter the values [/createnpc <name> <skin> <type>]");
+              getFileConfig("messages").addDefault("messages.npc.create.invalidType", "&cNot a valid NPC type!");
+              getFileConfig("messages").addDefault("messages.npc.create.noCitizens", "&cCitizens is not installed, please install it to use this command");
+              getFileConfig("messages").addDefault("messages.npc.skill.usageAdd", "&cUsage: /npc skill add <skillName>");
+              getFileConfig("messages").addDefault("messages.npc.skill.added", "&aAdded skill '%name%' to NPC.");
+              getFileConfig("messages").addDefault("messages.npc.skill.removed", "&aRemoved skill '%name%' from NPC.");
+              getFileConfig("messages").addDefault("messages.npc.skill.removedAll", "&aRemoved all skills from NPC.");
+              getFileConfig("messages").addDefault("messages.npc.skill.usageRemove", "&cUsage: /npc skill add|remove <skillName>");
+              getFileConfig("messages").addDefault("messages.npc.notFound", "&cNo NPC found nearby.");
+              getFileConfig("messages").addDefault("messages.npc.setPDC.set", "&aSet NPC type to &f%type%&a.");
+              getFileConfig("messages").addDefault("messages.npc.setPDC.removed", "&aRemoved NPC type.");
+              getFileConfig("messages").addDefault("messages.npc.setPDC.usage", "&cUsage: /setpdc set <type>");
+ 
+              // ======================================================================
+              // MONEY COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.money.get", "&a%player% has %amount% money");
+
+              // ======================================================================
+              // PARTY COMMANDS
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.party.noPermission", "&cYou don't have permission to use party commands!");
+              getFileConfig("messages").addDefault("messages.party.invite.usage", "&cUsage: /rpgcraft party invite <player>");
+              getFileConfig("messages").addDefault("messages.party.invite.notFound", "&cPlayer not found or offline: %player%");
+              getFileConfig("messages").addDefault("messages.party.decline.none", "&cYou have no pending party invites!");
+              getFileConfig("messages").addDefault("messages.party.decline.declined", "&cYou declined the party invite from &e%inviter%");
+              getFileConfig("messages").addDefault("messages.party.kick.usage", "&cUsage: /rpgcraft party kick <player>");
+              getFileConfig("messages").addDefault("messages.party.kick.notFound", "&cPlayer not found or offline: %player%");
+              getFileConfig("messages").addDefault("messages.party.list.notInParty", "&cYou are not in a party.");
+              getFileConfig("messages").addDefault("messages.party.list.name", "&e&l%name%");
+              getFileConfig("messages").addDefault("messages.party.list.leader", "&7Leader: &6%leader%");
+              getFileConfig("messages").addDefault("messages.party.list.members", "&7Members:");
+              getFileConfig("messages").addDefault("messages.party.disband.notInParty", "&cYou are not in a party.");
+              getFileConfig("messages").addDefault("messages.party.disband.notLeader", "&cOnly the party leader can disband the party.");
+              getFileConfig("messages").addDefault("messages.party.unknown", "&cUnknown party subcommand: %sub%");
+              getFileConfig("messages").addDefault("messages.party.unknown.help", "&7Available: create, invite, accept, decline, leave, kick, list, disband, gui");
+
+              // ======================================================================
+              // RELOAD COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.reload.failed", "&cFailed to reload YAML files. Check console.");
+              getFileConfig("messages").addDefault("messages.reload.success", "&aFableCraft configuration reloaded.");
+              getFileConfig("messages").addDefault("messages.reload.error", "&cAn error occurred while reloading FableCraft. Check console.");
+
+              // ======================================================================
+              // RESET PDC COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.resetPDC.success", "&aYou probably didn't want to do this but it has happened now :)");
+              getFileConfig("messages").addDefault("messages.resetPDC.success.dev", "&aExcept if you are a dev on this plugin ofc");
+
+              // ======================================================================
+              // QUESTS COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.quests.resetAll", "&aEvery player's quest has been reset!");
+
+              // ======================================================================
+              // MOBS COMMAND
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.mobs.onlyPlayers", "&cOnly players can use this.");
+              getFileConfig("messages").addDefault("messages.mobs.spawn.usage", "&cUsage: /mobs spawn <mob>");
+              getFileConfig("messages").addDefault("messages.mobs.killAll.success", "&aKilled all custom mobs.");
+              getFileConfig("messages").addDefault("messages.mobs.reload.success", "&aReloaded random spawns and spawn points.");
+              getFileConfig("messages").addDefault("messages.mobs.addSpawn.usage", "&cUsage: /mobs addspawn <mob>  (uses your current position)");
+              getFileConfig("messages").addDefault("messages.mobs.addSpawn.success", "&aAdded spawn point #%count% for &f%mob%");
+              getFileConfig("messages").addDefault("messages.mobs.removeSpawn.usage", "&cUsage: /mobs removespawn <mob> <number>  (see /mobs listspawns <mob>)");
+              getFileConfig("messages").addDefault("messages.mobs.removeSpawn.notNumber", "&cThe number must be an integer.");
+              getFileConfig("messages").addDefault("messages.mobs.removeSpawn.success", "&aRemoved spawn point #%number%");
+              getFileConfig("messages").addDefault("messages.mobs.removeSpawn.notFound", "&cNo spawn point with that number.");
+              getFileConfig("messages").addDefault("messages.mobs.listSpawns.usage", "&cUsage: /mobs listspawns <mob>");
+              getFileConfig("messages").addDefault("messages.mobs.listSpawns.empty", "&7No spawn points for &f%mob%");
+
+              // ======================================================================
+              // MESSAGE COMMANDS (msg, broadcast, discord)
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.message.specifyMessage", "&c[!] Please specify the message to send to %player%");
+              getFileConfig("messages").addDefault("messages.message.self", "&c[!] You can't send a message to yourself");
+              getFileConfig("messages").addDefault("messages.message.sent", "&c[&a%sender% &2-> &a%receiver%&c] &f%message%");
+              getFileConfig("messages").addDefault("messages.message.received", "&c[&a%sender% &2-> &a%receiver%&c] &f%message%");
+              getFileConfig("messages").addDefault("messages.broadcast.specifyMessage", "&c[!] Please specify the message to broadcast");
+              getFileConfig("messages").addDefault("messages.discord.link", "&a[!] &r&d<click:open_url:'https://discord.gg/BUPSAhAy7W'>Our discord: https://discord.gg/BUPSAhAy7W</click>");
+
+              // ======================================================================
+              // MISC COMMANDS
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.misc.giveMenu.onlyPlayers", "&c[!] Only player can run this command");
+              getFileConfig("messages").addDefault("messages.misc.giveMenu.success", "&a[!] You've been given the menu item");
+
+              // ======================================================================
+              // STATS COMMANDS
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.stats.mustBePlayer", "&cMust be a player to do this");
+              getFileConfig("messages").addDefault("messages.stats.setSuccess", "&aSuccessfully set your %stat% stat");
+              getFileConfig("messages").addDefault("messages.stats.invalidStat", "&cPlease input a valid stat");
+              getFileConfig("messages").addDefault("messages.stats.setOtherSuccess", "&aSuccessfully set %player%'s %stat% stat");
+              getFileConfig("messages").addDefault("messages.stats.setOtherFail", "&cIt's either that the stat doesn't exist OR the player provided doesn't exist");
+              getFileConfig("messages").addDefault("messages.stats.memory.onlyPlayer", "&cOnly a player can send this command");
+
+              // ======================================================================
+              // QUEST MANAGER MESSAGES
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.quest.missingItems", "&cYou don't have the required items.");
+              getFileConfig("messages").addDefault("messages.quest.noLongerHaveItems", "&cYou no longer have the required items.");
+              getFileConfig("messages").addDefault("messages.quest.levelRequired", "&cYou need to be at least Player Level &6%required%&c to take this quest.");
+              getFileConfig("messages").addDefault("messages.quest.rewardMoney", "&aYou have received %amount% coin!");
+
+              // ======================================================================
+              // ACHIEVEMENTS MESSAGES
+              // ======================================================================
+              getFileConfig("messages").addDefault("messages.achievement.unlocked", "&6&l[Achievement Unlocked!]");
+              getFileConfig("messages").addDefault("messages.achievement.unlockedDetail", "%name% - %description%");
+              getFileConfig("messages").addDefault("messages.achievement.reward", "&7Reward: &6%amount% coins");
+              getFileConfig("messages").addDefault("messages.achievement.delete.confirm", "&7Enter 'confirm' to delete the &e%tree% &7tree:");
+              getFileConfig("messages").addDefault("messages.achievement.delete.success", "&aDeleted tree &e%tree% &a!");
+              getFileConfig("messages").addDefault("messages.achievement.delete.cancelled", "&cDeletion cancelled.");
+              getFileConfig("messages").addDefault("messages.achievement.tree.createPrompt", "&7Enter the new tree name (e.g., combat, adventure):");
+              getFileConfig("messages").addDefault("messages.achievement.tree.invalidName", "&cInvalid tree name! Use lowercase letters, numbers, and underscores only.");
+              getFileConfig("messages").addDefault("messages.achievement.tree.alreadyExists", "&cTree &e%tree% &calready exists!");
+              getFileConfig("messages").addDefault("messages.achievement.tree.created", "&aCreated tree &e%tree% &a! Now add a root achievement.");
+              getFileConfig("messages").addDefault("messages.achievement.step.prompt", "&7Step %current%/%total%: %question%");
+              getFileConfig("messages").addDefault("messages.achievement.step.cancelled", "&cAchievement creation cancelled.");
+              getFileConfig("messages").addDefault("messages.achievement.created", "&aAchievement &e%id% &acreated!");
+              getFileConfig("messages").addDefault("messages.achievement.edit.selectProperty", "&7Select a property to edit:");
+              getFileConfig("messages").addDefault("messages.achievement.edit.prompt", "&7Enter the new %property%:");
+              getFileConfig("messages").addDefault("messages.achievement.edit.saved", "&aAchievement &e%id% &asaved!");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.addPrompt", "&7Enter the trigger type (kill, mine, craft, fish, levelUp, death, join, money):");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.countPrompt", "&7Enter the count for %type% trigger:");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.added", "&aTrigger &e%type% &aadded with count %count%!");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.invalid", "&cInvalid trigger type!");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.editPrompt", "&7Enter the new count for %type% trigger:");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.updated", "&aTrigger &e%type% &aupdated to count %count%!");
+              getFileConfig("messages").addDefault("messages.achievement.triggers.deleted", "&aTrigger &e%type% &adeleted!");
+              copyMissingDefaults(getFileConfig("messages"));
             }
             break;
           }
           case("config"): {
-            if (getFileConfig("config").getDefaults() == null) {
-              getFileConfig("config").addDefault("prefix", "&bAfter&aDusk &6»");
-              getFileConfig("config").addDefault("food.removeHunger", true);
-              getFileConfig("config").addDefault("autoMod.enabled", true);
-              getFileConfig("config").addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
-              getFileConfig("config").addDefault("autoMod.punishments.3.type", "tempBan");
-              getFileConfig("config").addDefault("autoMod.punishments.3.duration", "1D");
-              getFileConfig("config").addDefault("autoMod.punishments.5.type", "permBan");
-              getFileConfig("config").addDefault("mobs.removeAllVanillaSpawning", true);
-              getFileConfig("config").addDefault("items.unbreakable.enabled", true);
-              getFileConfig("config").addDefault("items.default.Item", "dirt");
-              getFileConfig("config").addDefault("items.default.File", "ItemDB/Default.yml");
-              getFileConfig("config").addDefault("items.removeDefaultRecipes", true);
-              getFileConfig("config").addDefault("items.display.rarity.common", "&f&lCOMMON");
-              getFileConfig("config").addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
-              getFileConfig("config").addDefault("items.display.rarity.rare", "&9&lRARE");
-              getFileConfig("config").addDefault("items.display.rarity.epic", "&5&lEPIC");
-              getFileConfig("config").addDefault("items.display.rarity.legendary", "&6&lLEGENDARY");
-              getFileConfig("config").setComments("items.display.rarity", List.of("You can add more rarity's if you want :)"));
-              getFileConfig("config").addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
-              getFileConfig("config").addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
-              // STATS
-              getFileConfig("config").addDefault("stats.Health.default", 20);
-              getFileConfig("config").addDefault("stats.Health.char", "&c❤");
-              getFileConfig("config").addDefault("stats.Regeneration.default", 1);
-              getFileConfig("config").addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
-              getFileConfig("config").addDefault("stats.Defense.default", 0);
-              getFileConfig("config").addDefault("stats.Defense.char", "&7\ud83d\udee1");
-              getFileConfig("config").addDefault("stats.Mana.default", 5);
-              getFileConfig("config").addDefault("stats.Mana.char", "&9ᛄ");
-              getFileConfig("config").addDefault("stats.ManaRegeneration.default", 1);
-              getFileConfig("config").addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
-              getFileConfig("config").addDefault("stats.AttackDamage.default", 1);
-              getFileConfig("config").addDefault("stats.AttackDamage.char", "&4⚔");
-              getFileConfig("config").addDefault("stats.MovementSpeed.default", 1);
-              getFileConfig("config").addDefault("stats.MovementSpeed.char", "&b\uD83E\uDEB6");
-              getFileConfig("config").addDefault("stats.Durability.char", "&7\uD83D\uDD28");
-              getFileConfig("config").addDefault("stats.Minuselevel.char", "&a⏺");
-              // SKILLS
-              getFileConfig("config").addDefault("skills.general.default", 0);
-              getFileConfig("config").addDefault("skills.Combat.default", 0);
-              getFileConfig("config").addDefault("skills.Mining.default", 0);
-              getFileConfig("config").addDefault("skills.Foraging.default", 0);
-              // MISC
-              getFileConfig("config").addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
-              getFileConfig("config").addDefault("actionbar.enabled", true);
-              // SIDEBAR
-              getFileConfig("config").addDefault("sidebar.enabled", true);
-              getFileConfig("config").addDefault("sidebar.title", "&6&lRPG Craft");
-              getFileConfig("config").addDefault("sidebar.lines", List.of(
+            {
+              var cfg = getFileConfig("config");
+
+              // ======================================================================
+              // GENERAL SETTINGS
+              // ======================================================================
+              cfg.setComments("prefix", List.of(
+                "Prefix shown before plugin messages in chat"
+              ));
+              cfg.addDefault("prefix", "&bAfter&aDusk &6»");
+              cfg.addDefault("food.removeHunger", true);
+              cfg.addDefault("mobs.removeAllVanillaSpawning", true);
+              cfg.addDefault("items.removeDefaultRecipes", true);
+
+              // Auto-moderation
+              cfg.setComments("autoMod", List.of(
+                "Automatically moderate chat for banned words"
+              ));
+              cfg.addDefault("autoMod.enabled", true);
+              cfg.addDefault("autoMod.bannedWords", List.of("nigger", "nigga", "niggas", "kys"));
+              cfg.addDefault("autoMod.punishments.3.type", "tempBan");
+              cfg.addDefault("autoMod.punishments.3.duration", "1D");
+              cfg.addDefault("autoMod.punishments.5.type", "permBan");
+
+              // ======================================================================
+              // ITEMS
+              // ======================================================================
+              cfg.setComments("items", List.of(
+                "Item-related settings"
+              ));
+              cfg.addDefault("items.unbreakable.enabled", true);
+              cfg.addDefault("items.default.Item", "dirt");
+              cfg.addDefault("items.default.File", "ItemDB/Default.yml");
+
+              // Item rarity display names — add more if you want
+              cfg.setComments("items.display.rarity", List.of(
+                "Rarity display names shown in item lore. Add more rarities as needed."
+              ));
+              cfg.addDefault("items.display.rarity.common", "&f&lCOMMON");
+              cfg.addDefault("items.display.rarity.uncommon", "&a&lUNCOMMON");
+              cfg.addDefault("items.display.rarity.rare", "&9&lRARE");
+              cfg.addDefault("items.display.rarity.epic", "&5&lEPIC");
+              cfg.addDefault("items.display.rarity.legendary", "&6&lLEGENDARY");
+
+              cfg.addDefault("items.lore.prefix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
+              cfg.addDefault("items.lore.suffix", "&8-=-=-=-=-=-=-=-=-=-=-=-");
+
+              // ======================================================================
+              // PLAYER STATS
+              // ======================================================================
+              cfg.setComments("stats", List.of(
+                "Default stat values and display characters for the sidebar/actionbar"
+              ));
+              cfg.addDefault("stats.Health.default", 20);
+              cfg.addDefault("stats.Health.char", "&c❤");
+              cfg.addDefault("stats.Regeneration.default", 1);
+              cfg.addDefault("stats.Regeneration.char", "&d\ud83d\udc9e");
+              cfg.addDefault("stats.Defense.default", 0);
+              cfg.addDefault("stats.Defense.char", "&7\ud83d\udee1");
+              cfg.addDefault("stats.Mana.default", 5);
+              cfg.addDefault("stats.Mana.char", "&9ᛄ");
+              cfg.addDefault("stats.ManaRegeneration.default", 1);
+              cfg.addDefault("stats.ManaRegeneration.char", "&9\uD83C\uDF00");
+              cfg.addDefault("stats.AttackDamage.default", 1);
+              cfg.addDefault("stats.AttackDamage.char", "&4⚔");
+              cfg.addDefault("stats.MovementSpeed.default", 1);
+              cfg.addDefault("stats.MovementSpeed.char", "&b\uD83E\uDEB6");
+              cfg.addDefault("stats.Durability.char", "&7\uD83D\uDD28");
+              cfg.addDefault("stats.Minuselevel.char", "&a⏺");
+
+              // ======================================================================
+              // SKILL DEFAULT LEVELS
+              // ======================================================================
+              cfg.addDefault("skills.general.default", 0);
+              cfg.addDefault("skills.Combat.default", 0);
+              cfg.addDefault("skills.Mining.default", 0);
+              cfg.addDefault("skills.Foraging.default", 0);
+
+              // ======================================================================
+              // DISPLAY — ACTIONBAR & SIDEBAR
+              // ======================================================================
+              cfg.setComments("actionbar", List.of(
+                "Actionbar shown at the bottom of the screen"
+              ));
+              cfg.addDefault("actionbar.message", "&c%currentHealth%/%maxHealth%❤&r   &9%currentMana%/%maxMana%ᛄ");
+              cfg.addDefault("actionbar.enabled", true);
+
+              cfg.setComments("sidebar", List.of(
+                "Scoreboard sidebar shown on the right side of the screen"
+              ));
+              cfg.addDefault("sidebar.enabled", true);
+              cfg.addDefault("sidebar.title", "&6&lRPG Craft");
+              cfg.addDefault("sidebar.lines", List.of(
                 "",
                 "%rankPrefix%",
                 "&7Coins: &6%money%",
@@ -284,25 +518,233 @@ public class yamlManager {
                 "&7Health: &c%currentHealth%/%maxHealth%",
                 "&7Mana: &9%currentMana%/%maxMana%"
               ));
-              getFileConfig("config").addDefault("placing.enabled", true);
-              getFileConfig("config").addDefault("placing.removeTime", 60);
-              getFileConfig("config").addDefault("breaking.enabled", true);
-              getFileConfig("config").addDefault("breaking.removeTime", 60);
 
-              getFileConfig("config").addDefault("quests.npc.talk.delay", 40);
+              // ======================================================================
+              // BLOCK SAFETY — auto-restore broken/placed blocks
+              // ======================================================================
+              cfg.setComments("placing", List.of(
+                "Automatically remove placed blocks after a delay"
+              ));
+              cfg.addDefault("placing.enabled", true);
+              cfg.addDefault("placing.removeTime", 60);
 
-              // BANK
-              getFileConfig("config").addDefault("bank.deathTax.enabled", true);
-              getFileConfig("config").addDefault("bank.deathTax.percent", 10.0);
-              getFileConfig("config").addDefault("bank.deathTax.maxLoss", 0);
+              cfg.setComments("breaking", List.of(
+                "Automatically restore broken blocks after a delay"
+              ));
+              cfg.addDefault("breaking.enabled", true);
+              cfg.addDefault("breaking.removeTime", 60);
 
-              getFileConfig("config").options().copyDefaults(true);
-              getFileConfig("config").options().parseComments(true);
+              // ======================================================================
+              // QUESTS
+              // ======================================================================
+              cfg.addDefault("quests.npc.talk.delay", 40);
+
+              // ======================================================================
+              // BANK — death tax on carried coins
+              // ======================================================================
+              cfg.setComments("bank", List.of(
+                "Banking system settings",
+                "Death tax only affects coins carried by the player, not banked coins"
+              ));
+              cfg.addDefault("bank.deathTax.enabled", true);
+              cfg.addDefault("bank.deathTax.percent", 10.0);
+              cfg.addDefault("bank.deathTax.maxLoss", 0);
+
+              copyMissingDefaults(cfg);
+              cfg.options().parseComments(true);
+            }
+            break;
+          }
+          case("advancements"): {
+            {
+              var cfg = getFileConfig("advancements");
+
+              // ======================================================================
+              // ADVANCEMENTS — integrated into the vanilla Minecraft advancement menu
+              // Each tree creates a separate tab. The root defines the tab,
+              // and children form the tree structure within that tab.
+              //
+              // FIELDS:
+              //   id            — unique identifier (used for parent references)
+              //   name          — display name (supports & color codes)
+              //   description   — tooltip description
+              //   icon          — item material shown for the advancement
+              //   background    — tab background texture (root only)
+              //   rewardCoins   — coins awarded on unlock
+              //   frame         — task | goal | challenge
+              //   parent        — parent advancement id (children only)
+              //   triggers      — events that unlock this achievement (see below)
+              //
+              // TRIGGERS — define when an achievement unlocks:
+              //   triggers:
+              //     kill:
+              //       type: kill
+              //       count: 10        # unlocks after killing 10 mobs
+              //
+              //   Supported trigger types:
+              //     kill      — player kills a mob
+              //     mine      — player mines a block
+              //     craft     — player crafts an item
+              //     fish      — player catches fish
+              //     levelUp   — player levels up
+              //     death     — player dies
+              //     join      — player joins the server
+              //     money     — player has X coins (checked periodically)
+              // ======================================================================
+              cfg.setComments("", List.of(
+                "Advancement configuration — loaded into the vanilla Minecraft advancement menu.",
+                "Each key under 'trees' creates a separate tab in the menu.",
+                "See the README for a full YAML example."
+              ));
+              cfg.addDefault("removeVanilla", false);
+              cfg.addDefault("guiBackground", "GRAY_STAINED_GLASS_PANE");
+
+              cfg.setComments("trees", List.of(
+                "----------------------------------------------------------------",
+                "ADVANCEMENT TREES — each key is a separate tab in the vanilla menu",
+                "----------------------------------------------------------------",
+                "",
+                "Example: adding a new tree called 'adventure':",
+                "",
+                "  trees:",
+                "    adventure:",
+                "      root:",
+                "        id: explore_1",
+                "        name: \"&2&lExplorer\"",
+                "        description: \"Visit your first biome.\"",
+                "        icon: COMPASS",
+                "        background: GRASS_BLOCK",
+                "        rewardCoins: 20",
+                "        frame: task",
+                "        triggers:",
+                "          join:",
+                "            type: join",
+                "            count: 1",
+                "      children:",
+                "        explore_10:",
+                "          id: explore_10",
+                "          name: \"&2&lWorld Traveler\"",
+                "          description: \"Visit 10 different biomes.\"",
+                "          icon: MAP",
+                "          parent: explore_1",
+                "          rewardCoins: 100",
+                "          frame: challenge",
+                "          triggers:",
+                "            kill:",
+                "              type: kill",
+                "              count: 50",
+                "",
+                "  Trigger types: kill, mine, craft, fish, levelUp, death, join, money",
+                "----------------------------------------------------------------"
+              ));
+
+              // -- Combat tree (tab) --
+              cfg.addDefault("trees.combat.root.id", "first_kill");
+              cfg.addDefault("trees.combat.root.name", "&c&lFirst Blood");
+              cfg.addDefault("trees.combat.root.description", "Kill your first mob.");
+              cfg.addDefault("trees.combat.root.icon", "REDSTONE");
+              cfg.addDefault("trees.combat.root.background", "REDSTONE_BLOCK");
+              cfg.addDefault("trees.combat.root.rewardCoins", 10);
+              cfg.addDefault("trees.combat.root.frame", "task");
+              cfg.addDefault("trees.combat.root.triggers.kill.type", "kill");
+              cfg.addDefault("trees.combat.root.triggers.kill.count", 1);
+              cfg.addDefault("trees.combat.children.kill_10.id", "kill_10");
+              cfg.addDefault("trees.combat.children.kill_10.name", "&c&lWarrior");
+              cfg.addDefault("trees.combat.children.kill_10.description", "Kill 10 mobs.");
+              cfg.addDefault("trees.combat.children.kill_10.icon", "IRON_SWORD");
+              cfg.addDefault("trees.combat.children.kill_10.parent", "first_kill");
+              cfg.addDefault("trees.combat.children.kill_10.rewardCoins", 25);
+              cfg.addDefault("trees.combat.children.kill_10.frame", "task");
+              cfg.addDefault("trees.combat.children.kill_10.triggers.kill.type", "kill");
+              cfg.addDefault("trees.combat.children.kill_10.triggers.kill.count", 10);
+              cfg.addDefault("trees.combat.children.kill_100.id", "kill_100");
+              cfg.addDefault("trees.combat.children.kill_100.name", "&c&lSlayer");
+              cfg.addDefault("trees.combat.children.kill_100.description", "Kill 100 mobs.");
+              cfg.addDefault("trees.combat.children.kill_100.icon", "DIAMOND_SWORD");
+              cfg.addDefault("trees.combat.children.kill_100.parent", "kill_10");
+              cfg.addDefault("trees.combat.children.kill_100.rewardCoins", 100);
+              cfg.addDefault("trees.combat.children.kill_100.frame", "challenge");
+              cfg.addDefault("trees.combat.children.kill_100.triggers.kill.type", "kill");
+              cfg.addDefault("trees.combat.children.kill_100.triggers.kill.count", 100);
+
+              // -- Mining tree (tab) --
+              cfg.addDefault("trees.mining.root.id", "mine_10");
+              cfg.addDefault("trees.mining.root.name", "&7&lMiner");
+              cfg.addDefault("trees.mining.root.description", "Mine 10 blocks.");
+              cfg.addDefault("trees.mining.root.icon", "IRON_PICKAXE");
+              cfg.addDefault("trees.mining.root.background", "IRON_BLOCK");
+              cfg.addDefault("trees.mining.root.rewardCoins", 15);
+              cfg.addDefault("trees.mining.root.frame", "task");
+              cfg.addDefault("trees.mining.root.triggers.mine.type", "mine");
+              cfg.addDefault("trees.mining.root.triggers.mine.count", 10);
+              cfg.addDefault("trees.mining.children.mine_100.id", "mine_100");
+              cfg.addDefault("trees.mining.children.mine_100.name", "&7&lQuarry Master");
+              cfg.addDefault("trees.mining.children.mine_100.description", "Mine 100 blocks.");
+              cfg.addDefault("trees.mining.children.mine_100.icon", "DIAMOND_PICKAXE");
+              cfg.addDefault("trees.mining.children.mine_100.parent", "mine_10");
+              cfg.addDefault("trees.mining.children.mine_100.rewardCoins", 50);
+              cfg.addDefault("trees.mining.children.mine_100.frame", "challenge");
+              cfg.addDefault("trees.mining.children.mine_100.triggers.mine.type", "mine");
+              cfg.addDefault("trees.mining.children.mine_100.triggers.mine.count", 100);
+
+              // -- Crafting tree (tab) --
+              cfg.addDefault("trees.crafting.root.id", "craft_10");
+              cfg.addDefault("trees.crafting.root.name", "&e&lCraftsman");
+              cfg.addDefault("trees.crafting.root.description", "Craft 10 items.");
+              cfg.addDefault("trees.crafting.root.icon", "CRAFTING_TABLE");
+              cfg.addDefault("trees.crafting.root.background", "CRAFTING_TABLE");
+              cfg.addDefault("trees.crafting.root.rewardCoins", 20);
+              cfg.addDefault("trees.crafting.root.frame", "goal");
+              cfg.addDefault("trees.crafting.root.triggers.craft.type", "craft");
+              cfg.addDefault("trees.crafting.root.triggers.craft.count", 10);
+
+              // -- Fishing tree (tab) --
+              cfg.addDefault("trees.fishing.root.id", "fish_1");
+              cfg.addDefault("trees.fishing.root.name", "&b&lFisherman");
+              cfg.addDefault("trees.fishing.root.description", "Catch your first fish.");
+              cfg.addDefault("trees.fishing.root.icon", "FISHING_ROD");
+              cfg.addDefault("trees.fishing.root.background", "DEEPSLATE_COPPER_BLOCK");
+              cfg.addDefault("trees.fishing.root.rewardCoins", 10);
+              cfg.addDefault("trees.fishing.root.frame", "task");
+              cfg.addDefault("trees.fishing.root.triggers.fish.type", "fish");
+              cfg.addDefault("trees.fishing.root.triggers.fish.count", 1);
+              cfg.addDefault("trees.fishing.children.fish_50.id", "fish_50");
+              cfg.addDefault("trees.fishing.children.fish_50.name", "&b&lMaster Angler");
+              cfg.addDefault("trees.fishing.children.fish_50.description", "Catch 50 fish.");
+              cfg.addDefault("trees.fishing.children.fish_50.icon", "COD");
+              cfg.addDefault("trees.fishing.children.fish_50.parent", "fish_1");
+              cfg.addDefault("trees.fishing.children.fish_50.rewardCoins", 75);
+              cfg.addDefault("trees.fishing.children.fish_50.frame", "challenge");
+              cfg.addDefault("trees.fishing.children.fish_50.triggers.fish.type", "fish");
+              cfg.addDefault("trees.fishing.children.fish_50.triggers.fish.count", 50);
+
+              // -- Wealth tree (tab) --
+              cfg.addDefault("trees.wealth.root.id", "rich");
+              cfg.addDefault("trees.wealth.root.name", "&6&lRich");
+              cfg.addDefault("trees.wealth.root.description", "Have 1000 coins at once.");
+              cfg.addDefault("trees.wealth.root.icon", "GOLD_BLOCK");
+              cfg.addDefault("trees.wealth.root.background", "GOLD_BLOCK");
+              cfg.addDefault("trees.wealth.root.rewardCoins", 50);
+              cfg.addDefault("trees.wealth.root.frame", "goal");
+              cfg.addDefault("trees.wealth.root.triggers.money.type", "money");
+              cfg.addDefault("trees.wealth.root.triggers.money.count", 1000);
+
+              // -- Completionist tree (tab) --
+              cfg.addDefault("trees.completionist.root.id", "all_achievements");
+              cfg.addDefault("trees.completionist.root.name", "&5&lCompletionist");
+              cfg.addDefault("trees.completionist.root.description", "Get all other achievements.");
+              cfg.addDefault("trees.completionist.root.icon", "ENDER_EYE");
+              cfg.addDefault("trees.completionist.root.background", "ENDER_CHEST");
+              cfg.addDefault("trees.completionist.root.rewardCoins", 500);
+              cfg.addDefault("trees.completionist.root.frame", "challenge");
+
+              copyMissingDefaults(cfg);
+              cfg.options().parseComments(true);
             }
             break;
           }
           case("itemDB"): {
-            if (getFileConfig("itemDB").getDefaults() == null) {
+            {
               getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
               getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
               getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
@@ -338,12 +780,12 @@ public class yamlManager {
               getFileConfig("itemDB").addDefault("customBread.ItemID", "bread_is_cool");
               getFileConfig("itemDB").addDefault("customBread.group", "food");
               getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
-              getFileConfig("itemDB").options().copyDefaults(true);
+              copyMissingDefaults(getFileConfig("itemDB"));
             }
             break;
           }
           case ("mobDB"): {
-            if (getDefaultDB("mobDB").getDefaults() == null) {
+            {
               YamlConfiguration mobDB = getDefaultDB("mobDB");
 
               // Example mob: spider
@@ -387,12 +829,12 @@ public class yamlManager {
               mobDB.addDefault("zombie_king.spawnPoints.activationRange", 48);
               mobDB.addDefault("zombie_king.spawnPoints.locations", List.of("world, 100.5, 64, -200.5", "world, 150.5, 70, -180.5, 90"));
 
-              mobDB.options().copyDefaults(true);
+              copyMissingDefaults(mobDB);
             }
             break;
           }
           case("lootTables"): {
-            if (getFileConfig("lootTables").getDefaults() == null) {
+            {
               getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
               getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
               getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
@@ -402,21 +844,21 @@ public class yamlManager {
               getFileConfig("lootTables").addDefault("quest1.minItems", 1);
               getFileConfig("lootTables").addDefault("quest1.items", List.of("GOLD:1:5:9", "DIAMOND:1:4:1"));
 
-              getFileConfig("lootTables").options().copyDefaults(true);
+              copyMissingDefaults(getFileConfig("lootTables"));
               getFileConfig("lootTables").options().parseComments(true);
             }
             break;
           }
           case("data"): {
-            if (getFileConfig("data") == null || getFileConfig("data").getDefaults() == null) {
+            {
               getFileConfig("data").addDefault("customMobs", List.of());
-              getFileConfig("data").options().copyDefaults(true);
+              copyMissingDefaults(getFileConfig("data"));
             }
             break;
           }
 
           case("quests"): {
-            if (getFileConfig("quests").getDefaults() == null) {
+            {
               var cfg = getFileConfig("quests");
 
               // ==================================================================
@@ -578,14 +1020,14 @@ public class yamlManager {
 
               cfg.addDefault(q3 + "reward", List.of("money:100", "IRON_SWORD:1"));
 
-              cfg.options().copyDefaults(true);
+              copyMissingDefaults(cfg);
             }
             break;
           }
 
 
           case("format"): {
-            if (getFileConfig("format").getDefaults() == null) {
+            {
               getFileConfig("format").addDefault("chat",
                 "%rankPrefix% <reset>" +
                   "<click:suggest_command:/dm a><hover:show_text:'<#B3EBF2>Click to message this player!'>%target%</hover></click> " +
@@ -593,12 +1035,12 @@ public class yamlManager {
               getFileConfig("format").addDefault("skill.foraging.max_level", 100);
               getFileConfig("format").addDefault("skill.foraging.reward.all", List.of("health:2"));
               getFileConfig("format").addDefault("skill.foraging.reward.5", List.of("health:5"));
-              getFileConfig("format").options().copyDefaults(true);
+              copyMissingDefaults(getFileConfig("format"));
             }
             break;
           }
           case ("shops"): {
-            if (getDefaultDB("shops").getDefaults() == null) {
+            {
               YamlConfiguration shopConfig = getDefaultDB("shops");
               shopConfig.addDefault("blacksmith.npc-name", "Blacksmith");
               shopConfig.addDefault("blacksmith.title", "&8Blacksmith Shop");
@@ -659,14 +1101,14 @@ public class yamlManager {
             shopConfig.addDefault(
               "weapon_vendor.items.sword.sell-enabled", false);
 
-            shopConfig.options().copyDefaults(true);
+            copyMissingDefaults(shopConfig);
             }
             break;
           }
 
           case ("enchantments"): {
             YamlConfiguration enchants = getDefaultDB("enchantments");
-            if (enchants.getDefaults() == null || enchants.getKeys(false).isEmpty()) {
+            {
 
             // Life Steal
             enchants.addDefault("lifeSteal.name", "&c&lLife Steal");
@@ -715,13 +1157,13 @@ public class yamlManager {
             enchants.addDefault("soulFire.levels.2.threshold", 0.5);
             enchants.addDefault("soulFire.levels.2.bonusDamage", 10);
 
-            enchants.options().copyDefaults(true);
+            copyMissingDefaults(enchants);
             }
             break;
           }
 
           case ("craftingStations"): {
-            if (getDefaultDB("craftingStations").getDefaults() == null) {
+            {
             YamlConfiguration stations = getDefaultDB("craftingStations");
 
             // Anvil Station
@@ -762,14 +1204,14 @@ public class yamlManager {
             stations.addDefault("furnace.recipes.smelted_armor.ingredients", List.of("D:DIAMOND", "L:LAVA_BUCKET"));
             stations.addDefault("furnace.recipes.smelted_armor.requirements.coins", 300);
 
-            stations.options().copyDefaults(true);
+            copyMissingDefaults(stations);
             }
             break;
           }
 
           case ("mobSkills"): {
             YamlConfiguration mobSkills = getDefaultDB("mobSkills");
-            if (mobSkills.getDefaults() == null || mobSkills.getKeys(false).isEmpty()) {
+            {
 
             // Fire Attack — deals extra fire damage and sets targets on fire
             mobSkills.addDefault("fireAttack.name", "Fire Attack");
@@ -817,13 +1259,13 @@ public class yamlManager {
             mobSkills.addDefault("glowingAura.cooldown", 0);
             mobSkills.addDefault("glowingAura.trigger", "onSpawn");
 
-            mobSkills.options().copyDefaults(true);
+            copyMissingDefaults(mobSkills);
             }
             break;
           }
 
           case ("skills"): {
-            if (getDefaultDB("skills").getDefaults() == null) {
+            {
             YamlConfiguration skills = getDefaultDB("skills");
 
             // FISHING
@@ -1032,13 +1474,13 @@ public class yamlManager {
 
 
 
-            skills.options().copyDefaults(true);
+            copyMissingDefaults(skills);
             }
             break;
           }
 
           case ("spells"): {
-            if (getDefaultDB("spells").getDefaults() == null) {
+            {
             YamlConfiguration spells = getDefaultDB("spells");
 
             // FIREBALL — Classic fire damage spell with particle effects
@@ -1181,7 +1623,7 @@ public class yamlManager {
             spells.addDefault("knockbackBlast.effects.blastParticles.speed", 0.3);
             spells.addDefault("knockbackBlast.effects.blastParticles.ring", 1.5);
 
-            spells.options().copyDefaults(true);
+            copyMissingDefaults(spells);
             }
             break;
           }
@@ -1190,6 +1632,31 @@ public class yamlManager {
 
         saveData();
         return true;
+    }
+
+    /**
+     * Copies default values added via addDefault() into the config,
+     * preserving any user-set values. Uses the standard Bukkit API.
+     */
+    private void copyMissingDefaults(YamlConfiguration config) {
+      if (config == null) return;
+      // copyDefaults(true) sets values from addDefault() only where the key is null,
+      // preserving any user-set values. Then we recurse into nested sections.
+      config.options().copyDefaults(true);
+      copyMissingDefaultsRecursive(config);
+    }
+
+    private void copyMissingDefaultsRecursive(YamlConfiguration config) {
+      // After copyDefaults(true), nested sections may still have missing keys
+      // because copyDefaults doesn't recurse into existing sections.
+      // We manually recurse to fill in new keys in sections the user already has.
+      for (String key : config.getKeys(false)) {
+        Object value = config.get(key);
+        if (value instanceof YamlConfiguration section) {
+          section.options().copyDefaults(true);
+          copyMissingDefaultsRecursive(section);
+        }
+      }
     }
 
 

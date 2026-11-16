@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor.createButton;
 
 public class mobsEditor implements Listener {
@@ -186,9 +187,9 @@ public class mobsEditor implements Listener {
         sessions.put(p.getUniqueId(), new Session(Mode.CHAT_ID, null));
         p.closeInventory();
         p.sendMessage(yamlGetter.getMessage("messages.mobEditor.create.info", p, true));
-        p.sendMessage(Colorize("&7Type &fcancel &7to go back."));
-      }
-      default -> {
+        p.sendMessage(MM("<gray>Type <green>cancel<gray> to go back."));
+        }
+        default -> {
         String key = list.slotToMob.get(slot);
         if (key != null) openEditor(p, key);
       }
@@ -214,25 +215,25 @@ public class mobsEditor implements Listener {
         if (event.isRightClick()) {
           int size = mobs.getSpawnPoints(key).size();
           if (size > 0 && mobs.removeSpawnPoint(key, size - 1)) {
-            p.sendMessage(Colorize("&aRemoved spawn point #" + size));
+            p.sendMessage(MM("<green>Removed spawn point #" + size));
           }
         } else {
           Location l = p.getLocation();
           int count = mobs.addSpawnPoint(key, l);
-          p.sendMessage(Colorize("&aAdded spawn point #" + count + " at &f" + l.getBlockX() + ", " + l.getBlockY() + ", " + l.getBlockZ()));
+          p.sendMessage(MM("<green>Added spawn point #" + count + " at <white>" + l.getBlockX() + ", " + l.getBlockY() + ", " + l.getBlockZ()));
         }
         openEditor(p, key); // refresh the counter
       }
       case 33 -> openMobDB(p);
       case 34 -> {
         if (pendingDelete.add(id)) {
-          p.sendMessage(Colorize("&cClick &fDelete Mob &cagain to permanently delete &f" + key + "&c."));
+          p.sendMessage(MM("<red>Click <white>Delete Mob <red>again to permanently delete <white>" + key + "<red>."));
         } else {
           pendingDelete.remove(id);
           set(key, null);
           yamlManager.getInstance().saveData();
           mobs.reloadSpawns();
-          p.sendMessage(Colorize("&aDeleted mob &f" + key + "&a."));
+          p.sendMessage(MM("<green>Deleted mob <white>" + key + "<green>."));
           openMobDB(p);
         }
       }
@@ -245,7 +246,7 @@ public class mobsEditor implements Listener {
     sessions.put(p.getUniqueId(), new Session(mode, key));
     p.closeInventory();
     p.sendMessage(yamlGetter.getMessage(infoKey, p, false));
-    p.sendMessage(Colorize("&7Type &fcancel &7to go back."));
+    p.sendMessage(MM("<gray>Type <green>cancel<gray> to go back."));
   }
 
   // ------------------------------------------------------------------ open/close/quit
@@ -332,7 +333,7 @@ public class mobsEditor implements Listener {
     if (!Double.isFinite(value) || value < min || value > max) {
       // stay in chat mode so they can simply try again
       p.sendMessage(yamlGetter.getMessage("messages.mobEditor." + field + ".fail", p, true));
-      p.sendMessage(Colorize("&7Allowed range: &f" + min + " - " + max + "&7. Type &fcancel &7to go back."));
+      p.sendMessage(MM("<gray>Allowed range: <white>" + min + " - " + max + "<gray>. Type <green>cancel<gray> to go back."));
       return;
     }
     set(key + "." + field, value);
@@ -358,11 +359,11 @@ public class mobsEditor implements Listener {
   private static void createMob(Player p, String id) {
     // dots would create nested sections in the yml, spaces break commands/tab-complete
     if (!id.matches("[A-Za-z0-9_-]{1,32}")) {
-      p.sendMessage(Colorize("&cUse only letters, numbers, - and _ (max 32 characters). Try again or type &fcancel&c."));
+      p.sendMessage(MM("<red>Use only letters, numbers, - and _ (max 32 characters). Try again or type <green>cancel<red>."));
       return;
     }
     if (mobs.getMobNames().contains(id)) {
-      p.sendMessage(Colorize("&cA mob with that ID already exists. Try another or type &fcancel&c."));
+      p.sendMessage(MM("<red>A mob with that ID already exists. Try another or type <green>cancel<red>."));
       return;
     }
     set(id + ".type", "COW");

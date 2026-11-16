@@ -22,6 +22,7 @@ public class CreateNPC implements CommandInterface {
   private List<String> ValidNPCType = List.of(
     "shop",
     "quest",
+    "banker",
     "none"
   );
 
@@ -31,33 +32,33 @@ public class CreateNPC implements CommandInterface {
         if (sender instanceof Player p) {
           p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
         } else {
-          sender.sendMessage("No permission.");
+          sender.sendMessage(yamlGetter.getMessage("messages.general.consoleNoPermission", null, true));
         }
         return true;
       }
       if (!(sender instanceof Player player)) {
-        sender.sendMessage("This command can only be used by players.");
+        sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
         return true;
       }
       if (args.length < 3) {
-        sender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
+        sender.sendMessage(yamlGetter.getMessage("messages.npc.create.usage", null, true));
         return true;
       }
       for (int i = 0; i < 3; i++) {
         if (args[i].isBlank()) {
-          sender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
+          sender.sendMessage(yamlGetter.getMessage("messages.npc.create.usage", null, true));
           return true;
         }
       }
 
       if (!ValidNPCType.contains(args[2].toLowerCase())) {
-        sender.sendMessage(Colorize("&cNot a valid NPC type!"));
+        sender.sendMessage(yamlGetter.getMessage("messages.npc.create.invalidType", null, true));
         return true;
       }
 
       if (!IsCitizen) {
         Bukkit.getLogger().severe("Citizens is not installed, please install it to use this command");
-        sender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));
+        sender.sendMessage(yamlGetter.getMessage("messages.npc.create.noCitizens", null, true));
         return true;
       }
 
@@ -71,7 +72,7 @@ public class CreateNPC implements CommandInterface {
   @Override
   public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
       if (args.length == 3){
-        return List.of("shop", "quest", "none");
+        return List.of("shop", "quest", "banker", "none");
       }
 
     return null;

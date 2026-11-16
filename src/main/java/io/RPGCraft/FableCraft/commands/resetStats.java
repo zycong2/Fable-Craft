@@ -20,7 +20,7 @@ public class resetStats implements CommandInterface {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
-            sender.sendMessage("This command can only be used by players.");
+            sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
             return true;
         }
         if (!p.hasPermission("rpgcraft.resetStats")) {

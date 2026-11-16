@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands;
 
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
+import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,13 +10,14 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.money.moneyManager.*;
 
 public class money implements CommandInterface {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (!(sender instanceof Player p)) {
-      sender.sendMessage("This command can only be used by players.");
+      sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
       return true;
     }
     if (!p.hasPermission("rpgcraft.money")) {
@@ -88,7 +90,7 @@ public class money implements CommandInterface {
           p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
           return true;
         }
-        p.sendMessage(target.getName() + " has " + getMoney(target) + " money");
+        p.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.money.get", "").replace("%player%", target.getName()).replace("%amount%", String.valueOf(getMoney(target)))));
       }
       default -> p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
     }

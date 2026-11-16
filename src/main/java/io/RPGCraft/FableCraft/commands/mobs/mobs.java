@@ -40,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.customMobs;
 
 /*
@@ -99,7 +100,7 @@ public class mobs implements CommandInterface, Listener {
   }
 
   private static void msg(CommandSender sender, String text) {
-    sender.sendMessage(Colorize(text));
+    sender.sendMessage(MM(text));
   }
 
   private static List<String> filter(List<String> options, String prefix) {
@@ -124,9 +125,9 @@ public class mobs implements CommandInterface, Listener {
 
     switch (args[0].toLowerCase(Locale.ROOT)) {
       case "spawn" -> {
-        if (p == null) { msg(sender, "&cOnly players can use this."); return true; }
+        if (p == null) { sender.sendMessage(yamlGetter.getMessage("messages.mobs.onlyPlayers", null, true)); return true; }
         if (args.length < 2 || !getMobNames().contains(args[1])) {
-          msg(sender, "&cUsage: /mobs spawn <mob>");
+          sender.sendMessage(yamlGetter.getMessage("messages.mobs.spawn.usage", null, true));
           return true;
         }
         getEntity(args[1], p.getLocation());
@@ -138,44 +139,46 @@ public class mobs implements CommandInterface, Listener {
         customMobs.clear();
         bossBars.values().forEach(BossBar::removeAll);
         bossBars.clear();
-        msg(sender, "&aKilled all custom mobs.");
+        sender.sendMessage(yamlGetter.getMessage("messages.mobs.killAll.success", null, true));
       }
       case "reload" -> {
         reloadSpawns();
-        msg(sender, "&aReloaded random spawns and spawn points.");
+        sender.sendMessage(yamlGetter.getMessage("messages.mobs.reload.success", null, true));
       }
       case "editor" -> {
-        if (p == null) { msg(sender, "&cOnly players can use this."); return true; }
+        if (p == null) { sender.sendMessage(yamlGetter.getMessage("messages.mobs.onlyPlayers", null, true)); return true; }
         mobsEditor.openMobDB(p);
       }
       case "addspawn" -> {
-        if (p == null) { msg(sender, "&cOnly players can use this."); return true; }
+        if (p == null) { sender.sendMessage(yamlGetter.getMessage("messages.mobs.onlyPlayers", null, true)); return true; }
         if (args.length < 2 || !getMobNames().contains(args[1])) {
-          msg(sender, "&cUsage: /mobs addspawn <mob>  (uses your current position)");
+          sender.sendMessage(yamlGetter.getMessage("messages.mobs.addSpawn.usage", null, true));
           return true;
         }
         int count = addSpawnPoint(args[1], p.getLocation());
-        msg(sender, "&aAdded spawn point #" + count + " for &f" + args[1]);
+        sender.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.mobs.addSpawn.success", "").replace("%count%", String.valueOf(count)).replace("%mob%", args[1])));
       }
       case "removespawn" -> {
         if (args.length < 3 || !getMobNames().contains(args[1])) {
-          msg(sender, "&cUsage: /mobs removespawn <mob> <number>  (see /mobs listspawns <mob>)");
+          sender.sendMessage(yamlGetter.getMessage("messages.mobs.removeSpawn.usage", null, true));
           return true;
         }
         int index;
         try { index = Integer.parseInt(args[2]) - 1; }
-        catch (NumberFormatException ex) { msg(sender, "&cThe number must be an integer."); return true; }
-        msg(sender, removeSpawnPoint(args[1], index)
-          ? "&aRemoved spawn point #" + args[2]
-          : "&cNo spawn point with that number.");
+        catch (NumberFormatException ex) { sender.sendMessage(yamlGetter.getMessage("messages.mobs.removeSpawn.notNumber", null, true)); return true; }
+        if (removeSpawnPoint(args[1], index)) {
+          sender.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.mobs.removeSpawn.success", "").replace("%number%", args[2])));
+        } else {
+          sender.sendMessage(yamlGetter.getMessage("messages.mobs.removeSpawn.notFound", null, true));
+        }
       }
       case "listspawns" -> {
         if (args.length < 2 || !getMobNames().contains(args[1])) {
-          msg(sender, "&cUsage: /mobs listspawns <mob>");
+          sender.sendMessage(yamlGetter.getMessage("messages.mobs.listSpawns.usage", null, true));
           return true;
         }
         List<String> points = getSpawnPoints(args[1]);
-        if (points.isEmpty()) msg(sender, "&7No spawn points for &f" + args[1]);
+        if (points.isEmpty()) sender.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.mobs.listSpawns.empty", "").replace("%mob%", args[1])));
         for (int i = 0; i < points.size(); i++) msg(sender, "&f" + (i + 1) + ". &7" + points.get(i));
       }
       default -> sender.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));

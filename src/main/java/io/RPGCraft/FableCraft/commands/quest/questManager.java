@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getAllNodesInDB;
@@ -350,7 +351,7 @@ public class questManager {
   }
 
   private static void sendMissingItems(Player p) {
-    p.sendMessage(color("&cYou don't have the required items."));
+    p.sendMessage(yamlGetter.getMessage("messages.quest.missingItems", p, true));
   }
 
   public static void talkedNPC(Player p, String NPC) {
@@ -431,7 +432,7 @@ public class questManager {
 
     // The player may have dropped the items during the dialogue.
     if (!hasRequiredItems(p, quest, step) || !removeItems(p, quest, step)) {
-      p.sendMessage(color("&cYou no longer have the required items."));
+      p.sendMessage(yamlGetter.getMessage("messages.quest.noLongerHaveItems", p, true));
       return;
     }
 
@@ -483,7 +484,7 @@ public class questManager {
 
     // Fallback if no messages configured
     if (messages.isEmpty()) {
-      p.sendMessage(color("&cYou need to be at least Player Level &6" + requiredLevel + "&c to take this quest."));
+      p.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.quest.levelRequired", "").replace("%required%", String.valueOf(requiredLevel))));
       return;
     }
 
@@ -693,7 +694,7 @@ public class questManager {
 
     if (e.id().equalsIgnoreCase("money")) { // check this first
       addMoney(p, e.amount());
-      p.sendMessage(color("&aYou have received " + e.amount() + " coin!"));
+      p.sendMessage(MM(yamlManager.getInstance().getFileConfig("messages").getString("messages.quest.rewardMoney", "").replace("%amount%", String.valueOf(e.amount()))));
       return;
     }
 

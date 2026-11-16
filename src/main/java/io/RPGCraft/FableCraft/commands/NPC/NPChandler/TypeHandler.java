@@ -31,6 +31,7 @@ public class TypeHandler implements Listener {
                   talkedNPC(p, gotClickedEntity.getName());
                   break;
                 case "bank":
+                case "banker":
                   openBankGUI(p);
                   break;
                 default:

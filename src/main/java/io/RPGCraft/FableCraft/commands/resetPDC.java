@@ -16,7 +16,7 @@ public class resetPDC implements CommandInterface {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (!(sender instanceof Player p)) {
-      sender.sendMessage("This command can only be used by players.");
+      sender.sendMessage(yamlGetter.getMessage("messages.general.onlyPlayers", null, true));
       return true;
     }
     if (!p.hasPermission("rpgcraft.resetPDC")) {
@@ -34,8 +34,8 @@ public class resetPDC implements CommandInterface {
     for (NamespacedKey key : container.getKeys()) {
       container.remove(key);
     }
-    sender.sendMessage("&aYou prop didn't want to do this but it has happened now :)");
-    sender.sendMessage("&aExept if you are a dev on this plugin ofc");
+    p.sendMessage(yamlGetter.getMessage("messages.resetPDC.success", p, true));
+    p.sendMessage(yamlGetter.getMessage("messages.resetPDC.success.dev", p, true));
     return true;
   }
 

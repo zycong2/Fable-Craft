@@ -32,7 +32,7 @@ public class reload implements CommandInterface {
           )
         );
       } else {
-        sender.sendMessage("You don't have permission.");
+        sender.sendMessage(yamlGetter.getMessage("messages.general.consoleNoPermission", null, true));
       }
       return true;
     }
@@ -41,7 +41,7 @@ public class reload implements CommandInterface {
 
     // Reload all YAML files from disk.
     if (!manager.loadData()) {
-      sender.sendMessage("Failed to reload YAML files. Check console.");
+      sender.sendMessage(yamlGetter.getMessage("messages.reload.failed", sender instanceof Player p ? p : null, true));
       Bukkit.getLogger().severe(
         "FableCraft failed to reload YAML files."
       );
@@ -65,13 +65,13 @@ public class reload implements CommandInterface {
         Bukkit.resetRecipes();
       }
 
-      sender.sendMessage("FableCraft configuration reloaded.");
+      sender.sendMessage(yamlGetter.getMessage("messages.reload.success", sender instanceof Player p ? p : null, true));
       Bukkit.getLogger().info(
         "FableCraft configuration reloaded successfully."
       );
     } catch (Exception e) {
       sender.sendMessage(
-        "An error occurred while reloading FableCraft. Check console."
+        yamlGetter.getMessage("messages.reload.error", sender instanceof Player p ? p : null, true)
       );
       Bukkit.getLogger().severe(
         "FableCraft reload failed: " + e.getMessage()

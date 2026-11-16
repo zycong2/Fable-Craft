@@ -79,8 +79,18 @@ public class lootTableHelper implements Listener, CommandInterface{
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if (args.length == 1) {
             return List.of("addLootTable", "removeLootTable", "getLootTable");
         }
+        if (args.length == 2 && args[0].equals("addLootTable")) {
+            List<String> lootTables = new java.util.ArrayList<>();
+            for (Object o : yamlGetter.getAllNodesInDB("lootTables", "")) {
+                if (o instanceof String st) lootTables.add(st);
+            }
+            return lootTables;
+        }
+        return List.of();
+    }
     
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){

@@ -23,8 +23,10 @@ import java.util.Locale;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.itemStats;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getInstance;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getMessage;
 
 public class StatsCommand {
 
@@ -71,15 +73,15 @@ public class StatsCommand {
               String stat = ctx.getArgument("stats", String.class);
               Double value = ctx.getArgument("value", Double.class);
               if(!(entity instanceof Player player)){
-                sendMessage(entity, "&cMust be a player to do this");
+                entity.sendMessage(getMessage("messages.stats.mustBePlayer", null, true));
                 return 0;
               }
               if (new Stats().getValidStats().contains(stat)) {
                 setPlayerPDC(stat, player, String.valueOf(value));
-                sendMessage(player, "&aSuccessfully set your " + stat + " stat");
+                player.sendMessage(MM(getInstance().getFileConfig("messages").getString("messages.stats.setSuccess", "").replace("%stat%", stat)));
                 return Command.SINGLE_SUCCESS;
               } else {
-                sendMessage(player, "&cPlease input a valid stat");
+                player.sendMessage(getMessage("messages.stats.invalidStat", player, true));
                 return 0;
               }
             })
@@ -99,10 +101,10 @@ public class StatsCommand {
               Double value = ctx.getArgument("value", Double.class);
               if(new Stats().getValidStats().contains(stat) || player != null){
                 setPlayerPDC(stat, player, String.valueOf(value));
-                sendMessage(entity, "&aSuccessfully set " + player + "'s " + stat + " stat");
+                entity.sendMessage(MM(getInstance().getFileConfig("messages").getString("messages.stats.setOtherSuccess", "").replace("%player%", player.getName()).replace("%stat%", stat)));
                 return Command.SINGLE_SUCCESS;
               }else{
-                sendMessage(entity, "&cIt's either that the stat doesn't exist OR the player provided doesn't exist");
+                entity.sendMessage(getMessage("messages.stats.setOtherFail", entity instanceof Player pl ? pl : null, true));
                 return Command.SINGLE_SUCCESS;
               }
             })
@@ -120,7 +122,7 @@ public class StatsCommand {
             }
             return Command.SINGLE_SUCCESS;
           }
-          sendMessage(executor, "&cOnly a player can send this command");
+          executor.sendMessage(getMessage("messages.stats.memory.onlyPlayer", executor instanceof Player pl ? pl : null, true));
           return Command.SINGLE_SUCCESS;
         })
         .build(),

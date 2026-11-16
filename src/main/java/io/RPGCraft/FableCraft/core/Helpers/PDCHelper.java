@@ -2,6 +2,8 @@ package io.RPGCraft.FableCraft.core.Helpers;
 
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -46,12 +48,33 @@ public class PDCHelper {
         }
     }
 
+    /** Returns the stable Citizens NPC ID for an entity, or null if not a Citizens NPC. */
+    private static Integer getCitizensNpcId(Entity entity) {
+      if (entity == null) return null;
+      try {
+        NPC npc = CitizensAPI.getNPCRegistry().getNPC(entity);
+        if (npc != null) {
+          return npc.getId();
+        }
+      } catch (NoClassDefFoundError ignored) {
+        // Citizens not loaded
+      }
+      return null;
+    }
+
     public static void setNPCPDC(String keyString, Entity npc, Object data) {
-      yamlManager.getInstance().setOption("data", "npc." + npc.getUniqueId() + "." + keyString, data);
+      Integer npcId = getCitizensNpcId(npc);
+      if (npcId != null) {
+        yamlManager.getInstance().setOption("data", "npc." + npcId + "." + keyString, data);
+      }
     }
 
     public static Object getNPCPDC(String keyString, Entity npc) {
-      return yamlManager.getInstance().getOption("data", "npc." + npc.getUniqueId() + "." + keyString);
+      Integer npcId = getCitizensNpcId(npc);
+      if (npcId != null) {
+        return yamlManager.getInstance().getOption("data", "npc." + npcId + "." + keyString);
+      }
+      return null;
     }
 
 

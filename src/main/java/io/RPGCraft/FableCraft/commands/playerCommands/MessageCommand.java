@@ -18,7 +18,9 @@ import java.util.*;
 
 import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.plaintext;
+import static io.RPGCraft.FableCraft.core.YAML.yamlManager.getInstance;
 import static io.RPGCraft.FableCraft.Utils.CenteredText.CenterText.centerMessage;
+import static io.RPGCraft.FableCraft.core.YAML.yamlGetter.getMessage;
 
 public class MessageCommand {
 
@@ -39,7 +41,7 @@ public class MessageCommand {
           Entity executor = getExecutor(ctx);
           Player player = getPlayer(ctx);
 
-          executor.sendMessage(MM("&c[!] Please specify the message to send to " + player.getName()));
+          executor.sendMessage(MM(getInstance().getFileConfig("messages").getString("messages.message.specifyMessage", "").replace("%player%", player.getName())));
           return Command.SINGLE_SUCCESS;
         })
       .then(Commands.argument("message", StringArgumentType.greedyString())
@@ -49,10 +51,10 @@ public class MessageCommand {
 
           String message = plaintext(MM(ctx.getArgument("message", String.class)));
 
-          if(entity.getUniqueId().equals(player.getUniqueId())) {entity.sendMessage(MM("&c[!] You can't send a message to yourself"));return Command.SINGLE_SUCCESS;}
+          if(entity.getUniqueId().equals(player.getUniqueId())) {entity.sendMessage(getMessage("messages.message.self", entity instanceof Player pl ? pl : null, true));return Command.SINGLE_SUCCESS;}
 
-          entity.sendMessage(MM(String.format("&c[&a%1s &2-> &a%2s&c] &f%3s", entity.getName(), player.getName(), message)));
-          player.sendMessage(MM(String.format("&c[&a%2s &2-> &a%1s&c] &f%3s", entity.getName(), player.getName(), message)));
+          entity.sendMessage(MM(getInstance().getFileConfig("messages").getString("messages.message.sent", "").replace("%sender%", entity.getName()).replace("%receiver%", player.getName()).replace("%message%", message)));
+          player.sendMessage(MM(getInstance().getFileConfig("messages").getString("messages.message.received", "").replace("%sender%", entity.getName()).replace("%receiver%", player.getName()).replace("%message%", message)));
 
           return Command.SINGLE_SUCCESS;
         })
@@ -63,7 +65,7 @@ public class MessageCommand {
       .requires(ctx -> ctx.getExecutor().isOp() || ctx.getExecutor().hasPermission("rpgcraft.broadcast"))
       .executes(ctx -> {
         Entity executor = getExecutor(ctx);
-        executor.sendMessage(MM("&c[!] Please specify the message to broadcast"));
+        executor.sendMessage(getMessage("messages.broadcast.specifyMessage", executor instanceof Player pl ? pl : null, true));
 
         return Command.SINGLE_SUCCESS;
       })
@@ -73,7 +75,7 @@ public class MessageCommand {
           Entity executor = getExecutor(ctx);
 
           if(message == null){
-            executor.sendMessage(MM("&c[!] Please specify the message to broadcast"));
+            executor.sendMessage(getMessage("messages.broadcast.specifyMessage", executor instanceof Player pl ? pl : null, true));
 
             return Command.SINGLE_SUCCESS;
           }
@@ -104,7 +106,7 @@ public class MessageCommand {
     LiteralCommandNode<CommandSourceStack> Discord_Command = Commands.literal("discord")
       .executes(ctx -> {
         Entity executor = getExecutor(ctx);
-        executor.sendMessage(MM("&a[!] &r&d<click:open_url:'https://discord.gg/BUPSAhAy7W'>Our discord: https://discord.gg/BUPSAhAy7W</click>"));
+        executor.sendMessage(getMessage("messages.discord.link", executor instanceof Player pl ? pl : null, true));
         return Command.SINGLE_SUCCESS;
       })
       .build();

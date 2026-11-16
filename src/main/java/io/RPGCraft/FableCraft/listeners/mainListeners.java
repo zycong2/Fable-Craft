@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.RPGCraft.itemStats;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.*;
 import static io.RPGCraft.FableCraft.core.Stats.Stats.refresh;
@@ -178,7 +179,7 @@ public class mainListeners implements Listener {
     if (getItemPDC("craftPerms", event.getCurrentItem()) != null) {
       if (!event.getWhoClicked().hasPermission(getItemPDC("craftPerms", event.getCurrentItem()))) {
         event.setCancelled(true);
-        event.getWhoClicked().sendMessage(Colorize(yamlGetter.getMessage("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false).toString()));
+        event.getWhoClicked().sendMessage(yamlGetter.getMessage("messages.error.noPermissionCraft", (Player) event.getWhoClicked(), false));
       }
     }
   }
