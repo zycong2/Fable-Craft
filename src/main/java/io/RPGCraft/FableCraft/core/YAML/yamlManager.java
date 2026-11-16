@@ -663,8 +663,8 @@ public class yamlManager {
           }
 
           case ("enchantments"): {
-            if (getDefaultDB("enchantments").getDefaults() == null) {
             YamlConfiguration enchants = getDefaultDB("enchantments");
+            if (enchants.getDefaults() == null || enchants.getKeys(false).isEmpty()) {
 
             // Life Steal
             enchants.addDefault("lifeSteal.name", "&c&lLife Steal");
@@ -766,8 +766,8 @@ public class yamlManager {
           }
 
           case ("mobSkills"): {
-            if (getDefaultDB("mobSkills").getDefaults() == null) {
             YamlConfiguration mobSkills = getDefaultDB("mobSkills");
+            if (mobSkills.getDefaults() == null || mobSkills.getKeys(false).isEmpty()) {
 
             // Fire Attack — deals extra fire damage and sets targets on fire
             mobSkills.addDefault("fireAttack.name", "Fire Attack");
