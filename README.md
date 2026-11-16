@@ -44,6 +44,7 @@
 - 🎨 **Color Support** — Hex colors, MiniMessage tags, and `&` color codes
 - 🔮 **Custom Enchantments** — Unique enchantments beyond vanilla (Life Steal, Haste, Thorns of Fate, Soul Fire)
 - 🔨 **Crafting Stations** — Advanced block-based crafting with unique recipes and requirements
+- ✨ **Magic System** — Configurable spells castable from items with mana costs, cooldowns, and effects (damage, particles, fire, glow, attributes, summoning, potions, knockback)
 - ⚙️ **Config Menu** — In-game GUI to change plugin settings via `/rpgcraft editor config`
 
 ---
@@ -898,6 +899,188 @@ Change plugin settings in-game through a GUI-based configuration editor. No need
 
 ---
 
+### ✨ Magic System
+
+The magic system lets you create configurable spells that can be cast from custom items. Each spell can combine multiple effects, costs mana to cast, and has a cooldown between uses.
+
+**How It Works:**
+
+1. Define spells in the `spells/` folder (YAML files)
+2. Assign a spell to a custom item in `itemDB/` via the `spell` key
+3. Right-click with the item to cast the spell (targets entities in your line of sight)
+
+**Assigning a Spell to an Item:**
+
+In your `itemDB/` configuration, add a `spell` key to any custom item:
+
+```yaml
+wizardStaff:
+  itemType: STICK
+  name: "&dWizard's Staff"
+  spell: fireball    # references a spell ID from the spells/ folder
+```
+
+**Spell Configuration:**
+
+Each spell is defined by a unique ID and supports these top-level options:
+
+| Option | Description |
+|--------|-------------|
+| `manaCost` | Mana consumed per cast (0 = free) |
+| `cooldown` | Cooldown in ticks between casts (20 ticks = 1 second) |
+| `castSound` | Sound played when casting (e.g. `ENTITY_FIREBALL_SHOOT`) |
+| `effects` | List of effect definitions (see below) |
+
+**Available Effect Types:**
+
+| Effect Type | Description |
+|-------------|-------------|
+| `damage` | Deals damage to targets (supports damage types and area radius) |
+| `particle` | Spawns particles with optional color and ring patterns |
+| `fire` | Sets targets on fire with optional damage over time |
+| `glow` | Makes targets glow visibly for a duration |
+| `attribute` | Modifies entity attributes (attack damage, speed, health, etc.) |
+| `summon` | Spawns mobs (vanilla or custom) at a location |
+| `potion` | Applies potion effects to targets |
+| `sound` | Plays a sound at a location |
+| `knockback` | Pushes targets away with configurable force |
+
+**Effect Configuration Details:**
+
+**Damage:**
+```yaml
+myDamage:
+  type: damage
+  amount: 8.0              # Damage amount
+  damageType: MAGIC        # Damage cause: MAGIC, FIRE, LIGHTNING_BOLT, etc.
+  radius: 2.0              # Area of effect radius (optional)
+```
+
+**Particle:**
+```yaml
+myParticles:
+  type: particle
+  particle: FLAME          # Particle type
+  amount: 30               # Number of particles
+  offsetX: 0               # X offset from target
+  offsetY: 1.0             # Y offset from target
+  offsetZ: 0               # Z offset from target
+  speed: 0.3               # Particle speed
+  color: "255,100,0"       # RGB color (optional, comma-separated)
+  ring: 1.5                # Ring radius for circular pattern (optional)
+```
+
+**Fire:**
+```yaml
+myFire:
+  type: fire
+  duration: 100            # Fire duration in ticks
+  damageOverTime: 2.0      # Extra damage per tick interval (optional)
+```
+
+**Glow:**
+```yaml
+myGlow:
+  type: glow
+  duration: 200            # Glow duration in ticks
+```
+
+**Attribute:**
+```yaml
+myAttribute:
+  type: attribute
+  attribute: GENERIC_ATTACK_DAMAGE   # Attribute to modify
+  amount: 5.0                        # Amount to add
+  duration: 6000                     # Duration in ticks
+```
+
+Available attributes: `GENERIC_MAX_HEALTH`, `GENERIC_ATTACK_DAMAGE`, `GENERIC_MOVEMENT_SPEED`, `GENERIC_ARMOR`, `GENERIC_ARMOR_TOUGHNESS`, `GENERIC_KNOCKBACK_RESISTANCE`, `GENERIC_LUCK`, etc.
+
+**Summon:**
+```yaml
+mySummon:
+  type: summon
+  mobType: ZOMBIE          # Base entity type
+  amount: 1                # Number to spawn
+  customMobId: myMob       # Custom mob ID from mobDB (optional)
+  owner: caster            # Set to "caster" to mark as owned
+```
+
+**Potion:**
+```yaml
+myPotion:
+  type: potion
+  effectType: SLOW         # Potion effect type
+  duration: 100            # Duration in ticks
+  amplifier: 1             # Effect level (0 = level I)
+  ambient: true            # No particle overlay
+  particles: true          # Show effect particles
+```
+
+**Sound:**
+```yaml
+mySound:
+  type: sound
+  sound: BLOCK_FIRE_AMBIENT  # Sound to play
+  volume: 1.0                # Sound volume
+  pitch: 0.8                 # Sound pitch
+```
+
+**Knockback:**
+```yaml
+myKnockback:
+  type: knockback
+  strength: 2.0              # Horizontal knockback force
+  height: 1.0               # Vertical knockback force
+```
+
+**Built-in Spells:**
+
+| Spell ID | Mana | Cooldown | Effects |
+|----------|------|----------|---------|
+| `fireball` | 15 | 3s | Magic damage (AoE), fire with DoT, flame particles |
+| `iceShard` | 10 | 2s | Magic damage, Slow II, blue particles |
+| `lightningBolt` | 25 | 6s | High lightning damage (AoE), fire, electric spark particles |
+| `heal` | 20 | 10s | Regeneration potion, heart particles |
+| `summonZombie` | 30 | 15s | Summons a zombie, soul particles |
+| `strengthBuff` | 12 | 9s | +5 attack damage, Strength potion, happy particles |
+| `glowArrow` | 8 | 4s | Glow effect, glow squid ink particles |
+| `knockbackBlast` | 10 | 3s | Knockback + magic damage, cloud particles |
+
+**Example Spell Definition:**
+
+```yaml
+fireball:
+  manaCost: 15.0
+  cooldown: 60
+  castSound: ENTITY_FIREBALL_SHOOT
+  effects:
+    fireDamage:
+      type: damage
+      amount: 8.0
+      damageType: MAGIC
+      radius: 2.0
+    fireEffect:
+      type: fire
+      duration: 100
+      damageOverTime: 2.0
+    fireParticles:
+      type: particle
+      particle: FLAME
+      amount: 30
+      offsetY: 1.0
+      speed: 0.3
+      color: "255,100,0"
+      ring: 1.5
+    fireSound:
+      type: sound
+      sound: BLOCK_FIRE_AMBIENT
+      volume: 1.0
+      pitch: 0.8
+```
+
+---
+
 ### 🎨 Color Support
 
 Fable Craft supports multiple color formatting methods:
@@ -942,6 +1125,7 @@ Right-click a Nether Star to open the player menu:
 | `enchantments/` | Custom enchantment definitions |
 | `craftingStations/` | Advanced crafting station definitions |
 | `mobSkills/` | Mob skill definitions (assignable to mobs and NPCs) |
+| `spells/` | Spell definitions for the magic system |
 
 ---
 

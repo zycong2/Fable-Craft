@@ -3,8 +3,13 @@ package io.RPGCraft.FableCraft.Utils.GUI;
 import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
+import io.papermc.paper.datacomponent.item.DamageResistant;
 import io.papermc.paper.datacomponent.item.ItemEnchantments;
 import io.papermc.paper.datacomponent.item.ItemLore;
+import io.papermc.paper.datacomponent.item.KineticWeapon;
+import io.papermc.paper.datacomponent.item.PiercingWeapon;
+import io.papermc.paper.datacomponent.item.SwingAnimation;
+import io.papermc.paper.datacomponent.item.UseCooldown;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -141,12 +146,82 @@ public class GUIItem {
       data(DataComponentTypes.CUSTOM_MODEL_DATA, CMD);
       return this;
   }
+  public GUIItem customModelData(int value) {
+    data(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(value).build());
+    return this;
+  }
+
+  // ---- Paper 26.2: new data component convenience methods ----
+
+  /**
+   * Set damage resistance for specific damage types.
+   * Uses the Paper 26.2 DamageResistant data component.
+   */
+  public GUIItem damageResistant(DamageResistant resistant) {
+    data(DataComponentTypes.DAMAGE_RESISTANT, resistant);
+    return this;
+  }
+
+  public UseCooldown useCooldown() {
+    return data(DataComponentTypes.USE_COOLDOWN);
+  }
+  /** Set use cooldown in seconds. */
+  public GUIItem useCooldown(float seconds) {
+    data(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(seconds).build());
+    return this;
+  }
+  /** Set use cooldown in seconds with a named cooldown group. */
+  public GUIItem useCooldown(float seconds, String group) {
+    net.kyori.adventure.key.Key key = net.kyori.adventure.key.Key.key(group);
+    data(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(seconds).cooldownGroup(key).build());
+    return this;
+  }
+
+  public SwingAnimation swingAnimation() {
+    return data(DataComponentTypes.SWING_ANIMATION);
+  }
+  /** Set custom swing animation type (e.g. BOW, SPEAR, TOTEM, CROSSBOW, DEFAULT). */
+  public GUIItem swingAnimation(String type) {
+    SwingAnimation.Animation anim = SwingAnimation.Animation.valueOf(type.toUpperCase());
+    data(DataComponentTypes.SWING_ANIMATION, SwingAnimation.swingAnimation().type(anim).build());
+    return this;
+  }
+
+  public PiercingWeapon piercingWeapon() {
+    return data(DataComponentTypes.PIERCING_WEAPON);
+  }
+  /** Make the item deal knockback like a piercing weapon (trident-like). */
+  public GUIItem piercingWeapon(boolean dealsKnockback, boolean dismounts) {
+    data(DataComponentTypes.PIERCING_WEAPON,
+      PiercingWeapon.piercingWeapon().dealsKnockback(dealsKnockback).dismounts(dismounts).build());
+    return this;
+  }
+
+  public KineticWeapon kineticWeapon() {
+    return data(DataComponentTypes.KINETIC_WEAPON);
+  }
+  /** Set kinetic weapon (balloon-powered) with damage multiplier. */
+  public GUIItem kineticWeapon(float damageMultiplier, float forwardMovement) {
+    data(DataComponentTypes.KINETIC_WEAPON,
+      KineticWeapon.kineticWeapon().damageMultiplier(damageMultiplier)
+        .forwardMovement(forwardMovement).build());
+    return this;
+  }
 
   public Consumer<ClickContext> clickEvent() {
     return clickEvent;
   }
   public GUIItem clickEvent(Consumer<ClickContext> clickEvent) {
     this.clickEvent = clickEvent;
+    return this;
+  }
+
+  /**
+   * Set the custom model data as a simple int value (most common use case).
+   * Uses the Paper 26.2 CustomModelData builder for multi-value support.
+   */
+  public GUIItem customModelDataInt(int value) {
+    data(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(value).build());
     return this;
   }
 

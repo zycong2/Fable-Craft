@@ -202,6 +202,22 @@ public class ItemEditor {
         "&7Enter a whole number, or &fremove&7.",
         n -> current(n, "nutrition"), ItemEditor::setNutrition)));
 
+    // ---------------- Row 4: Paper 26.2 data components ----------------
+    inv.setItem(41, button("&3Use Cooldown", Material.CLOCK, "Cooldown after using the item (in seconds).",
+      p -> startInput(p, null,
+        "&7Enter cooldown in seconds (e.g. &f2.5&7), or &fremove&7.",
+        n -> current(n, "useCooldown"), ItemEditor::setUseCooldown)));
+
+    inv.setItem(42, button("&bSwing Animation", Material.BOW, "Custom swing animation type.",
+      p -> startInput(p, null,
+        "&7Enter type: &fDEFAULT&7, &fBOW&7, &fSPEAR&7, &fTOTEM&7, &fCROSSBOW&7, or &fremove&7.",
+        n -> current(n, "swingAnimation"), ItemEditor::setSwingAnimation)));
+
+    inv.setItem(43, button("&dPiercing Weapon", Material.TRIDENT, "Trident-like piercing behavior.",
+      p -> startInput(p, null,
+        "&7Enter &ftrue &7or &ffalse&7, or &fremove&7.",
+        n -> current(n, "piercingWeapon"), ItemEditor::setPiercingWeapon)));
+
     inv.setItem(44, GUIItem.IStoGUIItem(createButton("&cClose Menu", Material.BARRIER, "&cExit"))
       .clickEvent(ce -> ce.player().closeInventory()));
 
@@ -482,6 +498,70 @@ public class ItemEditor {
     }
 
     commit(p, key, "nutrition", value, () -> say(p, "&aNutrition set to &f" + value));
+  }
+
+  // ------------------------------------------------------------------
+  // Editors: Paper 26.2 data components
+  // ------------------------------------------------------------------
+
+  private static void setUseCooldown(Player p, String key, Component input) {
+    String text = plaintext(input).trim();
+
+    if (text.equalsIgnoreCase("remove")) {
+      commit(p, key, "useCooldown", null, () -> say(p, "&aUse cooldown removed."));
+      return;
+    }
+
+    float value;
+    try {
+      value = Float.parseFloat(text);
+    } catch (NumberFormatException e) {
+      say(p, "&cEnter a number (e.g. 2.5 for 2.5 seconds).");
+      return;
+    }
+
+    if (value < 0) {
+      say(p, "&cCooldown must be 0 or greater.");
+      return;
+    }
+
+    commit(p, key, "useCooldown", value, () -> say(p, "&aUse cooldown set to &f" + value + "s"));
+  }
+
+  private static void setSwingAnimation(Player p, String key, Component input) {
+    String text = plaintext(input).trim().toUpperCase();
+
+    if (text.equalsIgnoreCase("remove")) {
+      commit(p, key, "swingAnimation", null, () -> say(p, "&aSwing animation removed."));
+      return;
+    }
+
+    // Validate against known animation types
+    try {
+      io.papermc.paper.datacomponent.item.SwingAnimation.Animation.valueOf(text);
+    } catch (IllegalArgumentException e) {
+      say(p, "&cUnknown animation type. Options: &fDEFAULT, BOW, SPEAR, TOTEM, CROSSBOW");
+      return;
+    }
+
+    commit(p, key, "swingAnimation", text, () -> say(p, "&aSwing animation set to &f" + text));
+  }
+
+  private static void setPiercingWeapon(Player p, String key, Component input) {
+    String text = plaintext(input).trim().toLowerCase();
+
+    if (text.equalsIgnoreCase("remove")) {
+      commit(p, key, "piercingWeapon", null, () -> say(p, "&aPiercing weapon removed."));
+      return;
+    }
+
+    if (!text.equals("true") && !text.equals("false")) {
+      say(p, "&cEnter &ftrue &cor &ffalse&c.");
+      return;
+    }
+
+    commit(p, key, "piercingWeapon", Boolean.parseBoolean(text),
+      () -> say(p, "&aPiercing weapon set to &f" + text));
   }
 
   private static void setColor(Player p, String key, Component input) {

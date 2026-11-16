@@ -13,24 +13,24 @@
 
   <!-- ================= PROPERTIES ================= -->
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
 
     <!-- Paper -->
-    <paperAPI.version>1.21.10</paperAPI.version>
+    <paperAPI.version>26.2.build.135-stable</paperAPI.version>
 
     <!-- Libraries -->
     <classGraph.version>4.8.184</classGraph.version>
     <vaultAPI.version>1.7</vaultAPI.version>
     <luckPerms.version>5.4</luckPerms.version>
     <citizens.version>2.0.35-SNAPSHOT</citizens.version>
-    <protocolLibs.version>5.4.0</protocolLibs.version>
-    <placeholderAPI.version>2.11.6</placeholderAPI.version>
+    <protocolLibs.version>5.5.0-SNAPSHOT</protocolLibs.version>
+    <placeholderAPI.version>2.12.3</placeholderAPI.version>
     <lombok.version>1.18.42</lombok.version>
     <manifold.version>2025.1.31</manifold.version>
 
     <!-- Build -->
     <maven.compiler.version>3.13.0</maven.compiler.version>
-    <maven.shade.version>3.5.1</maven.shade.version>
+    <maven.shade.version>3.6.2</maven.shade.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -64,6 +64,17 @@
       <url>https://repo.skriptlang.org/releases</url>
     </repository>
 
+    <repository>
+      <id>helpchat</id>
+      <name>HelpChat Repository</name>
+      <url>https://repo.helpch.at/releases</url>
+    </repository>
+
+    <repository>
+      <id>dmulloy2-repo</id>
+      <url>https://repo.dmulloy2.net/repository/public/</url>
+    </repository>
+
   </repositories>
 
   <!-- ================= DEPENDENCIES ================= -->
@@ -73,7 +84,7 @@
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>${paperAPI.version}-R0.1-SNAPSHOT</version>
+      <version>${paperAPI.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -81,9 +92,9 @@
     <dependency>
       <groupId>org.paper</groupId>
       <artifactId>paper</artifactId>
-      <version>${paperAPI.version}</version>
+      <version>26.2</version>
       <scope>system</scope>
-      <systemPath>${project.basedir}/paper-${paperAPI.version}.jar</systemPath>
+      <systemPath>${project.basedir}/paper-26.2.jar</systemPath>
     </dependency>
 
     <!-- ClassGraph for scanning plugin -->
@@ -134,7 +145,7 @@
 
     <!-- PlaceholderAPI -->
     <dependency>
-      <groupId>com.github.placeholderapi</groupId>
+      <groupId>me.clip</groupId>
       <artifactId>placeholderapi</artifactId>
       <version>${placeholderAPI.version}</version>
       <scope>provided</scope>
@@ -228,7 +239,7 @@
               </relocations>
               <finalName>${project.name}-${project.version}</finalName>
               <!-- FOR THE LOVE OF GOD THIS IS THE PLUGIN FOLDER -->
-              <outputDirectory>/home/luc/Test-Servers/1.21.10/plugins</outputDirectory>
+              <outputDirectory>/home/luc/Test-Servers/26.2/plugins</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -240,8 +251,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler.version}</version>
         <configuration>
-          <source>21</source>
-          <target>21</target>
+          <source>25</source>
+          <target>25</target>
           <encoding>UTF-8</encoding>
           <compilerArgs>
             <!-- Configure manifold plugin-->

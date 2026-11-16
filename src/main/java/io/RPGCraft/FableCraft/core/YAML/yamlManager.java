@@ -140,6 +140,7 @@ public class yamlManager {
         Bukkit.getLogger().info(DBFileConfiguration.toString());
 
         Bukkit.getLogger().info("");
+        setEditing(true);
         for (String s : toReset){
           try {
             setDefaults(s);
@@ -148,6 +149,7 @@ public class yamlManager {
             Bukkit.getLogger().warning("Failed to set the default of the '" + s + "' config folder.");
           }
         }
+        setEditing(false);
         Bukkit.getLogger().info("");
 
         return true;
@@ -1033,7 +1035,155 @@ public class yamlManager {
             skills.options().copyDefaults(true);
             }
             break;
+          }
 
+          case ("spells"): {
+            if (getDefaultDB("spells").getDefaults() == null) {
+            YamlConfiguration spells = getDefaultDB("spells");
+
+            // FIREBALL — Classic fire damage spell with particle effects
+            spells.addDefault("fireball.manaCost", 15.0);
+            spells.addDefault("fireball.cooldown", 60);
+            spells.addDefault("fireball.castSound", "ENTITY_FIREBALL_SHOOT");
+            spells.addDefault("fireball.effects.fireDamage.type", "damage");
+            spells.addDefault("fireball.effects.fireDamage.amount", 8.0);
+            spells.addDefault("fireball.effects.fireDamage.damageType", "MAGIC");
+            spells.addDefault("fireball.effects.fireDamage.radius", 2.0);
+            spells.addDefault("fireball.effects.fireEffect.type", "fire");
+            spells.addDefault("fireball.effects.fireEffect.duration", 100);
+            spells.addDefault("fireball.effects.fireEffect.damageOverTime", 2.0);
+            spells.addDefault("fireball.effects.fireParticles.type", "particle");
+            spells.addDefault("fireball.effects.fireParticles.particle", "FLAME");
+            spells.addDefault("fireball.effects.fireParticles.amount", 30);
+            spells.addDefault("fireball.effects.fireParticles.offsetY", 1.0);
+            spells.addDefault("fireball.effects.fireParticles.speed", 0.3);
+            spells.addDefault("fireball.effects.fireParticles.color", "255,100,0");
+            spells.addDefault("fireball.effects.fireParticles.ring", 1.5);
+            spells.addDefault("fireball.effects.fireSound.type", "sound");
+            spells.addDefault("fireball.effects.fireSound.sound", "BLOCK_FIRE_AMBIENT");
+            spells.addDefault("fireball.effects.fireSound.volume", 1.0);
+            spells.addDefault("fireball.effects.fireSound.pitch", 0.8);
+
+            // ICE SHARD — Frost damage with slow effect
+            spells.addDefault("iceShard.manaCost", 10.0);
+            spells.addDefault("iceShard.cooldown", 40);
+            spells.addDefault("iceShard.castSound", "ENTITY_GENERIC_EAT");
+            spells.addDefault("iceShard.effects.iceDamage.type", "damage");
+            spells.addDefault("iceShard.effects.iceDamage.amount", 5.0);
+            spells.addDefault("iceShard.effects.iceDamage.damageType", "MAGIC");
+            spells.addDefault("iceShard.effects.slowEffect.type", "potion");
+            spells.addDefault("iceShard.effects.slowEffect.effectType", "SLOW");
+            spells.addDefault("iceShard.effects.slowEffect.duration", 100);
+            spells.addDefault("iceShard.effects.slowEffect.amplifier", 1);
+            spells.addDefault("iceShard.effects.slowEffect.ambient", true);
+            spells.addDefault("iceShard.effects.slowEffect.particles", true);
+            spells.addDefault("iceShard.effects.iceParticles.type", "particle");
+            spells.addDefault("iceShard.effects.iceParticles.particle", "SQUID_INK");
+            spells.addDefault("iceShard.effects.iceParticles.amount", 20);
+            spells.addDefault("iceShard.effects.iceParticles.offsetY", 0.5);
+            spells.addDefault("iceShard.effects.iceParticles.speed", 0.2);
+            spells.addDefault("iceShard.effects.iceParticles.color", "150,200,255");
+
+            // LIGHTNING BOLT — High damage lightning strike
+            spells.addDefault("lightningBolt.manaCost", 25.0);
+            spells.addDefault("lightningBolt.cooldown", 120);
+            spells.addDefault("lightningBolt.castSound", "ENTITY_LIGHTNING_BOLT_THUNDER");
+            spells.addDefault("lightningBolt.effects.lightningDamage.type", "damage");
+            spells.addDefault("lightningBolt.effects.lightningDamage.amount", 15.0);
+            spells.addDefault("lightningBolt.effects.lightningDamage.damageType", "LIGHTNING_BOLT");
+            spells.addDefault("lightningBolt.effects.lightningDamage.radius", 3.0);
+            spells.addDefault("lightningBolt.effects.lightningFire.type", "fire");
+            spells.addDefault("lightningBolt.effects.lightningFire.duration", 60);
+            spells.addDefault("lightningBolt.effects.lightningParticles.type", "particle");
+            spells.addDefault("lightningBolt.effects.lightningParticles.particle", "ELECTRIC_SPARK");
+            spells.addDefault("lightningBolt.effects.lightningParticles.amount", 40);
+            spells.addDefault("lightningBolt.effects.lightningParticles.offsetY", 2.0);
+            spells.addDefault("lightningBolt.effects.lightningParticles.speed", 0.5);
+            spells.addDefault("lightningBolt.effects.lightningParticles.ring", 2.0);
+
+            // HEAL — Restores health to the caster
+            spells.addDefault("heal.manaCost", 20.0);
+            spells.addDefault("heal.cooldown", 200);
+            spells.addDefault("heal.castSound", "ENTITY_PLAYER_LEVELUP");
+            spells.addDefault("heal.effects.healParticle.type", "particle");
+            spells.addDefault("heal.effects.healParticle.particle", "HEART");
+            spells.addDefault("heal.effects.healParticle.amount", 15);
+            spells.addDefault("heal.effects.healParticle.offsetY", 1.0);
+            spells.addDefault("heal.effects.healParticle.speed", 0.1);
+            spells.addDefault("heal.effects.healParticle.color", "255,0,100");
+            spells.addDefault("heal.effects.regenPotion.type", "potion");
+            spells.addDefault("heal.effects.regenPotion.effectType", "REGENERATION");
+            spells.addDefault("heal.effects.regenPotion.duration", 100);
+            spells.addDefault("heal.effects.regenPotion.amplifier", 1);
+            spells.addDefault("heal.effects.regenPotion.ambient", true);
+            spells.addDefault("heal.effects.regenPotion.particles", true);
+
+            // SUMMON ZOMBIE — Summons a zombie ally
+            spells.addDefault("summonZombie.manaCost", 30.0);
+            spells.addDefault("summonZombie.cooldown", 300);
+            spells.addDefault("summonZombie.castSound", "ENTITY_ZOMBIE_AMBIENT");
+            spells.addDefault("summonZombie.effects.zombieSummon.type", "summon");
+            spells.addDefault("summonZombie.effects.zombieSummon.mobType", "ZOMBIE");
+            spells.addDefault("summonZombie.effects.zombieSummon.amount", 1);
+            spells.addDefault("summonZombie.effects.zombieSummon.owner", "caster");
+            spells.addDefault("summonZombie.effects.summonParticles.type", "particle");
+            spells.addDefault("summonZombie.effects.summonParticles.particle", "SOUL");
+            spells.addDefault("summonZombie.effects.summonParticles.amount", 25);
+            spells.addDefault("summonZombie.effects.summonParticles.offsetY", 1.0);
+            spells.addDefault("summonZombie.effects.summonParticles.speed", 0.2);
+            spells.addDefault("summonZombie.effects.summonParticles.ring", 1.0);
+
+            // STRENGTH BUFF — Temporary attack damage boost
+            spells.addDefault("strengthBuff.manaCost", 12.0);
+            spells.addDefault("strengthBuff.cooldown", 180);
+            spells.addDefault("strengthBuff.castSound", "ENTITY_PLAYER_LEVELUP");
+            spells.addDefault("strengthBuff.effects.strengthAttr.type", "attribute");
+            spells.addDefault("strengthBuff.effects.strengthAttr.attribute", "GENERIC_ATTACK_DAMAGE");
+            spells.addDefault("strengthBuff.effects.strengthAttr.amount", 5.0);
+            spells.addDefault("strengthBuff.effects.strengthAttr.duration", 6000);
+            spells.addDefault("strengthBuff.effects.strengthPotion.type", "potion");
+            spells.addDefault("strengthBuff.effects.strengthPotion.effectType", "INCREASE_DAMAGE");
+            spells.addDefault("strengthBuff.effects.strengthPotion.duration", 6000);
+            spells.addDefault("strengthBuff.effects.strengthPotion.amplifier", 0);
+            spells.addDefault("strengthBuff.effects.strengthPotion.ambient", true);
+            spells.addDefault("strengthBuff.effects.strengthPotion.particles", true);
+            spells.addDefault("strengthBuff.effects.buffParticles.type", "particle");
+            spells.addDefault("strengthBuff.effects.buffParticles.particle", "VILLAGER_HAPPY");
+            spells.addDefault("strengthBuff.effects.buffParticles.amount", 10);
+            spells.addDefault("strengthBuff.effects.buffParticles.offsetY", 1.5);
+            spells.addDefault("strengthBuff.effects.buffParticles.speed", 0.1);
+
+            // GLOW ARROW — Marks targets with glow effect
+            spells.addDefault("glowArrow.manaCost", 8.0);
+            spells.addDefault("glowArrow.cooldown", 80);
+            spells.addDefault("glowArrow.castSound", "ENTITY_ARROW_SHOOT");
+            spells.addDefault("glowArrow.effects.glowEffect.type", "glow");
+            spells.addDefault("glowArrow.effects.glowEffect.duration", 200);
+            spells.addDefault("glowArrow.effects.glowParticles.type", "particle");
+            spells.addDefault("glowArrow.effects.glowParticles.particle", "GLOW_SQUID_INK");
+            spells.addDefault("glowArrow.effects.glowParticles.amount", 15);
+            spells.addDefault("glowArrow.effects.glowParticles.offsetY", 0.5);
+            spells.addDefault("glowArrow.effects.glowParticles.speed", 0.2);
+
+            // KNOCKBACK BLAST — Pushes enemies away
+            spells.addDefault("knockbackBlast.manaCost", 10.0);
+            spells.addDefault("knockbackBlast.cooldown", 60);
+            spells.addDefault("knockbackBlast.castSound", "ENTITY_GENERIC_EXPLODE");
+            spells.addDefault("knockbackBlast.effects.knockbackEffect.type", "knockback");
+            spells.addDefault("knockbackBlast.effects.knockbackEffect.strength", 2.0);
+            spells.addDefault("knockbackBlast.effects.knockbackEffect.height", 1.0);
+            spells.addDefault("knockbackBlast.effects.blastDamage.type", "damage");
+            spells.addDefault("knockbackBlast.effects.blastDamage.amount", 3.0);
+            spells.addDefault("knockbackBlast.effects.blastDamage.damageType", "MAGIC");
+            spells.addDefault("knockbackBlast.effects.blastParticles.type", "particle");
+            spells.addDefault("knockbackBlast.effects.blastParticles.particle", "CLOUD");
+            spells.addDefault("knockbackBlast.effects.blastParticles.amount", 20);
+            spells.addDefault("knockbackBlast.effects.blastParticles.speed", 0.3);
+            spells.addDefault("knockbackBlast.effects.blastParticles.ring", 1.5);
+
+            spells.options().copyDefaults(true);
+            }
+            break;
           }
 
         }

@@ -4,8 +4,8 @@ import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import lombok.Getter;
-import net.minecraft.world.item.component.TooltipDisplay;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,7 +38,7 @@ public class Levels {
     int maxLevel = yamlManager.getFileConfig("format").getInt(skill.getSkill_path() + ".max_level");
     for(int i = 0; i < 54;i++){
       GUIItem guiItem = new GUIItem(Material.GRAY_STAINED_GLASS_PANE);
-      TooltipDisplay tooltipDisplay = new TooltipDisplay(true, null);
+      TooltipDisplay tooltipDisplay = TooltipDisplay.tooltipDisplay().hideTooltip(true).build();
       guiItem.data(DataComponentTypes.TOOLTIP_DISPLAY, tooltipDisplay);
       skills.setItem(i, guiItem);
     }
