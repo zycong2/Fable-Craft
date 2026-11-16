@@ -5,6 +5,7 @@ import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.Utils.GUI.SkillMenu;
+import io.RPGCraft.FableCraft.commands.quest.quests;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import io.RPGCraft.FableCraft.listeners.ItemEditor.ItemEditor;
@@ -88,28 +89,12 @@ public class MainGUI implements Listener {
       .clickEvent(ce -> InventoryManager.getInstance().openStorage(ce.player()));
     menu.setItem(24, storageButton);
 
-    // Custom Enchantments
-    GUIItem enchantButton = new GUIItem(Material.ENCHANTED_BOOK)
-      .name("&d&lCustom Enchantments")
-      .lore("&7Browse custom enchantments")
-      .clickEvent(ce -> CustomEnchantments.openEnchantmentsGUI(ce.player()));
-    menu.setItem(28, enchantButton);
-
-    // Crafting Stations
-    GUIItem craftingButton = new GUIItem(Material.CRAFTING_TABLE)
-      .name("&6&lCrafting Stations")
-      .lore("&7Advanced crafting recipes")
-      .clickEvent(ce -> CraftingStations.openStationsBrowser(ce.player()));
-    menu.setItem(29, craftingButton);
-
-    // Config Menu (permission gated)
-    if (event.getPlayer().hasPermission("rpgcraft.config")) {
-      GUIItem configButton = new GUIItem(Material.LEVER)
-        .name("&e&lConfig Menu")
-        .lore("&7Change plugin settings in-game")
-        .clickEvent(ce -> ConfigMenu.openConfigMenu(ce.player()));
-      menu.setItem(30, configButton);
-    }
+    // Quests
+    GUIItem questsButton = new GUIItem(Material.WRITABLE_BOOK)
+      .name("&b&lQuests")
+      .lore("&7View and manage your quests")
+      .clickEvent(ce -> quests.openQuestsGUI(ce.player()));
+    menu.setItem(25, questsButton);
 
     GUIItem close = new GUIItem(Material.BARRIER)
       .name("&cClose Menu")

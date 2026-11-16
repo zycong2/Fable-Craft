@@ -3,8 +3,6 @@ package io.RPGCraft.FableCraft.core;
 import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
-import io.RPGCraft.FableCraft.core.MainGUI;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,8 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-
-import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
 
 /**
  * Personal storage system: each player gets a private chest
@@ -49,7 +45,6 @@ public class InventoryManager implements Listener {
   public void openStorage(Player p) {
     ItemStack[] data = getStorage(p);
 
-    // Use GUI wrapper so we can handle clicks (e.g., ItemDB button)
     GUI gui = new GUI("&6&lPersonal Storage", GUI.Rows.SIX);
 
     // Fill storage slots (54 slots = 6 rows)
@@ -59,17 +54,6 @@ public class InventoryManager implements Listener {
       }
     }
 
-    // Add ItemDB button at the bottom (slot 53, last slot in row 6)
-    GUIItem itemDBButton = new GUIItem(Material.CHEST)
-      .name("&e&lBrowse ItemDB")
-      .lore("&7Click to browse custom items",
-            "&7and check their details.")
-      .clickEvent(ce -> {
-        ce.player().closeInventory();
-        MainGUI.itemDBMenu(ce.player()).open(ce.player());
-      });
-    gui.setItem(53, itemDBButton);
-
     gui.open(p);
   }
 
@@ -77,7 +61,6 @@ public class InventoryManager implements Listener {
   // Save on close
   // ------------------------------------------------------------------
 
-  private static final int ITEMDB_BUTTON_SLOT = 53;
 
   @EventHandler
   public void onInventoryClose(InventoryCloseEvent event) {
@@ -85,13 +68,9 @@ public class InventoryManager implements Listener {
     String title = event.getView().getTitle();
     if (!title.contains("Personal Storage")) return;
 
-    // Save contents, skipping the ItemDB button slot
     ItemStack[] data = getStorage(p);
     ItemStack[] contents = event.getInventory().getContents();
-    for (int i = 0; i < Math.min(data.length, contents.length); i++) {
-      if (i == ITEMDB_BUTTON_SLOT) continue; // skip the button
-      data[i] = contents[i];
-    }
+    System.arraycopy(contents, 0, data, 0, Math.min(data.length, contents.length));
   }
 
   @EventHandler
@@ -103,10 +82,7 @@ public class InventoryManager implements Listener {
       Inventory top = p.getOpenInventory().getTopInventory();
       ItemStack[] data = getStorage(p);
       ItemStack[] contents = top.getContents();
-      for (int i = 0; i < Math.min(data.length, contents.length); i++) {
-        if (i == ITEMDB_BUTTON_SLOT) continue; // skip the button
-        data[i] = contents[i];
-      }
+      System.arraycopy(contents, 0, data, 0, Math.min(data.length, contents.length));
     }
   }
 

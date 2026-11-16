@@ -36,6 +36,7 @@ import io.RPGCraft.FableCraft.core.ConfigMenu;
 import io.RPGCraft.FableCraft.core.CustomEnchantments;
 import io.RPGCraft.FableCraft.core.CraftingStations;
 import io.RPGCraft.FableCraft.core.InventoryManager;
+import io.RPGCraft.FableCraft.core.MobSkillManager;
 import io.RPGCraft.FableCraft.core.PartyManager;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
 import io.RPGCraft.FableCraft.core.MainGUI;
@@ -81,7 +82,7 @@ public final class RPGCraft extends JavaPlugin {
   public static List<String> spawns = new java.util.ArrayList<>(List.of());
 
   public static List<String> yamlFiles = List.of("config", "data", "messages", "format");
-  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops", "enchantments", "craftingStations");
+  public static List<String> DBFolders = List.of("itemDB", "mobDB", "lootTables", "skills", "quests", "abilities", "shops", "enchantments", "craftingStations", "mobSkills");
   public static Map<String, List<YamlConfiguration>> DBFileConfiguration = new HashMap<>();
   public static Map<YamlConfiguration, String> DBFilePath = new HashMap<>();
   public static Map<String, YamlConfiguration> ItemDB = new HashMap<>();
@@ -99,6 +100,7 @@ public final class RPGCraft extends JavaPlugin {
     yamlManager.getInstance().getCustomItems();
     mobs.reloadSpawns();
     setPDC.initializeNPCs();
+    MobSkillManager.loadSkills();
 
     new PlaceholdersRegistry().init();
     PartyManager.getInstance().init();
@@ -134,7 +136,8 @@ public final class RPGCraft extends JavaPlugin {
       InventoryManager.getInstance(),
       new CustomEnchantments(),
       new CraftingStations(),
-      new ConfigMenu()
+      new ConfigMenu(),
+      new MobSkillManager()
     );
 
     try{

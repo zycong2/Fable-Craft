@@ -40,7 +40,7 @@ public class lootTableHelper implements Listener, CommandInterface{
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player p = (Player) commandSender;
-        if (!p.hasPermission("FableCraft.lootTable")){
+        if (!p.hasPermission("rpgcraft.lootTable")){
             p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         } if (args.length == 0){

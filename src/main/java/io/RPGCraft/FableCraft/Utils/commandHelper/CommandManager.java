@@ -18,12 +18,16 @@ import java.util.Set;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
   @Override
-  public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-    Player p = (Player) commandSender;
-    if (args.length == 0){
+  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    if (!(sender instanceof Player p)) {
+      sender.sendMessage("This command can only be used by players.");
+      return true;
+    }
+    if (args.length == 0) {
       p.sendMessage(yamlManager.getInstance().getOption("messages", "messages.error.noValidArgument").toString());
       return true;
-    } if (!p.hasPermission("TheHordes.Command")){
+    }
+    if (!p.hasPermission("rpgcraft.command")) {
       p.sendMessage(yamlManager.getInstance().getOption("messages", "messages.error.noPermission").toString());
       return true;
     }
@@ -47,7 +51,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
           }
         }
         if (makeCommandName(instance.getClass().getName()).equals(commandToExecute)) {
-          instance.onCommand(commandSender, command, s, newArgs);
+          instance.onCommand(sender, command, label, newArgs);
         }
 
       } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
@@ -60,7 +64,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
   }
 
   @Override
-  public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+  public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
     if (args.length == 1){
       List<String> commands = new ArrayList<>(List.of());
       Reflections reflections = new Reflections("io.RPGCraft.FableCraft.commands");
@@ -96,7 +100,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             }
           }
           if (makeCommandName(instance.getClass().getName()).equals(commandToExecute)) {
-            return instance.onTabComplete(commandSender, command, s, newArgs);
+            return instance.onTabComplete(sender, command, label, newArgs);
           }
 
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |

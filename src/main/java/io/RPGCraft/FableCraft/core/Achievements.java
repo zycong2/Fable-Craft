@@ -4,7 +4,6 @@ import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.Utils.skript.onAchievementUnlock;
-import io.RPGCraft.FableCraft.core.YAML.yamlManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -15,12 +14,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
-import static io.RPGCraft.FableCraft.RPGCraft.MM;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
@@ -210,7 +207,7 @@ public class Achievements implements Listener {
       boolean unlocked = hasAchievement(p, def.id);
       Material icon = unlocked ? def.icon : Material.GRAY_STAINED_GLASS_PANE;
       List<String> lore = new ArrayList<>();
-      lore.add(Colorize(def.description));
+      lore.add(def.description);
       lore.add("");
       if (unlocked) {
         lore.add("&a&l✓ UNLOCKED");
@@ -221,20 +218,24 @@ public class Achievements implements Listener {
         lore.add("&c&l✗ LOCKED");
       }
 
-      gui.setItem(slot, new GUIItem()
-        .material(icon)
+      gui.setItem(slot, new GUIItem(icon)
         .name(unlocked ? def.name : "&7" + def.name)
         .lore(lore));
       slot++;
     }
 
     // Progress info
-    long unlocked = getAchievements(p).size();
-    gui.setItem(45, new GUIItem()
-      .material(Material.PAPER)
+    long unlockedCount = getAchievements(p).size();
+    int percent = ACHIEVEMENTS.size() > 0 ? (int) (unlockedCount * 100 / ACHIEVEMENTS.size()) : 0;
+    gui.setItem(45, new GUIItem(Material.PAPER)
       .name("&e&lProgress")
-      .lore("&7" + unlocked + "/" + ACHIEVEMENTS.size() + " achievements unlocked",
-            "&7" + (int) (unlocked * 100 / ACHIEVEMENTS.size()) + "% complete"));
+      .lore("&7" + unlockedCount + "/" + ACHIEVEMENTS.size() + " achievements unlocked",
+            "&7" + percent + "% complete"));
+
+    // Close button
+    gui.setItem(53, new GUIItem(Material.BARRIER)
+      .name("&cClose Menu")
+      .clickEvent(ce -> ce.player().closeInventory()));
 
     gui.open(p);
   }

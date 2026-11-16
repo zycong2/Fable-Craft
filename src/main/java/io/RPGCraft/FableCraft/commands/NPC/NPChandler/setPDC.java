@@ -2,6 +2,7 @@ package io.RPGCraft.FableCraft.commands.NPC.NPChandler;
 
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
+import io.RPGCraft.FableCraft.core.MobSkillManager;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,8 +19,11 @@ import static io.RPGCraft.FableCraft.Utils.Utils.isCitizensNPC;
 public class setPDC implements CommandInterface {
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-    Player p = (Player) sender;
-    if (!p.hasPermission("FableCraft.npc")) {
+    if (!(sender instanceof Player p)) {
+      sender.sendMessage("This command can only be used by players.");
+      return true;
+    }
+    if (!p.hasPermission("rpgcraft.npc")) {
       p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
     }
@@ -42,6 +46,39 @@ public class setPDC implements CommandInterface {
             }
           }
         }
+      }else if (args[0].equals("skill")){
+        // /npc skill add <skillName> - add a skill to the nearest NPC
+        // /npc skill remove <skillName> - remove a skill from the nearest NPC
+        // /npc skill removeall - remove all skills from the nearest NPC
+        if (args.length < 2) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", p, true));
+          return true;
+        }
+        for (Entity e : p.getNearbyEntities(10, 10, 10)) {
+          if (isCitizensNPC(e)) {
+            if (args[1].equals("add")) {
+              if (args.length < 3) {
+                p.sendMessage("&cUsage: /npc skill add <skillName>");
+                return true;
+              }
+              MobSkillManager.addSkillToEntity(e, args[2]);
+              p.sendMessage("&aAdded skill '" + args[2] + "' to NPC.");
+            } else if (args[1].equals("remove")) {
+              if (args.length >= 3) {
+                MobSkillManager.removeSkillFromEntity(e, args[2]);
+                p.sendMessage("&aRemoved skill '" + args[2] + "' from NPC.");
+              } else {
+                MobSkillManager.removeAllSkillsFromEntity(e);
+                p.sendMessage("&aRemoved all skills from NPC.");
+              }
+            } else {
+              p.sendMessage("&cUsage: /npc skill add|remove <skillName>");
+            }
+            return true;
+          }
+        }
+        p.sendMessage("&cNo NPC found nearby.");
+        return true;
       }
     }
     return true;
@@ -50,14 +87,19 @@ public class setPDC implements CommandInterface {
   @Override
   public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
     if (args.length == 1){
-      return List.of("set", "remove");
+      return List.of("set", "remove", "skill");
     }
     else {
       if (args[0].equals("set")) {
         return List.of("shop", "quest");
-      } else {
-        return null;
+      } else if (args[0].equals("skill")) {
+        if (args.length == 2) {
+          return List.of("add", "remove");
+        } else if (args.length == 3) {
+          return MobSkillManager.getSkillNames();
+        }
       }
+      return null;
     }
   }
 

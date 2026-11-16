@@ -81,6 +81,10 @@ public class yamlManager {
         Bukkit.getLogger().info("");
         List<String> toReset = new ArrayList<>();
 
+        // Clear old data before reloading to prevent stale entries on reload.
+        RPGCraft.fileConfigurationList.clear();
+        RPGCraft.DBFileConfiguration.clear();
+
         for (String config : RPGCraft.yamlFiles) {
             RPGCraft.fileConfigurationList.add(new YamlConfiguration());
             cfile = new File(RPGCraft.getPlugin().getDataFolder().getAbsolutePath(), config + ".yml");
@@ -296,6 +300,7 @@ public class yamlManager {
             break;
           }
           case("itemDB"): {
+            if (getFileConfig("itemDB").getDefaults() == null) {
               getFileConfig("itemDB").addDefault("woodenSword.itemType", "WOODEN_SWORD");
               getFileConfig("itemDB").addDefault("woodenSword.ItemID", "just_a_sword");
               getFileConfig("itemDB").addDefault("woodenSword.name", "just a sword");
@@ -332,42 +337,60 @@ public class yamlManager {
               getFileConfig("itemDB").addDefault("customBread.group", "food");
               getFileConfig("itemDB").addDefault("customBread.nutrition", 5);
               getFileConfig("itemDB").options().copyDefaults(true);
+            }
             break;
           }
           case ("mobDB"): {
-              getFileConfig("mobDB").addDefault("spider.type", "SPIDER");
-              getFileConfig("mobDB").addDefault("spider.customName.name", "&aSpider &c%entitycurrentHealth%/%entitymaxHealth%");
-              getFileConfig("mobDB").addDefault("spider.customName.visible", true);
-              getFileConfig("mobDB").addDefault("spider.glowing", false);
-              getFileConfig("mobDB").addDefault("spider.invulnerable", false);
-              getFileConfig("mobDB").setComments("spider.health", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-              getFileConfig("mobDB").addDefault("spider.health", 100);
-              getFileConfig("mobDB").setComments("spider.damage", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-              getFileConfig("mobDB").addDefault("spider.damage", 10);
-              getFileConfig("mobDB").setComments("spider.speed", List.of("If you want a higher value then 2048 you need to change the max health in the spigot.yml file (option: settings.attribute.maxHealth)"));
-              getFileConfig("mobDB").addDefault("spider.speed", 2);
-              getFileConfig("mobDB").addDefault("spider.lootTable", "spiderDrops");
-              getFileConfig("mobDB").addDefault("spider.randomSpawns.frequency", 1);
-              getFileConfig("mobDB").setComments("spider.randomSpawns.frequency", List.of("0 is 0% of entities, 1 is 100%, 0.01 is 1% etc"));
-              getFileConfig("mobDB").addDefault("spider.randomSpawns.options.spawnOn", List.of("GRASS_BLOCK"));
-              getFileConfig("mobDB").addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
-              getFileConfig("mobDB").addDefault("spider.bossBar.color", "RED");
-              getFileConfig("mobDB").addDefault("spider.bossBar.barStyle", "SOLID");
-              getFileConfig("mobDB").addDefault("spider.spawnPoints.respawnSeconds", 60);
-              getFileConfig("mobDB").setComments("spider.spawnPoints.respawnSeconds", List.of("Seconds to wait after the mob dies before this point spawns it again"));
-              getFileConfig("mobDB").addDefault("spider.spawnPoints.maxAlive", 1);
-              getFileConfig("mobDB").setComments("spider.spawnPoints.maxAlive", List.of("How many mobs each spawn point keeps alive at once"));
-              getFileConfig("mobDB").addDefault("spider.spawnPoints.activationRange", 48);
-              getFileConfig("mobDB").setComments("spider.spawnPoints.activationRange", List.of("A player must be within this many blocks for the point to spawn"));
-              getFileConfig("mobDB").addDefault("spider.spawnPoints.locations", List.of());
-              getFileConfig("mobDB").setComments("spider.spawnPoints.locations", List.of("Format: \"world, x, y, z\" (optional yaw at the end). Or stand there and use /mobs addspawn spider"));
-              getFileConfig("mobDB").setComments("spider.damage", List.of("Max 2048"));
-              getFileConfig("mobDB").setComments("spider.speed", List.of("Vanilla speeds are small (a spider is 0.3). Max 1024"));
-              getFileConfig("mobDB").options().copyDefaults(true);
-              getFileConfig("mobDB").options().parseComments(true);
+            if (getDefaultDB("mobDB").getDefaults() == null) {
+              YamlConfiguration mobDB = getDefaultDB("mobDB");
+
+              // Example mob: spider
+              mobDB.addDefault("spider.type", "SPIDER");
+              mobDB.addDefault("spider.customName.name", "&aSpider &c%entitycurrentHealth%/%entitymaxHealth%");
+              mobDB.addDefault("spider.customName.visible", true);
+              mobDB.addDefault("spider.glowing", false);
+              mobDB.addDefault("spider.invulnerable", false);
+              mobDB.addDefault("spider.health", 100);
+              mobDB.addDefault("spider.damage", 10);
+              mobDB.addDefault("spider.speed", 2);
+              mobDB.addDefault("spider.lootTable", "spiderDrops");
+              mobDB.addDefault("spider.randomSpawns.frequency", 1);
+              mobDB.addDefault("spider.randomSpawns.options.spawnOn", List.of("GRASS_BLOCK"));
+              mobDB.addDefault("spider.randomSpawns.options.biomes", List.of("PLAINS", "FOREST"));
+              mobDB.addDefault("spider.bossBar.color", "RED");
+              mobDB.addDefault("spider.bossBar.barStyle", "SOLID");
+              mobDB.addDefault("spider.spawnPoints.respawnSeconds", 60);
+              mobDB.addDefault("spider.spawnPoints.maxAlive", 1);
+              mobDB.addDefault("spider.spawnPoints.activationRange", 48);
+              mobDB.addDefault("spider.spawnPoints.locations", List.of());
+
+              // Example mob: zombie_king — demonstrates all available options
+              mobDB.addDefault("zombie_king.type", "ZOMBIE");
+              mobDB.addDefault("zombie_king.health", 200);
+              mobDB.addDefault("zombie_king.damage", 15);
+              mobDB.addDefault("zombie_king.speed", 0.25);
+              mobDB.addDefault("zombie_king.glowing", true);
+              mobDB.addDefault("zombie_king.invulnerable", false);
+              mobDB.addDefault("zombie_king.customName.name", "<gradient:#ff0000:#ff8800>Zombie King</gradient>");
+              mobDB.addDefault("zombie_king.customName.visible", true);
+              mobDB.addDefault("zombie_king.bossBar.color", "RED");
+              mobDB.addDefault("zombie_king.bossBar.barStyle", "SOLID");
+              mobDB.addDefault("zombie_king.lootTable", "zombieKingDrops");
+              mobDB.addDefault("zombie_king.skills", List.of("fireAttack", "berserker", "glowingAura"));
+              mobDB.addDefault("zombie_king.randomSpawns.frequency", 0.05);
+              mobDB.addDefault("zombie_king.randomSpawns.options.spawnOn", List.of("SOUL_SAND", "SOIL"));
+              mobDB.addDefault("zombie_king.randomSpawns.options.biomes", List.of("minecraft:swamp", "minecraft:dark_forest"));
+              mobDB.addDefault("zombie_king.spawnPoints.respawnSeconds", 60);
+              mobDB.addDefault("zombie_king.spawnPoints.maxAlive", 1);
+              mobDB.addDefault("zombie_king.spawnPoints.activationRange", 48);
+              mobDB.addDefault("zombie_king.spawnPoints.locations", List.of("world, 100.5, 64, -200.5", "world, 150.5, 70, -180.5, 90"));
+
+              mobDB.options().copyDefaults(true);
+            }
             break;
           }
           case("lootTables"): {
+            if (getFileConfig("lootTables").getDefaults() == null) {
               getFileConfig("lootTables").addDefault("spiderDrops.maxItems", 10);
               getFileConfig("lootTables").addDefault("spiderDrops.minItems", 1);
               getFileConfig("lootTables").addDefault("spiderDrops.items", List.of("STRING:1:5:9", "customBook:1:4:1"));
@@ -379,6 +402,7 @@ public class yamlManager {
 
               getFileConfig("lootTables").options().copyDefaults(true);
               getFileConfig("lootTables").options().parseComments(true);
+            }
             break;
           }
           case("data"): {
@@ -572,7 +596,8 @@ public class yamlManager {
             break;
           }
           case ("shops"): {
-            YamlConfiguration shopConfig = getDefaultDB("shops");
+            if (getDefaultDB("shops").getDefaults() == null) {
+              YamlConfiguration shopConfig = getDefaultDB("shops");
               shopConfig.addDefault("blacksmith.npc-name", "Blacksmith");
               shopConfig.addDefault("blacksmith.title", "&8Blacksmith Shop");
               shopConfig.addDefault("blacksmith.rows", 3);
@@ -633,10 +658,12 @@ public class yamlManager {
               "weapon_vendor.items.sword.sell-enabled", false);
 
             shopConfig.options().copyDefaults(true);
+            }
             break;
           }
 
           case ("enchantments"): {
+            if (getDefaultDB("enchantments").getDefaults() == null) {
             YamlConfiguration enchants = getDefaultDB("enchantments");
 
             // Life Steal
@@ -687,10 +714,12 @@ public class yamlManager {
             enchants.addDefault("soulFire.levels.2.bonusDamage", 10);
 
             enchants.options().copyDefaults(true);
+            }
             break;
           }
 
           case ("craftingStations"): {
+            if (getDefaultDB("craftingStations").getDefaults() == null) {
             YamlConfiguration stations = getDefaultDB("craftingStations");
 
             // Anvil Station
@@ -732,10 +761,67 @@ public class yamlManager {
             stations.addDefault("furnace.recipes.smelted_armor.requirements.coins", 300);
 
             stations.options().copyDefaults(true);
+            }
+            break;
+          }
+
+          case ("mobSkills"): {
+            if (getDefaultDB("mobSkills").getDefaults() == null) {
+            YamlConfiguration mobSkills = getDefaultDB("mobSkills");
+
+            // Fire Attack — deals extra fire damage and sets targets on fire
+            mobSkills.addDefault("fireAttack.name", "Fire Attack");
+            mobSkills.addDefault("fireAttack.description", "Deals extra fire damage and sets targets on fire");
+            mobSkills.addDefault("fireAttack.effects.attackDamageBonus", 5.0);
+            mobSkills.addDefault("fireAttack.effects.setOnFire", true);
+            mobSkills.addDefault("fireAttack.effects.fireTicks", 100);
+            mobSkills.addDefault("fireAttack.cooldown", 40);
+            mobSkills.addDefault("fireAttack.trigger", "onAttack");
+
+            // Speed Boost — moves significantly faster
+            mobSkills.addDefault("speedBoost.name", "Haste");
+            mobSkills.addDefault("speedBoost.description", "Moves significantly faster");
+            mobSkills.addDefault("speedBoost.effects.movementSpeedBonus", 0.3);
+            mobSkills.addDefault("speedBoost.cooldown", 0);
+            mobSkills.addDefault("speedBoost.trigger", "onSpawn");
+
+            // Heal Over Time — heals periodically
+            mobSkills.addDefault("healOverTime.name", "Regeneration");
+            mobSkills.addDefault("healOverTime.description", "Heals 1 heart every 10 seconds");
+            mobSkills.addDefault("healOverTime.effects.healAmount", 2.0);
+            mobSkills.addDefault("healOverTime.cooldown", 100);
+            mobSkills.addDefault("healOverTime.trigger", "periodic");
+            mobSkills.addDefault("healOverTime.interval", 200);
+
+            // Tank — massive health boost
+            mobSkills.addDefault("tank.name", "Iron Skin");
+            mobSkills.addDefault("tank.description", "Massive health boost");
+            mobSkills.addDefault("tank.effects.healthBonus", 100.0);
+            mobSkills.addDefault("tank.cooldown", 0);
+            mobSkills.addDefault("tank.trigger", "onSpawn");
+
+            // Berserker — high damage and speed
+            mobSkills.addDefault("berserker.name", "Berserker");
+            mobSkills.addDefault("berserker.description", "High damage and speed");
+            mobSkills.addDefault("berserker.effects.attackDamageBonus", 10.0);
+            mobSkills.addDefault("berserker.effects.movementSpeedBonus", 0.2);
+            mobSkills.addDefault("berserker.cooldown", 0);
+            mobSkills.addDefault("berserker.trigger", "onSpawn");
+
+            // Glowing Aura — entity glows visibly
+            mobSkills.addDefault("glowingAura.name", "Glowing Aura");
+            mobSkills.addDefault("glowingAura.description", "Entity glows visibly");
+            mobSkills.addDefault("glowingAura.effects.glowing", true);
+            mobSkills.addDefault("glowingAura.cooldown", 0);
+            mobSkills.addDefault("glowingAura.trigger", "onSpawn");
+
+            mobSkills.options().copyDefaults(true);
+            }
             break;
           }
 
           case ("skills"): {
+            if (getDefaultDB("skills").getDefaults() == null) {
             YamlConfiguration skills = getDefaultDB("skills");
 
             // FISHING
@@ -945,6 +1031,7 @@ public class yamlManager {
 
 
             skills.options().copyDefaults(true);
+            }
             break;
 
           }

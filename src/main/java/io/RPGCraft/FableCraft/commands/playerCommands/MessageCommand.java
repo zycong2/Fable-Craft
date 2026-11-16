@@ -60,7 +60,7 @@ public class MessageCommand {
       .build();
 
     LiteralCommandNode<CommandSourceStack> Broadcast_Command = Commands.literal("broadcast")
-      .requires(ctx -> ctx.getExecutor().isOp())
+      .requires(ctx -> ctx.getExecutor().isOp() || ctx.getExecutor().hasPermission("rpgcraft.broadcast"))
       .executes(ctx -> {
         Entity executor = getExecutor(ctx);
         executor.sendMessage(MM("&c[!] Please specify the message to broadcast"));

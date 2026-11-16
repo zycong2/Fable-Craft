@@ -13,78 +13,107 @@ import static io.RPGCraft.FableCraft.Utils.money.moneyManager.*;
 
 public class money implements CommandInterface {
   @Override
-  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-    Player p = (Player) commandSender;
-    if (!p.hasPermission("FableCraft.money")) {
-      p.sendMessage( yamlGetter.getMessage("messages.error.noPermission", p, true));
+  public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    if (!(sender instanceof Player p)) {
+      sender.sendMessage("This command can only be used by players.");
       return true;
-    }if (args.length == 0){
+    }
+    if (!p.hasPermission("rpgcraft.money")) {
+      p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
+      return true;
+    }
+    if (args.length == 0) {
       p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
       return true;
     }
     switch (args[0]) {
-      case "add":
-        if (args.length == 3){
-          Player target = Bukkit.getPlayer(args[1]);
+      case "add" -> {
+        if (args.length != 3) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+          return true;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+          return true;
+        }
+        try {
           int amount = Integer.parseInt(args[2]);
           addMoney(target, amount);
-        }else{
+        } catch (NumberFormatException e) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+        }
+      }
+      case "subtract" -> {
+        if (args.length != 3) {
           p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
           return true;
         }
-      case "subtract":
-        if (args.length == 3){
-          Player target = Bukkit.getPlayer(args[1]);
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+          return true;
+        }
+        try {
           int amount = Integer.parseInt(args[2]);
           subtractMoney(target, amount);
-        }else{
+        } catch (NumberFormatException e) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+        }
+      }
+      case "set" -> {
+        if (args.length != 3) {
           p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
           return true;
         }
-      case "set":
-        if (args.length == 3){
-          Player target = Bukkit.getPlayer(args[1]);
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+          return true;
+        }
+        try {
           int amount = Integer.parseInt(args[2]);
           setMoney(target, amount);
-        }else{
+        } catch (NumberFormatException e) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+        }
+      }
+      case "get" -> {
+        if (args.length != 2) {
           p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
           return true;
         }
-      case "get":
-        if (args.length ==2){
-          Player target = Bukkit.getPlayer(args[1]);
-          p.sendMessage(target.getName() + " has " + getMoney(target) + " money");
-        }else{
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
           p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
           return true;
         }
+        p.sendMessage(target.getName() + " has " + getMoney(target) + " money");
+      }
+      default -> p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
     }
     return true;
   }
 
   @Override
-  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
-    Player p = (Player) commandSender;
-    if (!p.hasPermission("FableCraft.money")) {
-      return List.of();
-    }
+  public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    if (!(sender instanceof Player p)) return List.of();
+    if (!p.hasPermission("rpgcraft.money")) return List.of();
 
-    if (args.length ==1){
+    if (args.length == 1) {
       return List.of("add", "subtract", "set", "get");
-    } else if (args.length ==2){
-      List<String> argsz = new java.util.ArrayList<>(List.of());
-      for (Player pl : Bukkit.getOnlinePlayers()){
-        argsz.add(pl.getName());
+    } else if (args.length == 2) {
+      List<String> players = new java.util.ArrayList<>();
+      for (Player pl : Bukkit.getOnlinePlayers()) {
+        players.add(pl.getName());
       }
-      return argsz;
-    } else if (args.length ==3){
-      if (args[1].equalsIgnoreCase("get")){
-        List<String> numbs = new java.util.ArrayList<>(List.of());
-        for (int i = 0; i < 100; i++){
-          numbs.add(String.valueOf(i));
-        }
-        return numbs;
+      return players;
+    } else if (args.length == 3) {
+      List<String> numbers = new java.util.ArrayList<>();
+      for (int i = 0; i < 100; i++) {
+        numbers.add(String.valueOf(i));
       }
+      return numbers;
     }
     return List.of();
   }

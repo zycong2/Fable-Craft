@@ -26,15 +26,16 @@ public class MiscCommand {
 
   public static void commands(ReloadableRegistrarEvent<Commands> event){
     LiteralCommandNode<CommandSourceStack> GiveMenu_Command = Commands.literal("discord")
+      .requires(ctx -> ctx.getExecutor().hasPermission("rpgcraft.givemenu"))
       .executes(ctx -> {
         GUIItem menuItem = new GUIItem()
           .material(Material.NETHER_STAR)
           .name("&6RPG Menu");
         Entity executor = getExecutor(ctx);
-        if(!(executor instanceof Player)){
+        if(!(executor instanceof Player p)){
           executor.sendMessage(MM("[!] Only player can run this command"));
+          return 0;
         }
-        Player p = (Player) executor;
         p.getInventory().addItem(menuItem.toItemStack());
         refreshNextTick(p); //refresh stats
         p.sendMessage(MM("&a[!] You've been given the menu item"));

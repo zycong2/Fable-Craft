@@ -17,27 +17,35 @@ import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
 
 public class resetStats implements CommandInterface {
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        Player p = (Player) commandSender;
-        if (!p.hasPermission("FableCraft.resetStats")) {
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage("This command can only be used by players.");
+            return true;
+        }
+        if (!p.hasPermission("rpgcraft.resetStats")) {
             p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
         }
 
-        if (args.length == 0){
+        if (args.length == 0) {
             p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
-      Player player = Bukkit.getPlayer(args[0]);
+        Player player = Bukkit.getPlayer(args[0]);
+        if (player == null) {
+            p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+            return true;
+        }
 
         String[] skills = yamlGetter.getNodes("config", "stats").toArray(new String[0]);
 
-        for(String skill : skills) {
-          setPlayerPDC(skill, p, String.valueOf(Double.parseDouble(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
+        for (String skill : skills) {
+            setPlayerPDC(skill, player, String.valueOf(Double.parseDouble(yamlGetter.getConfig("stats." + skill + ".default", player, true).toString())));
         }
 
         for (String st : List.of("Health", "Mana")) {
-          p.setMetadata("current" + st, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + st, p)));
+            player.setMetadata("current" + st, new FixedMetadataValue(RPGCraft.getPlugin(), getPlayerPDC("current" + st, player)));
         }
 
         resetStats.checkCurrentStats(player);
@@ -46,32 +54,43 @@ public class resetStats implements CommandInterface {
     }
 
 
-    public static void checkCurrentStats(Player p){
-      if (p.getMetadata("currentHealth").getFirst() != null) {
-          if (p.getMetadata("currentHealth").getFirst().asDouble() > Double.parseDouble(getPlayerPDC("Health", p))) {
-            p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", p))));
-          }
-      } else {
-          p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Health", p))));
-      }
-      if (p.getMetadata("currentMana").getFirst() != null){
-          if (p.getMetadata("currentMana").getFirst().asDouble() > Double.parseDouble(getPlayerPDC("Mana", p))) {
-            p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", p))));
-          }
-      } else {
-          p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), Double.parseDouble(getPlayerPDC("Mana", p))));
-      }
-    }
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        List<Player> players = (List<Player>) Bukkit.getOnlinePlayers();
-        List<String> args = new java.util.ArrayList<>(List.of());
-        for (Player p : players){
-            args.add(p.getName());
+    public static void checkCurrentStats(Player p) {
+        String healthStr = getPlayerPDC("Health", p);
+        String manaStr = getPlayerPDC("Mana", p);
+        if (healthStr != null) {
+            try {
+                double health = Double.parseDouble(healthStr);
+                var healthMeta = p.getMetadata("currentHealth");
+                if (healthMeta.isEmpty() || healthMeta.getFirst().asDouble() > health) {
+                    p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), health));
+                }
+            } catch (NumberFormatException ignored) {
+                p.setMetadata("currentHealth", new FixedMetadataValue(RPGCraft.getPlugin(), 0.0));
+            }
         }
-        return args;
+        if (manaStr != null) {
+            try {
+                double mana = Double.parseDouble(manaStr);
+                var manaMeta = p.getMetadata("currentMana");
+                if (manaMeta.isEmpty() || manaMeta.getFirst().asDouble() > mana) {
+                    p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), mana));
+                }
+            } catch (NumberFormatException ignored) {
+                p.setMetadata("currentMana", new FixedMetadataValue(RPGCraft.getPlugin(), 0.0));
+            }
+        }
     }
 
-    public void setStat(Player p, String stat, Double amount){
-      setPlayerPDC(stat, p, amount.toString());
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        List<String> players = new java.util.ArrayList<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            players.add(p.getName());
+        }
+        return players;
+    }
+
+    public void setStat(Player p, String stat, Double amount) {
+        setPlayerPDC(stat, p, amount.toString());
     }
 }

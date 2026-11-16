@@ -1,6 +1,7 @@
 package io.RPGCraft.FableCraft.core;
 
 import io.RPGCraft.FableCraft.RPGCraft;
+import io.RPGCraft.FableCraft.Utils.ChatInputManager;
 import io.RPGCraft.FableCraft.Utils.GUI.GUI;
 import io.RPGCraft.FableCraft.Utils.GUI.GUIItem;
 import io.RPGCraft.FableCraft.Utils.skript.onPartyJoin;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 
 import static io.RPGCraft.FableCraft.RPGCraft.Colorize;
+import static io.RPGCraft.FableCraft.RPGCraft.plaintext;
 import static io.RPGCraft.FableCraft.Utils.money.moneyManager.addMoney;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.getPlayerPDC;
 import static io.RPGCraft.FableCraft.core.Helpers.PDCHelper.setPlayerPDC;
@@ -345,6 +347,23 @@ public class PartyManager implements Listener {
           getInstance().acceptInvite(p);
           openPartyGUI(p);
         }));
+
+      gui.setItem(6, new GUIItem()
+        .material(Material.RED_DYE)
+        .name("&c&lDecline Invite")
+        .lore("&7Click to decline a pending invite.")
+        .clickEvent(ctx -> {
+          String inviteFrom = getPlayerPDC("party_invite_from", p);
+          if (inviteFrom == null || inviteFrom.isEmpty()) {
+            p.sendMessage(Colorize("&cYou have no pending party invites!"));
+          } else {
+            Player inviter = Bukkit.getPlayer(UUID.fromString(inviteFrom));
+            String inviterName = inviter != null ? inviter.getName() : "unknown";
+            p.sendMessage(Colorize("&cYou declined the party invite from &e" + inviterName));
+            setPlayerPDC("party_invite_from", p, "");
+          }
+          openPartyGUI(p);
+        }));
     } else {
       // Party info
       gui.setItem(0, new GUIItem()
@@ -353,19 +372,61 @@ public class PartyManager implements Listener {
         .lore("&7Members: &f" + party.size() + "/5",
               "&7Leader: &6" + Bukkit.getPlayer(party.leader).getName()));
 
-      // Member list
+      // Member list with kick option for leader
       int slot = 2;
       for (UUID member : party.getMembers()) {
         OfflinePlayer op = Bukkit.getPlayer(member);
         Material head = op.isOnline() ? Material.PLAYER_HEAD : Material.GRAY_DYE;
         String status = op.isOnline() ? "&aOnline" : "&cOffline";
+        List<String> lore = new ArrayList<>();
+        lore.add(status);
+        if (member.equals(party.leader)) {
+          lore.add("&6&lLeader");
+        } else {
+          lore.add("&7Member");
+        }
 
-        gui.setItem(slot, new GUIItem()
+        GUIItem memberItem = new GUIItem()
           .material(head)
           .name("&f" + op.getName())
-          .lore(status,
-                member.equals(party.leader) ? "&6&lLeader" : "&7Member"));
+          .lore(lore);
+
+        // Leader can right-click members to kick
+        if (party.leader.equals(p.getUniqueId()) && !member.equals(party.leader)) {
+          final UUID kickTarget = member;
+          memberItem = memberItem.clickEvent(ctx -> {
+            Player target = Bukkit.getPlayer(kickTarget);
+            if (target != null && target.isOnline()) {
+              getInstance().kickPlayer(p, target);
+              openPartyGUI(p);
+            }
+          });
+        }
+
+        gui.setItem(slot, memberItem);
         slot++;
+      }
+
+      // Invite button (only if party not full)
+      if (party.size() < 5) {
+        gui.setItem(12, new GUIItem()
+          .material(Material.FEATHER)
+          .name("&a&lInvite Player")
+          .lore("&7Click to invite a player to your party.",
+                "&7You will be prompted for a name.")
+          .clickEvent(ctx -> {
+            p.closeInventory();
+            p.sendMessage(Colorize("&7Enter the name of the player to invite:"));
+            ChatInputManager.waitForNextMessage(p, (pl, msg) -> {
+              String playerName = plaintext(msg).trim();
+              Player target = Bukkit.getPlayer(playerName);
+              if (target == null || !target.isOnline()) {
+                pl.sendMessage(Colorize("&cPlayer not found or offline: " + playerName));
+                return;
+              }
+              getInstance().invitePlayer(pl, target);
+            });
+          }));
       }
 
       // Leave button

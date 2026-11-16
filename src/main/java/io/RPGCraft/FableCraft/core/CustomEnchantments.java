@@ -187,41 +187,47 @@ public class CustomEnchantments implements Listener {
   // ------------------------------------------------------------------
 
   public static void openEnchantmentsGUI(Player p) {
-    GUI gui = new GUI("&d&lCustom Enchantments", GUI.Rows.SIX);
+    // Route to the unified EnchantmentEditor browser (browse + edit + delete)
+    if (p.hasPermission("rpgcraft.enchantEdit")) {
+      io.RPGCraft.FableCraft.listeners.ItemEditor.EnchantmentEditor.makeEnchantmentBrowser().open(p);
+    } else {
+      // Read-only view for players without edit permission
+      GUI gui = new GUI("&d&lCustom Enchantments", GUI.Rows.SIX);
 
-    int slot = 0;
-    for (EnchantmentDef def : ENCHANTMENTS.values()) {
-      List<String> lore = new ArrayList<>();
-      lore.add(Colorize(def.description));
-      lore.add("");
-      lore.add("&7Max Level: &e" + def.maxLevel);
-      lore.add("&7Type: " + (def.isTreasure ? "&cTreasure" : "&aNormal"));
+      int slot = 0;
+      for (EnchantmentDef def : ENCHANTMENTS.values()) {
+        List<String> lore = new ArrayList<>();
+        lore.add(Colorize(def.description));
+        lore.add("");
+        lore.add("&7Max Level: &e" + def.maxLevel);
+        lore.add("&7Type: " + (def.isTreasure ? "&cTreasure" : "&aNormal"));
 
-      if (!def.compatibleItems.isEmpty()) {
-        lore.add("&7Compatible: &f" + String.join(", ", def.compatibleItems));
+        if (!def.compatibleItems.isEmpty()) {
+          lore.add("&7Compatible: &f" + String.join(", ", def.compatibleItems));
+        }
+        if (!def.conflicts.isEmpty()) {
+          lore.add("&7Conflicts: &c" + String.join(", ", def.conflicts));
+        }
+
+        gui.setItem(slot, new GUIItem()
+          .material(def.icon)
+          .name(def.name)
+          .lore(lore));
+        slot++;
       }
-      if (!def.conflicts.isEmpty()) {
-        lore.add("&7Conflicts: &c" + String.join(", ", def.conflicts));
-      }
 
-      gui.setItem(slot, new GUIItem()
-        .material(def.icon)
-        .name(def.name)
-        .lore(lore));
-      slot++;
+      // Info button
+      gui.setItem(48, new GUIItem()
+        .material(Material.BOOK)
+        .name("&e&lEnchanting Info")
+        .lore("&7Custom enchantments can be applied",
+              "&7using enchanted books.",
+              "&7",
+              "&7Use an anvil to combine",
+              "&7enchantment books with items."));
+
+      gui.open(p);
     }
-
-    // Info button
-    gui.setItem(48, new GUIItem()
-      .material(Material.BOOK)
-      .name("&e&lEnchanting Info")
-      .lore("&7Custom enchantments can be applied",
-            "&7using enchanted books.",
-            "&7",
-            "&7Use an anvil to combine",
-            "&7enchantment books with items."));
-
-    gui.open(p);
   }
 
   // ------------------------------------------------------------------

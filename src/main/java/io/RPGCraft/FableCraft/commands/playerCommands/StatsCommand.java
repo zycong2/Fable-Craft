@@ -31,7 +31,7 @@ public class StatsCommand {
   public static List<LiteralCommandNode<CommandSourceStack>> commands(){
     return List.of(
       Commands.literal("resetStats")
-        .requires(sender -> sender.getExecutor().isOp())
+        .requires(sender -> sender.getExecutor().isOp() || sender.getExecutor().hasPermission("rpgcraft.resetStats"))
         .then(io.papermc.paper.command.brigadier.Commands.argument("player", ArgumentTypes.player())
           .suggests((ctx, builder) -> {
             Bukkit.getOnlinePlayers().stream()
@@ -53,7 +53,7 @@ public class StatsCommand {
 
 
       Commands.literal("setStat")
-        .requires(sender -> sender.getExecutor() == null || sender.getExecutor().hasPermission("RPGCraft.setpermission"))
+        .requires(sender -> sender.getExecutor() == null || sender.getExecutor().hasPermission("rpgcraft.setStat"))
         .then(io.papermc.paper.command.brigadier.Commands.argument("stats", StringArgumentType.word())
           .suggests((ctx, build) -> {
             new Stats().getValidStats().stream()
@@ -70,19 +70,17 @@ public class StatsCommand {
               Entity entity = getExecutor(ctx);
               String stat = ctx.getArgument("stats", String.class);
               Double value = ctx.getArgument("value", Double.class);
-              if(!(entity instanceof Player)){
+              if(!(entity instanceof Player player)){
                 sendMessage(entity, "&cMust be a player to do this");
+                return 0;
+              }
+              if (new Stats().getValidStats().contains(stat)) {
+                setPlayerPDC(stat, player, String.valueOf(value));
+                sendMessage(player, "&aSuccessfully set your " + stat + " stat");
                 return Command.SINGLE_SUCCESS;
-              }else {
-                Player player = (Player) entity;
-                if (new Stats().getValidStats().contains(stat)) {
-                  setPlayerPDC(stat, player, String.valueOf(value));
-                  sendMessage(player, "&aSuccessfully set your " + stat + " stat");
-                  return Command.SINGLE_SUCCESS;
-                } else {
-                  sendMessage(player,"&cPlease input a valid stat");
-                  return Command.SINGLE_SUCCESS;
-                }
+              } else {
+                sendMessage(player, "&cPlease input a valid stat");
+                return 0;
               }
             })
           )
@@ -113,7 +111,7 @@ public class StatsCommand {
 
 
       Commands.literal("sendStatsMemory")
-        .requires(sender -> sender.getExecutor().isOp())
+        .requires(sender -> sender.getExecutor().isOp() || sender.getExecutor().hasPermission("rpgcraft.debug"))
         .executes(ctx -> {
           Entity executor = getExecutor(ctx);
           if(executor instanceof Player p){

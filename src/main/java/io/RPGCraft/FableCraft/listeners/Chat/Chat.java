@@ -44,7 +44,7 @@ public class Chat implements Listener {
 
       //if (!player.hasPermission("RPGCraft.noChatFilter")){output = autoMod.autoModMessage(output, player);}
 
-      if(p.hasPermission("Chat.color")) {
+      if(p.hasPermission("rpgcraft.chat.color")) {
 
       }
       return MM(setPlaceholders(format, false, e));

@@ -10,7 +10,7 @@ public class ChatPlaceholders {
 
   @Placeholder(name = "message")
   public static String messageChat(AsyncChatEvent e) {
-    if(e.getPlayer().hasPermission("chat.color") || e.getPlayer().isOp()){
+    if(e.getPlayer().hasPermission("rpgcraft.chat.color") || e.getPlayer().isOp()){
       return deMM(e.message());
     }
     return plaintext(e.message());

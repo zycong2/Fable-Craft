@@ -22,7 +22,7 @@ public class reload implements CommandInterface {
     @NotNull String label,
     @NotNull String[] args
   ) {
-    if (!sender.hasPermission("FableCraft.reload")) {
+    if (!sender.hasPermission("rpgcraft.reload")) {
       if (sender instanceof Player player) {
         player.sendMessage(
           yamlGetter.getMessage(

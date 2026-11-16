@@ -11,10 +11,150 @@ softdepend: [Skript, Citizens, Vault, LuckPerms, PlaceholderAPI]
 commands:
   RPGCraft:
     description: Manage the RPGCraft plugin
-    permission: RPGCraft
+    permission: rpgcraft.command
     aliases:
       - rc
       - rCraft
       - RPGC
       - rpgc
+
+permissions:
+  rpgcraft.*:
+    description: Grants all RPGCraft permissions
+    children:
+      rpgcraft.command: true
+      rpgcraft.reload: true
+      rpgcraft.config: true
+      rpgcraft.enchantments: true
+      rpgcraft.enchantEdit: true
+      rpgcraft.advancements: true
+      rpgcraft.crafting: true
+      rpgcraft.itemDB: true
+      rpgcraft.money: true
+      rpgcraft.mobs: true
+      rpgcraft.build: true
+      rpgcraft.resetPDC: true
+      rpgcraft.resetStats: true
+      rpgcraft.npc: true
+      rpgcraft.quests: true
+      rpgcraft.questEdit: true
+      rpgcraft.resetQuests: true
+      rpgcraft.lootTable: true
+      rpgcraft.edit: true
+      rpgcraft.party: true
+      rpgcraft.givemenu: true
+      rpgcraft.broadcast: true
+      rpgcraft.setStat: true
+      rpgcraft.debug: true
+      rpgcraft.yamlEdit: true
+      rpgcraft.editor: true
+      rpgcraft.chat.color: true
+
+  rpgcraft.command:
+    description: Allows use of /rpgcraft subcommands
+    default: true
+
+  rpgcraft.reload:
+    description: Allows use of /rpgcraft reload
+    default: op
+
+  rpgcraft.config:
+    description: Allows use of /rpgcraft config (in-game config menu)
+    default: op
+
+  rpgcraft.enchantments:
+    description: Allows use of /rpgcraft enchantments (browse custom enchantments)
+    default: op
+
+  rpgcraft.enchantEdit:
+    description: Allows use of /rpgcraft enchantments edit (create/edit/delete enchantments)
+    default: op
+
+  rpgcraft.advancements:
+    description: Allows use of /rpgcraft advancements (view achievements)
+    default: op
+
+  rpgcraft.crafting:
+    description: Allows use of /rpgcraft crafting (browse crafting stations)
+    default: op
+
+  rpgcraft.itemDB:
+    description: Allows use of /rpgcraft itemDB (browse and edit items)
+    default: op
+
+  rpgcraft.money:
+    description: Allows use of /rpgcraft money (add, subtract, set, get coins)
+    default: op
+
+  rpgcraft.mobs:
+    description: Allows use of /rpgcraft mobs (spawn, killAll, spawn points, editor)
+    default: op
+
+  rpgcraft.build:
+    description: Allows use of /rpgcraft build (build helper tools) and prevents inventory replacement on join
+    default: op
+
+  rpgcraft.resetPDC:
+    description: Allows use of /rpgcraft resetPDC (clear player persistent data)
+    default: op
+
+  rpgcraft.resetStats:
+    description: Allows use of /rpgcraft resetStats and /resetStats brigadier command
+    default: op
+
+  rpgcraft.npc:
+    description: Allows use of /rpgcraft npc and /rpgcraft createnpc (NPC management)
+    default: op
+
+  rpgcraft.quests:
+    description: Allows use of /rpgcraft quests (start, disband quests)
+    default: op
+
+  rpgcraft.questEdit:
+    description: Allows creating, editing, and deleting quests in the quest editor
+    default: op
+
+  rpgcraft.resetQuests:
+    description: Allows use of /rpgcraft quests resetAllPlayersQuests
+    default: op
+
+  rpgcraft.lootTable:
+    description: Allows use of /rpgcraft lootTable (add, remove, get loot tables on chests)
+    default: op
+
+  rpgcraft.edit:
+    description: Allows sneaking to edit NPCs when right-clicking them
+    default: op
+
+  rpgcraft.party:
+    description: Allows use of /rpgcraft party (create, invite, accept, leave, kick, disband)
+    default: true
+
+  rpgcraft.givemenu:
+    description: Allows use of /givemenu (give the RPG Menu Nether Star)
+    default: op
+
+  rpgcraft.broadcast:
+    description: Allows use of /broadcast (send broadcast messages to all players)
+    default: op
+
+  rpgcraft.setStat:
+    description: Allows use of /setStat brigadier command (set player stats)
+    default: op
+
+  rpgcraft.debug:
+    description: Allows use of /sendStatsMemory brigadier command (debug stats)
+    default: op
+
+  rpgcraft.yamlEdit:
+    description: Allows use of /rpgcraft yamlEdeting (toggle YAML editing mode)
+    default: op
+
+  rpgcraft.editor:
+    description: Allows use of /rpgcraft editor (unified editor access)
+    default: op
+
+  rpgcraft.chat.color:
+    description: Allows use of color codes in chat messages
+    default: op
 

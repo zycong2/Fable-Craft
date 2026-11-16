@@ -4,6 +4,7 @@ import io.RPGCraft.FableCraft.RPGCraft;
 import io.RPGCraft.FableCraft.Utils.commandHelper.CommandInterface;
 import io.RPGCraft.FableCraft.core.Helpers.PDCHelper;
 import io.RPGCraft.FableCraft.core.Helpers.lootTableHelper;
+import io.RPGCraft.FableCraft.core.MobSkillManager;
 import io.RPGCraft.FableCraft.core.YAML.Placeholder;
 import io.RPGCraft.FableCraft.core.YAML.yamlGetter;
 import io.RPGCraft.FableCraft.core.YAML.yamlManager;
@@ -27,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -111,7 +113,7 @@ public class mobs implements CommandInterface, Listener {
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
     Player p = sender instanceof Player pl ? pl : null;
 
-    if (!sender.hasPermission("FableCraft.mobs")) {
+    if (!sender.hasPermission("rpgcraft.mobs")) {
       sender.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
     }
@@ -255,6 +257,13 @@ public class mobs implements CommandInterface, Listener {
     String lootTable = db.getString(base + "lootTable");
     if (lootTable != null) PDCHelper.setEntityPDC("lootTable", le, lootTable);
     PDCHelper.setEntityPDC("type", le, name);
+
+    // Apply mob skills from mobDB configuration
+    if (db.isList(base + "skills")) {
+      for (String skillId : db.getStringList(base + "skills")) {
+        MobSkillManager.addSkillToEntity(le, skillId);
+      }
+    }
 
     customMobs.add(le);
     return le;
@@ -462,6 +471,14 @@ public class mobs implements CommandInterface, Listener {
     customMobs.remove(le);
     BossBar bar = bossBars.remove(le.getUniqueId());
     if (bar != null) bar.removeAll();
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  void onAttack(EntityDamageByEntityEvent event) {
+    if (!(event.getDamager() instanceof LivingEntity attacker)) return;
+    // Only trigger for custom mobs
+    if (!customMobs.contains(attacker)) return;
+    MobSkillManager.applyAttackSkills(attacker);
   }
 
   @EventHandler(ignoreCancelled = true)

@@ -99,7 +99,7 @@ public class GUI implements InventoryHolder {
             this.value = i;
         }
 
-        Integer getValue(){
+        public Integer getValue(){
             return value;
         }
     }

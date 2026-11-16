@@ -23,7 +23,8 @@
 ## Features at a Glance
 
 - 🗡️ **Custom Items** — Full GUI editor with stats, enchantments, recipes, rarities, and abilities
-- 👾 **Custom Mobs** — GUI editor to create mobs with custom health, speed, abilities, and drops
+- 👾 **Custom Mobs** — GUI editor to create mobs with custom health, speed, boss bars, spawn points, and skills
+- 🛡️ **Mob Skills** — Assignable abilities for mobs and NPCs (fire attacks, regeneration, buffs)
 - 📜 **Quest System** — Multi-step quests with auto-start triggers, tied to Citizens NPCs
 - 📊 **Custom Stats** — Health, Mana, Defense, Attack Damage, Regeneration, and more
 - 🎒 **Loot Tables** — Configurable drops for mobs, compatible with custom items
@@ -43,7 +44,7 @@
 - 🎨 **Color Support** — Hex colors, MiniMessage tags, and `&` color codes
 - 🔮 **Custom Enchantments** — Unique enchantments beyond vanilla (Life Steal, Haste, Thorns of Fate, Soul Fire)
 - 🔨 **Crafting Stations** — Advanced block-based crafting with unique recipes and requirements
-- ⚙️ **Config Menu** — In-game GUI to change plugin settings without touching files
+- ⚙️ **Config Menu** — In-game GUI to change plugin settings via `/rpgcraft editor config`
 
 ---
 
@@ -76,7 +77,7 @@ Create fully customized items with a GUI editor or via YAML configuration.
 **Access:**
 
 - **YAML:** On first start, the plugin creates an `itemDB` folder with a `Default.yml` file. You can create additional YAML files to organize items into categories.
-- **GUI Editor:** Run `/rpgcraft itemDB` to open the item browser. Click any item to edit it.
+- **GUI Editor:** Run `/rpgcraft editor itemdb` to open the item browser. Click any item to edit it.
 
 **Item Options:**
 
@@ -113,21 +114,170 @@ Both recipe types support an optional `permission` key to restrict crafting.
 
 ### 👾 Custom Mobs
 
-Create custom mobs with a GUI editor. Configure health, speed, abilities, custom names, and more.
+Create custom mobs with a GUI editor or via YAML configuration. Each mob is defined by a unique ID in the `mobDB/` folder.
 
-**Access:** Use the mob editor GUI via `/rpgcraft mobs`.
+**Access:**
+
+- **YAML:** On first start, the plugin creates a `mobDB` folder with a `Default.yml` file containing a fully-documented example. You can create additional YAML files to organize mobs.
+- **GUI Editor:** Run `/mobs editor` to open the mob browser. Click any mob to edit it.
 
 **Options:**
 
 | Option | Description |
 |--------|-------------|
-| `type` | Base entity type (e.g. `SPIDER`, `ZOMBIE`) |
-| `health` | Custom health value |
-| `speed` | Movement speed (vanilla speeds are small, e.g. spider = 0.3; max 1024) |
-| `customName` | Display name with placeholders |
-| `abilities` | Triggered effects on attack |
+| `type` | Base entity type — any spawnable `LivingEntity` (e.g. `ZOMBIE`, `SPIDER`, `CREEPER`) |
+| `health` | Max HP (1–1024); defaults to vanilla |
+| `damage` | Attack damage (0–2048) |
+| `speed` | Movement speed (0–1024; vanilla zombie ≈ 0.23) |
+| `glowing` | Entity glows visibly (`true`/`false`) |
+| `invulnerable` | Immune to all damage (`true`/`false`) |
+| `customName.name` | Display name above the entity (supports MiniMessage, hex colors, `&` codes, and placeholders) |
+| `customName.visible` | Show the custom name (`true`/`false`; default `false`) |
+| `bossBar.color` | Boss bar color: `RED`, `GOLD`, `YELLOW`, `GREEN`, `BLUE`, `PURPLE`, `WHITE` |
+| `bossBar.barStyle` | Boss bar style: `SOLID`, `SEGMENTED_6`, `SEGMENTED_10`, `SEGMENTED_12`, `SEGMENTED_20` |
+| `lootTable` | Reference a loot table from the `lootTables/` folder |
+| `skills` | List of mob skill IDs from the `mobSkills/` folder (e.g. `fireAttack`, `berserker`) |
+| `randomSpawns.frequency` | Chance per natural spawn attempt to replace a vanilla mob (0.0–1.0) |
+| `randomSpawns.options.spawnOn` | Only spawn on these block types (e.g. `SOUL_SAND`, `SOIL`) — optional |
+| `randomSpawns.options.biomes` | Only spawn in these biomes (e.g. `minecraft:swamp`) — optional |
+| `spawnPoints.respawnSeconds` | Delay after death before the spawn point respawns (default 60) |
+| `spawnPoints.maxAlive` | Max mobs from this point alive at once (default 1) |
+| `spawnPoints.activationRange` | Player must be within this range (blocks) for spawning (default 48) |
+| `spawnPoints.locations` | List of fixed spawn locations in format `"world, x, y, z"` or `"world, x, y, z, yaw"` |
 
-Custom mobs are tracked in the `mobDB` folder.
+**Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `/mobs spawn <mobId>` | Spawn the mob at your location |
+| `/mobs editor` | Open the GUI editor |
+| `/mobs addspawn <mobId>` | Add a spawn point at your location |
+| `/mobs removespawn <mobId> <number>` | Remove a spawn point |
+| `/mobs listspawns <mobId>` | List all spawn points |
+| `/mobs killall` | Kill all custom mobs |
+| `/mobs reload` | Reload spawns and spawn points |
+
+**Example YAML:**
+
+```yaml
+zombie_king:
+  type: ZOMBIE
+  health: 200
+  damage: 15
+  speed: 0.25
+  glowing: true
+  invulnerable: false
+  customName:
+    name: "<gradient:#ff0000:#ff8800>Zombie King</gradient>"
+    visible: true
+  bossBar:
+    color: RED
+    barStyle: SOLID
+  lootTable: zombieKingDrops
+  skills:
+    - fireAttack
+    - berserker
+    - glowingAura
+  randomSpawns:
+    frequency: 0.05
+    options:
+      spawnOn:
+        - SOUL_SAND
+      biomes:
+        - minecraft:swamp
+  spawnPoints:
+    respawnSeconds: 60
+    maxAlive: 1
+    activationRange: 48
+    locations:
+      - "world, 100.5, 64, -200.5"
+      - "world, 150.5, 70, -180.5, 90"
+```
+
+---
+
+### ⚔️ Mob Skills
+
+Mob Skills let you give mobs and Citizens NPCs special abilities. Skills are defined in the `mobSkills/` folder and assigned via YAML or commands.
+
+**Access:** Skills are defined in `mobSkills/Default.yml`. Create additional YAML files to organize skills.
+
+**Trigger Types:**
+
+| Trigger | Description |
+|---------|-------------|
+| `onSpawn` | Applied once when the entity spawns |
+| `onAttack` | Applied each time the entity attacks (respects cooldown) |
+| `periodic` | Runs on a timer interval (respects cooldown) |
+
+**Available Effects:**
+
+| Effect | Description |
+|--------|-------------|
+| `attackDamageBonus` | Adds to the entity's attack damage attribute |
+| `movementSpeedBonus` | Adds to the entity's movement speed attribute |
+| `healthBonus` | Adds to the entity's max health attribute |
+| `setOnFire` | Sets the entity on fire (`true`/`false`) |
+| `fireTicks` | How long the fire lasts in ticks (20 ticks = 1 second) |
+| `healAmount` | Heals the entity by this amount (in hearts) |
+| `knockback` | Knockback force applied on attack |
+| `glowing` | Makes the entity glow visibly (`true`/`false`) |
+
+**Assigning Skills:**
+
+- **Mobs (YAML):** Add a `skills:` list under the mob entry in `mobDB/`.
+- **Citizens NPCs:** Use `/npc skill add <skillName>` while looking at the NPC.
+
+**Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `/npc skill add <skillName>` | Add a skill to the nearest NPC |
+| `/npc skill remove <skillName>` | Remove a skill from the nearest NPC |
+| `/npc skill remove` | Remove all skills from the nearest NPC |
+
+**Example Skill Definition:**
+
+```yaml
+fireAttack:
+  name: "Fire Attack"
+  description: "Deals extra fire damage and sets targets on fire"
+  effects:
+    attackDamageBonus: 5.0
+    setOnFire: true
+    fireTicks: 100
+  cooldown: 40
+  trigger: "onAttack"
+
+healOverTime:
+  name: "Regeneration"
+  description: "Heals 1 heart every 10 seconds"
+  effects:
+    healAmount: 2.0
+  cooldown: 100
+  trigger: "periodic"
+  interval: 200
+
+berserker:
+  name: "Berserker"
+  description: "High damage and speed"
+  effects:
+    attackDamageBonus: 10.0
+    movementSpeedBonus: 0.2
+  cooldown: 0
+  trigger: "onSpawn"
+```
+
+**Built-in Skills:**
+
+| Skill ID | Trigger | Effects |
+|----------|---------|---------|
+| `fireAttack` | onAttack | +5 damage, sets target on fire |
+| `speedBoost` | onSpawn | +0.3 movement speed |
+| `healOverTime` | periodic | Heals 2 HP every 10 seconds |
+| `tank` | onSpawn | +100 max health |
+| `berserker` | onSpawn | +10 damage, +0.2 speed |
+| `glowingAura` | onSpawn | Entity glows |
 
 ---
 
@@ -392,24 +542,69 @@ bank:
 
 ### 🏆 Achievements System
 
-Track player milestones and reward them with coins.
+Track player milestones and earn coin rewards. Achievements are tracked automatically as you play.
 
 **Built-in Achievements:**
 
 | Achievement | Requirement | Reward |
 |-------------|-------------|--------|
-| First Blood | Kill 1 mob | Coins |
-| Monster Slayer | Kill 100 mobs | Coins |
-| Miner | Mine 100 blocks | Coins |
-| Master Miner | Mine 1,000 blocks | Coins |
-| First Craft | Craft 1 item | Coins |
-| Master Crafter | Craft 100 items | Coins |
-| Fisherman | Catch 10 fish | Coins |
-| Master Fisherman | Catch 100 fish | Coins |
-| Getting Rich | Earn 1,000 coins | Coins |
-| Wealthy | Earn 10,000 coins | Coins |
+| First Blood | Kill your first mob | 10 coins |
+| Warrior | Kill 10 mobs | 25 coins |
+| Slayer | Kill 100 mobs | 100 coins |
+| Miner | Mine 10 blocks | 15 coins |
+| Quarry Master | Mine 100 blocks | 50 coins |
+| Craftsman | Craft 10 items | 20 coins |
+| Fisherman | Catch your first fish | 10 coins |
+| Master Angler | Catch 50 fish | 75 coins |
+| Rich | Have 1,000 coins at once | 50 coins |
+| Completionist | Get all other achievements | 500 coins |
 
-**Access:** Open the Nether Star menu and click the Achievements button.
+**Access:** Open the Nether Star menu and click the Achievements button, or run `/rpgcraft editor advancements` (requires `rpgcraft.advancements` permission).
+
+**GUI Features:**
+- View all achievements with their status (locked/unlocked)
+- Unlocked achievements show their icon and reward
+- Progress tracker shows total unlocked count and percentage
+- Close button to exit the menu
+
+---
+
+### 📜 Quests System
+
+Quests are assigned by NPCs and tracked automatically. Use the quests GUI to view your progress.
+
+**Access:** Run `/rpgcraft quests` to open the quests GUI (requires `rpgcraft.quests` permission).
+Run `/rpgcraft editor quests` to open the quest editor (requires `rpgcraft.quests` + `rpgcraft.questEdit` permission).
+
+**GUI Features (Player View):**
+- The main quests GUI shows only **active quests** with step progress and completion requirements
+- The inventory size **scales** with the number of active quests
+- Click an active quest to disband it
+- A **Completed Quests** button at the bottom left opens a separate view of completed quests
+- The completed quests view has a **Back** button to return to active quests
+- Color-coded icons: emerald (active), lime dye (completed)
+
+**Quest Editor Features (Admin View):**
+- Browse all quests grouped by NPC
+- Create new quests under any NPC
+- Edit quest properties: name, order, min-level, steps amount, rewards, and default location
+- Edit individual steps: type (kill/get/talkToNPC), value, entity, item, NPC name
+- Edit step actions: dialogue lines, remove items, give items
+- Edit step-specific locations
+- Delete quests with confirmation
+- Move quests between NPCs
+- Reload quests from disk
+
+**Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `/rpgcraft quests` | Open the quests GUI |
+| `/rpgcraft quests gui` | Open the quests GUI |
+| `/rpgcraft quests startNew <id>` | Start a quest by ID |
+| `/rpgcraft quests disband <id>` | Disband an active quest |
+| `/rpgcraft quests resetAllPlayersQuests` | Reset all players' quests (requires `rpgcraft.resetQuests`) |
+| `/rpgcraft editor quests` | Open the quest editor (requires `rpgcraft.questEdit`) |
 
 
 ### 👥 Party System
@@ -418,12 +613,33 @@ Form parties to quest and earn together.
 
 **Features:**
 - Create and manage parties (up to 5 members)
-- Invite, accept, leave, and kick players
-- Transfer leadership
+- Invite, accept, decline, leave, and kick players
+- Transfer leadership on leader leave
+- Disband entire party
 - Share coins among party members
-- Party GUI for management
+- Party GUI for management with invite and kick buttons
 
-**Access:** Open the Nether Star menu and click the Party button.
+**Access:** Open the Nether Star menu and click the Party button, or use `/rpgcraft party` (requires `rpgcraft.party` permission).
+
+**Commands:**
+
+| Command | Description |
+|---------|-------------|
+| `/rpgcraft party` | Open the Party GUI |
+| `/rpgcraft party create [name]` | Create a new party (optional custom name) |
+| `/rpgcraft party invite <player>` | Invite a player to your party |
+| `/rpgcraft party accept` | Accept a pending party invite |
+| `/rpgcraft party decline` | Decline a pending party invite |
+| `/rpgcraft party leave` | Leave your current party |
+| `/rpgcraft party kick <player>` | Kick a member (leader only) |
+| `/rpgcraft party list` | List all party members with status |
+| `/rpgcraft party disband` | Disband the entire party (leader only) |
+
+**GUI Features:**
+- **Invite Player** button — prompts for a player name to invite (appears when party is not full)
+- **Decline Invite** button — decline a pending invite (appears when not in a party)
+- **Member click-to-kick** — party leader can click on a member's head to kick them
+- **Leave Party** button — leave the current party
 
 ---
 
@@ -432,10 +648,9 @@ Form parties to quest and earn together.
 Each player has a private 54-slot chest that auto-saves.
 
 **Features:**
-- 54-slot personal inventory
+- 54-slot personal inventory (all slots available for items)
 - Auto-saves on close and on player quit
 - Accessible via the Nether Star menu
-- **Browse ItemDB** button — click to browse custom items and check their details without leaving the storage menu
 
 ---
 
@@ -497,7 +712,7 @@ placing:
 | Command | Aliases | Description | Permission |
 |---------|---------|-------------|------------|
 | `/message <player> <msg>` | `/msg`, `/dm`, `/pm` | Send a private message | None |
-| `/broadcast <msg>` | `/bc` | Send a centered broadcast to all players | OP |
+| `/broadcast <msg>` | `/bc` | Broadcast to all players | `rpgcraft.broadcast` or OP |
 | `/discord` | `/dc` | Show the server Discord link | None |
 
 ---
@@ -555,7 +770,17 @@ Integrate Fable Craft with Skript scripts. All Skript elements are automatically
 
 Define unique enchantments beyond vanilla Minecraft. Enchantments are stored in the `enchantments/` database folder (YAML) and apply automatically at enchanting tables.
 
-**Access:** Open the Nether Star menu and click the Custom Enchantments button to browse all available enchantments.
+**Access:** Run `/rpgcraft editor enchantments` to open the unified enchantment browser (requires `rpgcraft.enchantments` permission).
+With `rpgcraft.enchantEdit` permission, the browser includes create, edit, and delete functionality.
+
+**Enchantment Editor Features:**
+- Browse all enchantments with their properties
+- Create new enchantments with a custom ID
+- Edit display name, description, max level, icon, and type (normal/treasure)
+- Manage compatible items and conflicts via `#ADD`, `#REMOVE`, `#SET`, `#CLEAR`
+- Set per-level properties (e.g., `1 damage 5`)
+- Delete enchantments with confirmation
+- Reload enchantments from disk
 
 **Enchantment Configuration:**
 ```yaml
@@ -599,7 +824,7 @@ lifeSteal:
 
 Special block-based crafting stations with unique recipes, ingredient requirements, and optional gates (combat level, coin cost).
 
-**Access:** Right-click a configured station block (e.g. Anvil, Furnace) to open its recipe GUI. Open the Nether Star menu and click Crafting Stations to browse all station types.
+**Access:** Right-click a configured station block (e.g. Anvil, Furnace) to open its recipe GUI. Run `/rpgcraft editor crafting` to browse all station types (requires `rpgcraft.crafting` permission).
 
 **Station Configuration:**
 ```yaml
@@ -650,7 +875,7 @@ anvil:
 
 Change plugin settings in-game through a GUI-based configuration editor. No need to touch YAML files or restart the server.
 
-**Access:** Open the Nether Star menu and click the Config Menu button (requires `rpgcraft.config` permission).
+**Access:** Run `/rpgcraft editor config` (requires `rpgcraft.config` permission).
 
 **Categories:**
 
@@ -695,9 +920,7 @@ Right-click a Nether Star to open the player menu:
 | **Achievements** | View achievement progress |
 | **Party** | Manage your party |
 | **Personal Storage** | Open private chest |
-| **Custom Enchantments** | Browse enchantment definitions |
-| **Crafting Stations** | Browse crafting stations |
-| **Config Menu** | Change settings in-game (permission required) |
+| **Quests** | View and manage your quests |
 
 ---
 
@@ -718,14 +941,95 @@ Right-click a Nether Star to open the player menu:
 | `shops/` | Shop definitions |
 | `enchantments/` | Custom enchantment definitions |
 | `craftingStations/` | Advanced crafting station definitions |
+| `mobSkills/` | Mob skill definitions (assignable to mobs and NPCs) |
+
+---
+
+### 🎛️ Unified Editor Command
+
+The `/rpgcraft editor` command provides access to all in-game editors through a single command.
+
+**Usage:** `/rpgcraft editor <name>`
+
+| Editor Name | Description | Additional Permission |
+|-------------|-------------|----------------------|
+| `itemdb` | Browse and edit custom items | `rpgcraft.itemDB` |
+| `config` | In-game config menu | `rpgcraft.config` |
+| `crafting` | Browse crafting stations | `rpgcraft.crafting` |
+| `enchantments` | Browse, create, edit, and delete enchantments | `rpgcraft.enchantments` (+ `rpgcraft.enchantEdit` for editing) |
+| `advancements` | View achievements | `rpgcraft.advancements` |
+| `mobs` | Browse and edit custom mobs | `rpgcraft.mobs` |
+| `quests` | View, create, edit, and delete quests | `rpgcraft.quests` (+ `rpgcraft.questEdit` for editing) |
+| `yamledit` | Toggle YAML click-to-edit mode | `rpgcraft.yamlEdit` |
+
+All editors require `rpgcraft.editor` plus the specific permission listed above. Run `/rpgcraft editor` without arguments to see the help list. Tab completion is supported for editor names.
 
 ---
 
 ### 🔧 Commands
 
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `/rpgcraft` | `/rc`, `/rCraft`, `/RPGC`, `/rpgc` | Main plugin command |
+| Command | Aliases | Permission | Description |
+|---------|---------|------------|-------------|
+| `/rpgcraft` | `/rc`, `/rCraft`, `/RPGC`, `/rpgc` | `rpgcraft.command` | Main plugin command |
+| `/rpgcraft reload` | — | `rpgcraft.reload` | Reload all configuration files |
+| `/rpgcraft quests` | — | `rpgcraft.quests` | Open quests GUI (view active/completed quests) |
+| `/rpgcraft money` | — | `rpgcraft.money` | Manage player coins |
+| `/rpgcraft mobs` | — | `rpgcraft.mobs` | Spawn and manage custom mobs |
+| `/rpgcraft build` | — | `rpgcraft.build` | Build helper tools |
+| `/rpgcraft resetPDC` | — | `rpgcraft.resetPDC` | Clear player persistent data |
+| `/rpgcraft resetStats` | — | `rpgcraft.resetStats` | Reset player stats |
+| `/rpgcraft npc` | — | `rpgcraft.npc` | Manage NPCs (set type, skills) |
+| `/rpgcraft createnpc` | — | `rpgcraft.npc` | Create a new Citizens NPC |
+| `/rpgcraft quests gui` | — | `rpgcraft.quests` | Open quests GUI |
+| `/rpgcraft quests startNew <id>` | — | `rpgcraft.quests` | Start a quest |
+| `/rpgcraft quests disband <id>` | — | `rpgcraft.quests` | Disband an active quest |
+| `/rpgcraft lootTable` | — | `rpgcraft.lootTable` | Manage chest loot tables |
+| `/rpgcraft party` | — | `rpgcraft.party` | Open the Party GUI |
+| `/rpgcraft party invite <player>` | — | `rpgcraft.party` | Invite a player to your party |
+| `/rpgcraft party accept` | — | `rpgcraft.party` | Accept a pending party invite |
+| `/rpgcraft editor` | — | `rpgcraft.editor` | Show list of available editors |
+| `/rpgcraft editor <name>` | — | `rpgcraft.editor` + specific | Open a specific editor (see above) |
+| `/broadcast <msg>` | `/bc` | `rpgcraft.broadcast` | Broadcast a message to all players |
+| `/givemenu` | `/givem` | `rpgcraft.givemenu` | Give the RPG Menu Nether Star |
+| `/message <player> <msg>` | `/msg`, `/dm`, `/pm` | None | Send a private message |
+| `/discord` | `/dc` | None | Show Discord invite link |
+
+---
+
+### 🔑 Permissions
+
+All permissions use the `rpgcraft.*` namespace. Grant `rpgcraft.*` to give all permissions at once.
+
+| Permission | Default | Description |
+|------------|---------|-------------|
+| `rpgcraft.*` | — | Grants all RPGCraft permissions |
+| `rpgcraft.command` | true | Use `/rpgcraft` subcommands |
+| `rpgcraft.reload` | op | Reload all configuration files |
+| `rpgcraft.config` | op | Open the in-game config menu |
+| `rpgcraft.enchantments` | op | Access the enchantment browser |
+| `rpgcraft.enchantEdit` | op | Create, edit, and delete enchantments in the browser |
+| `rpgcraft.advancements` | op | View achievements/advancements GUI |
+| `rpgcraft.crafting` | op | Browse crafting stations |
+| `rpgcraft.itemDB` | op | Browse and edit custom items |
+| `rpgcraft.money` | op | Manage player coins (add, subtract, set, get) |
+| `rpgcraft.mobs` | op | Spawn and manage custom mobs |
+| `rpgcraft.build` | op | Use build helper tools; prevents inventory replacement on join |
+| `rpgcraft.resetPDC` | op | Clear player persistent data |
+| `rpgcraft.resetStats` | op | Reset player stats |
+| `rpgcraft.npc` | op | Create and manage NPCs |
+| `rpgcraft.quests` | op | Open quests GUI, start and disband quests |
+| `rpgcraft.questEdit` | op | Create, edit, and delete quests in the quest editor |
+| `rpgcraft.resetQuests` | op | Reset all players' quests |
+| `rpgcraft.lootTable` | op | Manage chest loot tables |
+| `rpgcraft.edit` | op | Edit NPCs while sneaking |
+| `rpgcraft.party` | true | Use party commands (create, invite, accept, leave, kick, disband) |
+| `rpgcraft.givemenu` | op | Give the RPG Menu Nether Star item |
+| `rpgcraft.broadcast` | op | Send broadcast messages to all players |
+| `rpgcraft.setStat` | op | Set player stats via `/setStat` |
+| `rpgcraft.debug` | op | Debug commands (view stats memory) |
+| `rpgcraft.yamlEdit` | op | Toggle YAML editing mode |
+| `rpgcraft.editor` | op | Access the unified editor command |
+| `rpgcraft.chat.color` | op | Use color codes in chat messages |
 
 ---
 

@@ -26,41 +26,46 @@ public class CreateNPC implements CommandInterface {
   );
 
     @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-      if (!commandSender.hasPermission("FableCraft.money")) {
-        commandSender.sendMessage( yamlGetter.getMessage("messages.error.noPermission", (Player) commandSender, true));
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+      if (!sender.hasPermission("rpgcraft.npc")) {
+        if (sender instanceof Player p) {
+          p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
+        } else {
+          sender.sendMessage("No permission.");
+        }
         return true;
       }
-      if(commandSender instanceof Player) {
-        for (int i = 0; i <= 2; i++) {
-          if (args[i].isBlank()) {
-            commandSender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
-            return false;
-          }
-        }
-
-        if (!ValidNPCType.contains(args[2].toLowerCase())){
-          commandSender.sendMessage(Colorize("&cNot a valid NPC type!"));
-          return false;
-        }
-
-        if (!IsCitizen){Bukkit.getLogger().severe("Citizens is not installed, please install it to use this command");
-          commandSender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));
-          return false;
-        }
-
-        Player player = (Player) commandSender;
-
-        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, args[0]);
-        //npc.
-        npc.getOrAddTrait(SkinTrait.class).setSkinName(args[1]);
-
-        npc.spawn(player.getLocation());
-        setNPCPDC("NPCType", npc.getEntity(), args[2]);
-
-        return false;
+      if (!(sender instanceof Player player)) {
+        sender.sendMessage("This command can only be used by players.");
+        return true;
       }
-      return false;
+      if (args.length < 3) {
+        sender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
+        return true;
+      }
+      for (int i = 0; i < 3; i++) {
+        if (args[i].isBlank()) {
+          sender.sendMessage(Colorize("&fPlease enter the values [/createnpc <name> <skin> <type>]"));
+          return true;
+        }
+      }
+
+      if (!ValidNPCType.contains(args[2].toLowerCase())) {
+        sender.sendMessage(Colorize("&cNot a valid NPC type!"));
+        return true;
+      }
+
+      if (!IsCitizen) {
+        Bukkit.getLogger().severe("Citizens is not installed, please install it to use this command");
+        sender.sendMessage(Colorize("&cCitizens is not installed, please install it to use this command"));
+        return true;
+      }
+
+      NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, args[0]);
+      npc.getOrAddTrait(SkinTrait.class).setSkinName(args[1]);
+      npc.spawn(player.getLocation());
+      setNPCPDC("NPCType", npc.getEntity(), args[2]);
+      return true;
     }
 
   @Override

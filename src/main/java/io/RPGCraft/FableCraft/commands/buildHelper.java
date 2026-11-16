@@ -42,18 +42,23 @@ public class buildHelper implements CommandInterface, Listener {
             event.getPlayer().getInventory().setHeldItemSlot(new Random().nextInt(9));
         }
     }
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        Player p = (Player) commandSender;
-        if (!p.hasPermission("FableCraft.build")) {
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage("This command can only be used by players.");
+            return true;
+        }
+        if (!p.hasPermission("rpgcraft.build")) {
             p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
             return true;
-        }if (args.length == 0){
+        }
+        if (args.length == 0) {
             p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
             return true;
         }
 
-        if (args[0].equals("randomItems")){
-            if (!p.hasMetadata("randomItems")){
+        if (args[0].equals("randomItems")) {
+            if (!p.hasMetadata("randomItems")) {
                 p.setMetadata("randomItems", new FixedMetadataValue(RPGCraft.getPlugin(), true));
                 p.sendMessage(yamlGetter.getMessage("messages.info.randomItems.enabled", p, true));
             } else {
@@ -63,30 +68,35 @@ public class buildHelper implements CommandInterface, Listener {
             return true;
         }
 
-        if (args[0].equals("perlinCyl")){
-            if (args.length == 3){
-                int size = Integer.parseInt(args[1]);
-                int baseY = p.getLocation().getBlockY();
-                World world = p.getWorld();
-                Material blockMat = Material.getMaterial(args[2]);
-                if (blockMat == null) {
-                    p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
-                    return true;
-                }
-
-                for (int x = -size/2; x/2 <= size; x++){
-                    for (int z = -size/2; z/2 <= size; z++){
-                        int worldX = x + p.getLocation().getBlockX();
-                        int worldZ = z +p.getLocation().getBlockZ();
-                        Location loc = new Location(world, worldX, noise(worldX, worldZ) * 2 + baseY, worldZ);
-                        world.getBlockAt(loc).setType(blockMat);
-                    }
-                }
-                p.sendMessage(yamlGetter.getMessage("messages.info.perlinCylSuccess", p, true));
-            } else {
+        if (args[0].equals("perlinCyl")) {
+            if (args.length != 4) {
                 p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
                 return true;
             }
+            int size;
+            try {
+                size = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+                return true;
+            }
+            int baseY = p.getLocation().getBlockY();
+            World world = p.getWorld();
+            Material blockMat = Material.getMaterial(args[2].toUpperCase());
+            if (blockMat == null) {
+                p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
+                return true;
+            }
+
+            for (int x = -size / 2; x <= size / 2; x++) {
+                for (int z = -size / 2; z <= size / 2; z++) {
+                    int worldX = x + p.getLocation().getBlockX();
+                    int worldZ = z + p.getLocation().getBlockZ();
+                    Location loc = new Location(world, worldX, noise(worldX, worldZ) * 2 + baseY, worldZ);
+                    world.getBlockAt(loc).setType(blockMat);
+                }
+            }
+            p.sendMessage(yamlGetter.getMessage("messages.info.perlinCylSuccess", p, true));
             return true;
         }
 

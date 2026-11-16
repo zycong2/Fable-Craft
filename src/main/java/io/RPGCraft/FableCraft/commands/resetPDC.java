@@ -14,12 +14,16 @@ import java.util.List;
 public class resetPDC implements CommandInterface {
 
   @Override
-  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-    Player p = (Player) commandSender;
-    if (!p.hasPermission("FableCraft.resetPDC")) {
+  public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    if (!(sender instanceof Player p)) {
+      sender.sendMessage("This command can only be used by players.");
+      return true;
+    }
+    if (!p.hasPermission("rpgcraft.resetPDC")) {
       p.sendMessage(yamlGetter.getMessage("messages.error.noPermission", p, true));
       return true;
-    }if (args.length == 0){
+    }
+    if (args.length == 0) {
       p.sendMessage(yamlGetter.getMessage("messages.error.noValidArgument", null, true));
       return true;
     }
@@ -30,18 +34,17 @@ public class resetPDC implements CommandInterface {
     for (NamespacedKey key : container.getKeys()) {
       container.remove(key);
     }
-    commandSender.sendMessage("&aYou prop didn't want to do this but it has happened now :)");
-    commandSender.sendMessage("&aExept if you are a dev on this plugin ofc");
+    sender.sendMessage("&aYou prop didn't want to do this but it has happened now :)");
+    sender.sendMessage("&aExept if you are a dev on this plugin ofc");
     return true;
   }
 
   @Override
-  public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
-    List<Player> players = (List<Player>) Bukkit.getOnlinePlayers();
-    List<String> argsz = new java.util.ArrayList<>(List.of());
-    for (Player p : players){
-      argsz.add(p.getName());
+  public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    List<String> players = new java.util.ArrayList<>();
+    for (Player p : Bukkit.getOnlinePlayers()) {
+      players.add(p.getName());
     }
-    return argsz;
+    return players;
   }
 }

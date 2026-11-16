@@ -28,7 +28,7 @@ public class GUIItem {
     private String name;
     private Integer amount;
     private List<String> lore = List.of();
-    private List<Enchants> enchantments;
+    private List<Enchants> enchantments = List.of();
     private Map<DataComponentType, Object> data = new HashMap<>();
     private Integer customModelData;
     private Consumer<ClickContext> clickEvent;
@@ -43,12 +43,16 @@ public class GUIItem {
       ItemStack item = ItemStack.of(this.material);
       item.setItemMeta(this.meta);
       ItemMeta meta = item.getItemMeta();
-      ItemLore lore = ItemLore.lore(MM(this.lore));
       try {
-        item.setData(DataComponentTypes.LORE, lore);
-        enchantments.forEach(e -> {
-          meta.addEnchant(e.getEnchantment(), e.getLevel(), e.getBoo());
-        });
+        if (!this.lore.isEmpty()) {
+          ItemLore lore = ItemLore.lore(MM(this.lore));
+          item.setData(DataComponentTypes.LORE, lore);
+        }
+        if (enchantments != null) {
+          enchantments.forEach(e -> {
+            meta.addEnchant(e.getEnchantment(), e.getLevel(), e.getBoo());
+          });
+        }
       } catch (NullPointerException ignored) {}
       meta.setCustomModelData(customModelData);
       item.setItemMeta(meta);
@@ -182,7 +186,17 @@ public class GUIItem {
    */
   public GUIItem data(DataComponentType.NonValued data) {this.data.put(data, null);return this;}
 
-  public record ClickContext(Player player, ClickType clickType, GUI gui, GUIItem clickedItem) {}
+  public record ClickContext(Player player, ClickType clickType, GUI gui, GUIItem clickedItem) {
+    public boolean isLeftClick() {
+      return clickType == ClickType.LEFT;
+    }
+    public boolean isRightClick() {
+      return clickType == ClickType.RIGHT;
+    }
+    public ClickType getClick() {
+      return clickType;
+    }
+  }
 
   /**
    * put in a ItemStack, and it will be converted to GUIItem
