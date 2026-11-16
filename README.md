@@ -1030,19 +1030,3 @@ All permissions use the `rpgcraft.*` namespace. Grant `rpgcraft.*` to give all p
 | `rpgcraft.yamlEdit` | op | Toggle YAML editing mode |
 | `rpgcraft.editor` | op | Access the unified editor command |
 | `rpgcraft.chat.color` | op | Use color codes in chat messages |
-
----
-
-## Installation
-
-1. Install required dependencies: **Citizens**, **Vault**, **LuckPerms** (Skript and PlaceholderAPI are optional)
-2. Place `RPGCraft.jar` in your `plugins/` folder
-3. Start the server — the plugin will generate all configuration files
-4. Configure your custom items, mobs, quests, and shops
-5. Create Citizens NPCs and assign them types (`quest`, `shop`, `bank`)
-
----
-
-## Support
-
-Join our Discord: <https://discord.gg/BUPSAhAy7W>
